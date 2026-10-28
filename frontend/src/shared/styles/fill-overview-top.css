@@ -1,0 +1,105 @@
+.ovt-map {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  container-type: inline-size;
+}
+.ovt-map-fit {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: clamp(290px, 64cqw, 480px);
+}
+.vx-tiles.ovt-tiles {
+  position: absolute;
+  inset: 0;
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  max-width: 100%;
+  margin-inline: auto;
+}
+.ovt-tiles .vx-tile {
+  min-height: 0;
+  overflow: hidden;
+  border-radius: clamp(4px, calc(var(--tile-h, 34px) / 6), 8px);
+  font-size: clamp(11px, calc(var(--tile-h, 34px) * 0.27), 13.5px);
+}
+.ovt-tiles .vx-tile small {
+  font-size: clamp(9.5px, calc(var(--tile-h, 34px) * 0.22), 11.5px);
+}
+.vx-scale.ovt-scale {
+  margin-top: 0;
+}
+.ovt-donut-fit {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 260px;
+}
+.vx-donut-wrap.ovt-donut-wrap {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  gap: 16px 28px;
+  align-items: center;
+}
+.ovt-donut-wrap.is-side {
+  grid-template-columns: var(--donut) minmax(0, 1fr);
+}
+.ovt-donut-wrap.is-stack {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--donut) auto;
+  align-content: center;
+  justify-items: center;
+}
+.ovt-donut-box {
+  position: relative;
+  width: var(--donut);
+  height: var(--donut);
+}
+.ovt-donut-box .vx-donut {
+  width: 100%;
+  height: 100%;
+}
+.ovt-donut-box .vx-donut-seg {
+  stroke-width: var(--ring, 26);
+}
+.ovt-donut-box .vx-donut-seg.viz-tip-on {
+  stroke-width: calc(var(--ring, 26) + 4);
+}
+.ovt-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+.ovt-donut-center b {
+  color: #1d1d1b;
+  font-size: clamp(22px, calc(var(--donut) * 0.11), 34px);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.ovt-donut-center span {
+  color: #5e5e66;
+  font-size: 13px;
+}
+.ovt-donut-wrap.is-side .ovt-donut-legend {
+  justify-self: center;
+  width: 100%;
+  max-width: 320px;
+  gap: 12px;
+}
+.ovt-donut-wrap.is-stack .ovt-donut-legend {
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 24px;
+  font-size: 13px;
+}
+.ovt-donut-wrap.is-stack .ovt-donut-legend li {
+  grid-template-columns: 10px minmax(0, 1fr) auto auto;
+  gap: 8px;
+}

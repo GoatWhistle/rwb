@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import { useLayoutEffect, useState } from "react"
 import type { Row } from "@/shared/format"
 import { compact, money, month, number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
@@ -8,6 +9,7 @@ import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import { stateName } from "./states"
 import "@/shared/styles/viz-extra-os.css"
+import "@/shared/styles/fill-overview-top.css"
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 const ordersWord = (n: number) => {
@@ -94,6 +96,38 @@ export function Heatmap({
   )
 }
 
+function useBox<T extends HTMLElement>(): [(el: T | null) => void, { w: number; h: number }] {
+  const [el, setEl] = useState<T | null>(null)
+  const [box, setBox] = useState({ w: 0, h: 0 })
+  useLayoutEffect(() => {
+    if (!el || typeof ResizeObserver === "undefined") return
+    const measure = () => {
+      const w = Math.floor(el.clientWidth)
+      const h = Math.floor(el.clientHeight)
+      setBox((b) => (b.w === w && b.h === h ? b : { w, h }))
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [el])
+  return [setEl, box]
+}
+
+const TILE_GAP = 3
+const TILE_COLS = 7
+const TILE_ROWS = 8
+
+function tileGridSize({ w, h }: { w: number; h: number }): CSSProperties | undefined {
+  if (!w || !h) return undefined
+  const tileH = (h - (TILE_ROWS - 1) * TILE_GAP) / TILE_ROWS
+  const tileW = Math.min((w - (TILE_COLS - 1) * TILE_GAP) / TILE_COLS, tileH * 1.7)
+  return {
+    width: Math.floor(tileW * TILE_COLS + (TILE_COLS - 1) * TILE_GAP),
+    "--tile-h": `${Math.floor(tileH)}px`,
+  } as CSSProperties
+}
+
 const TILES: [string, number, number][] = [
   ["RR", 0, 2],
   ["AP", 0, 4],
@@ -136,6 +170,7 @@ export function TileMap({
   const byState = new Map(rows.map((r) => [String(r.state), numeric(r.revenue) ?? 0]))
   const max = Math.max(1, ...byState.values())
   const total = [...byState.values()].reduce((a, b) => a + b, 0)
+  const [fitRef, box] = useBox<HTMLDivElement>()
   return (
     <Card
       title="Выручка по штатам"
@@ -146,33 +181,40 @@ export function TileMap({
       index={index}
       actions={<CardTools rows={rows} filename="states-revenue.csv" png={false} />}
     >
-      <VizTip>
-        <div className="vx-tiles" role="img" aria-label="Выручка по штатам Бразилии">
-          {TILES.map(([code, row, col]) => {
-            const v = byState.get(code)
-            const t = v === undefined ? 0 : Math.sqrt(v / max)
-            return (
-              <span
-                key={code}
-                className={`vx-tile${t > 0.55 ? " dark" : ""}${v === undefined ? " empty" : ""}`}
-                style={{
-                  gridRow: row + 1,
-                  gridColumn: col + 1,
-                  background: shade(t),
-                }}
-                {...tipAttrs(`${stateName(code)}, ${code}`, [
-                  { label: "Выручка", value: money(v ?? 0), color: shade(t) },
-                  { label: "Доля", value: percent(total ? (v ?? 0) / total : 0) },
-                ])}
-              >
-                <b>{code}</b>
-                <small>{v === undefined ? "—" : compact(v)}</small>
-              </span>
-            )
-          })}
+      <VizTip className="ovt-map">
+        <div ref={fitRef} className="ovt-map-fit">
+          <div
+            className="vx-tiles ovt-tiles"
+            role="img"
+            aria-label="Выручка по штатам Бразилии"
+            style={tileGridSize(box)}
+          >
+            {TILES.map(([code, row, col]) => {
+              const v = byState.get(code)
+              const t = v === undefined ? 0 : Math.sqrt(v / max)
+              return (
+                <span
+                  key={code}
+                  className={`vx-tile${t > 0.55 ? " dark" : ""}${v === undefined ? " empty" : ""}`}
+                  style={{
+                    gridRow: row + 1,
+                    gridColumn: col + 1,
+                    background: shade(t),
+                  }}
+                  {...tipAttrs(`${stateName(code)}, ${code}`, [
+                    { label: "Выручка", value: money(v ?? 0), color: shade(t) },
+                    { label: "Доля", value: percent(total ? (v ?? 0) / total : 0) },
+                  ])}
+                >
+                  <b>{code}</b>
+                  <small>{v === undefined ? "—" : compact(v)}</small>
+                </span>
+              )
+            })}
+          </div>
         </div>
       </VizTip>
-      <div className="vx-scale">
+      <div className="vx-scale ovt-scale">
         <span>0</span>
         <i />
         <span>{compact(max)} R$</span>
@@ -295,6 +337,21 @@ function donutSegments(rows: Row[], total: number) {
   })
 }
 
+const LEGEND_SIDE = 250
+const DONUT_GAP = 28
+
+function donutLayout({ w, h }: { w: number; h: number }, items: number) {
+  if (!w || !h) return { side: true, size: 200 }
+  const sideSize = Math.min(h, w - LEGEND_SIDE - DONUT_GAP)
+  const legendH = Math.ceil(items / 2) * 30
+  const stackSize = Math.min(w, h - legendH - 16)
+  return sideSize >= stackSize
+    ? { side: true, size: Math.max(120, Math.floor(sideSize)) }
+    : { side: false, size: Math.max(120, Math.floor(stackSize)) }
+}
+
+const ringWidth = (size: number) => Math.min(26, (34 * 200) / size).toFixed(1)
+
 export function StatusBar({
   rows,
   query,
@@ -307,6 +364,8 @@ export function StatusBar({
   const total = rows.reduce((s, r) => s + (numeric(r.orders) ?? 0), 0)
   const grouped = groupStatuses(rows, total)
   const delivered = numeric(rows.find((r) => r.status === "delivered")?.orders) ?? 0
+  const [fitRef, box] = useBox<HTMLDivElement>()
+  const layout = donutLayout(box, grouped.length)
   return (
     <Card
       title="Статусы заказов"
@@ -317,43 +376,48 @@ export function StatusBar({
       index={index}
       actions={<CardTools rows={rows} filename="status-mix.csv" png={false} />}
     >
-      <div className="vx-donut-wrap">
-        <VizTip>
-          <svg className="vx-donut" viewBox="0 0 200 200" role="img" aria-label="Статусы заказов">
-            {donutSegments(grouped, total).map((seg, i) => (
-              <circle
-                key={seg.key}
-                className={`vx-donut-seg vx-s${Math.min(i, 5)}`}
-                cx="100"
-                cy="100"
-                r="78"
-                strokeDasharray={`${seg.length} ${DONUT_C - seg.length}`}
-                strokeDashoffset={-seg.offset}
-                style={{ "--i": i } as CSSProperties}
-                {...tipAttrs(seg.label, [
-                  { label: "Заказов", value: number(seg.value), swatch: `vx-s${Math.min(i, 5)}` },
-                  { label: "Доля", value: percent(seg.share, 1) },
-                ])}
-              />
+      <div ref={fitRef} className="ovt-donut-fit">
+        <div
+          className={`vx-donut-wrap ovt-donut-wrap ${layout.side ? "is-side" : "is-stack"}`}
+          style={
+            { "--donut": `${layout.size}px`, "--ring": ringWidth(layout.size) } as CSSProperties
+          }
+        >
+          <VizTip className="ovt-donut-box">
+            <svg className="vx-donut" viewBox="0 0 200 200" role="img" aria-label="Статусы заказов">
+              {donutSegments(grouped, total).map((seg, i) => (
+                <circle
+                  key={seg.key}
+                  className={`vx-donut-seg vx-s${Math.min(i, 5)}`}
+                  cx="100"
+                  cy="100"
+                  r="78"
+                  strokeDasharray={`${seg.length} ${DONUT_C - seg.length}`}
+                  strokeDashoffset={-seg.offset}
+                  style={{ "--i": i } as CSSProperties}
+                  {...tipAttrs(seg.label, [
+                    { label: "Заказов", value: number(seg.value), swatch: `vx-s${Math.min(i, 5)}` },
+                    { label: "Доля", value: percent(seg.share, 1) },
+                  ])}
+                />
+              ))}
+            </svg>
+            <div className="ovt-donut-center" aria-hidden="true">
+              <b>{percent(total ? delivered / total : 0, 0)}</b>
+              <span>доставлено</span>
+            </div>
+          </VizTip>
+          <ul className="vx-donut-legend ovt-donut-legend">
+            {grouped.map((r, i) => (
+              <li key={String(r.status)}>
+                <i className={`vx-s${Math.min(i, 5)}`} />
+                <span>{STATUS_LABEL[String(r.status)] ?? String(r.status)}</span>
+                <b>{percent(total ? (numeric(r.orders) ?? 0) / total : 0, 1)}</b>
+                <small>{number(numeric(r.orders) ?? 0)}</small>
+              </li>
             ))}
-            <text x="100" y="98" textAnchor="middle" className="vx-donut-total">
-              {percent(total ? delivered / total : 0, 0)}
-            </text>
-            <text x="100" y="122" textAnchor="middle" className="vx-donut-caption">
-              доставлено
-            </text>
-          </svg>
-        </VizTip>
-        <ul className="vx-donut-legend">
-          {grouped.map((r, i) => (
-            <li key={String(r.status)}>
-              <i className={`vx-s${Math.min(i, 5)}`} />
-              <span>{STATUS_LABEL[String(r.status)] ?? String(r.status)}</span>
-              <b>{percent(total ? (numeric(r.orders) ?? 0) / total : 0, 1)}</b>
-              <small>{number(numeric(r.orders) ?? 0)}</small>
-            </li>
-          ))}
-        </ul>
+          </ul>
+        </div>
       </div>
     </Card>
   )
