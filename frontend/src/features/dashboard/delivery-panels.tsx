@@ -13,6 +13,7 @@ import { stateName } from "./states"
 import "@/shared/styles/viz-extra-dc.css"
 import "@/shared/styles/viz-palette.css"
 import "@/shared/styles/fill-heat-geo.css"
+import "@/shared/styles/mobile-charts-b.css"
 
 const TARGET = 0.9
 
@@ -33,6 +34,7 @@ export function DeliveryTrend({
       description={ru.deliveryTrendNote}
       query={query}
       index={index}
+      className="mcb-trend"
       actions={
         <div className="segmented">
           <Button className={field === "otd" ? "selected" : ""} onClick={() => setField("otd")}>
@@ -229,16 +231,18 @@ export function SellerDelivery({
             <tbody>
               {shown.map(({ row, rank, value }) => (
                 <tr key={`${String(row.seller)}-${rank}`}>
-                  <td>
+                  <td className="mcb-seller">
                     {`Продавец #${rank}`}
                     <small>{String(row.seller ?? "")}</small>
                   </td>
-                  <td>
+                  <td className="mcb-region">
                     {stateName(row.state)}
                     <small>{String(row.state ?? "")}</small>
                   </td>
-                  <td className="num">{number(numeric(row.shipments) ?? 0)}</td>
-                  <td className="num">
+                  <td className="num mcb-ship" data-label={ru.shipments}>
+                    {number(numeric(row.shipments) ?? 0)}
+                  </td>
+                  <td className="num mcb-ot">
                     <span
                       className={`dcx-bullet${value >= TARGET ? " ok" : ""}`}
                       style={
