@@ -149,8 +149,11 @@
   }
 }
 @media (hover: hover) and (pointer: fine) {
-  .chat-fab:hover {
+  .icon-button.chat-fab:hover:not(:disabled) {
     background: #1a36cc;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgb(35 72 255 / 0.36);
   }
   .header-logo:hover .datum-logo-plate-middle {
     transform: translateY(-2px);
