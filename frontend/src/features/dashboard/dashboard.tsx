@@ -4,6 +4,7 @@ import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metri
 import { useMetric } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState } from "@/shared/ui/controls"
+import { AssistantIcon } from "../chat/assistant-icon"
 import { ConstructorPage } from "../constructor/constructor-page"
 import { CustomerProfile } from "./customer-profile"
 import {
@@ -25,16 +26,18 @@ import { AvgCheckTrend, Heatmap, Installments, PaymentsMix, StatusBar, TileMap }
 
 const rowsOf = (result: MetricResult | undefined) => result?.table.rows ?? []
 
-const TABS = ["overview", "sales", "delivery", "customers", "constructor"] as const
-export type DashboardTab = (typeof TABS)[number]
+const TABS = ["overview", "sales", "delivery", "customers"] as const
+export type DashboardTab = (typeof TABS)[number] | "constructor"
 export function Dashboard({
   filters,
   onFilters,
   onAsk,
+  onConstructor,
 }: {
   filters: Filters
   onFilters: (value: Filters) => void
   onAsk: (context: DashboardContext, name: string) => void
+  onConstructor?: () => void
 }) {
   const [tab, setTab] = useState<DashboardTab>("overview")
   const tabsRef = useRef<HTMLElement>(null)
@@ -43,8 +46,9 @@ export function Dashboard({
     const nav = tabsRef.current
     if (!nav) return
     const place = () => {
-      const active = nav.querySelectorAll<HTMLElement>("button")[TABS.indexOf(tab)]
-      if (active) setIndicator({ x: active.offsetLeft, w: active.offsetWidth })
+      const index = (TABS as readonly string[]).indexOf(tab)
+      const active = index < 0 ? null : nav.querySelectorAll<HTMLElement>("button")[index]
+      setIndicator(active ? { x: active.offsetLeft, w: active.offsetWidth } : null)
     }
     place()
     const observer = new ResizeObserver(place)
@@ -129,7 +133,28 @@ export function Dashboard({
             </Button>
           ))}
         </nav>
-        <FiltersBar value={filters} onChange={onFilters} />
+        <div className="dash-toolbar-end">
+          <button
+            type="button"
+            className={`ctor-entry${tab === "constructor" ? " active" : ""}`}
+            aria-pressed={tab === "constructor"}
+            onClick={() => {
+              if (tab === "constructor") {
+                setTab("overview")
+                return
+              }
+              setTab("constructor")
+              onConstructor?.()
+            }}
+          >
+            <span className="ctor-entry-icon" aria-hidden="true">
+              <AssistantIcon size={18} />
+            </span>
+            {ru.constructor}
+          </button>
+          <span className="dash-toolbar-divider" aria-hidden="true" />
+          <FiltersBar value={filters} onChange={onFilters} />
+        </div>
       </div>
       <div key={tab} className="tab-panel">
         {kpiError ? (

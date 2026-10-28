@@ -18,6 +18,7 @@ export function App() {
   const [context, setContext] = useState<DashboardContext>({ filters })
   const [contextName, setContextName] = useState("")
   const [draft, setDraft] = useState({ text: "", id: 0 })
+  const [closeRequest, setCloseRequest] = useState(0)
   const updateFilters = (value: Filters) => {
     setFilters(value)
     setContext({ filters: value })
@@ -51,7 +52,14 @@ export function App() {
         className="main-area shell-enter"
         style={{ "--i": 1 } as React.CSSProperties}
       >
-        <Dashboard filters={filters} onFilters={updateFilters} onAsk={ask} />
+        <Dashboard
+          filters={filters}
+          onFilters={updateFilters}
+          onAsk={ask}
+          onConstructor={() => {
+            if (chatOpen) setCloseRequest((n) => n + 1)
+          }}
+        />
       </main>
       {chatOpen && (
         <hr
@@ -95,6 +103,7 @@ export function App() {
           contextName={contextName}
           initialText={draft.text}
           requestId={draft.id}
+          closeRequest={closeRequest}
           onClearContext={() => {
             setContext({ filters })
             setContextName("")
