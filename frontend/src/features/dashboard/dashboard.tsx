@@ -217,17 +217,21 @@ function TabCards({
         <SalesTrend result={q.monthly.data} query={q.monthly} index={4} />
       )}
       {tab === "overview" && (
-        <>
-          <div className="vx-grid-3">
+        <div className="dg">
+          <div className="dg-6 dg-x4">
             <TileMap rows={rowsOf(q.statesRevenue.data)} query={q.statesRevenue} index={5} />
-            <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={6} />
-            <div className="panel-stack">
-              <StatusBar rows={rowsOf(q.statusMix.data)} query={q.statusMix} index={7} />
-              <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={8} />
-            </div>
           </div>
-          <div className="detail-grid">
+          <div className="dg-6 dg-x4">
+            <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={6} />
+          </div>
+          <div className="dg-12 dg-x4 dg-stack">
+            <StatusBar rows={rowsOf(q.statusMix.data)} query={q.statusMix} index={7} />
+            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={8} />
+          </div>
+          <div className="dg-6">
             <Geography rows={rowsOf(q.states.data)} query={q.states} index={9} limit={5} />
+          </div>
+          <div className="dg-6">
             <Categories
               rows={rowsOf(q.categories.data)}
               query={q.categories}
@@ -235,93 +239,87 @@ function TabCards({
               limit={5}
             />
           </div>
-        </>
+        </div>
       )}
       {tab === "sales" && (
-        <div className="vx-grid-3">
-          <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={5} />
-          <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={6} />
-          <div className="panel-stack">
+        <div className="dg">
+          <div className="dg-6">
+            <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={5} />
+          </div>
+          <div className="dg-6">
+            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={6} />
+          </div>
+          <div className="dg-6">
             <AvgCheckTrend rows={rowsOf(q.kpiMonthly.data)} query={q.kpiMonthly} index={7} />
+          </div>
+          <div className="dg-6">
             <Installments rows={rowsOf(q.installments.data)} query={q.installments} index={8} />
+          </div>
+          <div className="dg-6">
+            <Categories rows={rowsOf(q.categories.data)} query={q.categories} index={5} />
+          </div>
+          <div className="dg-6">
+            <Sellers rows={rowsOf(q.sellers.data)} query={q.sellers} index={6} />
           </div>
         </div>
       )}
-      {tab === "sales" && (
-        <div className="detail-grid">
-          <Categories rows={rowsOf(q.categories.data)} query={q.categories} index={5} />
-          <Sellers rows={rowsOf(q.sellers.data)} query={q.sellers} index={6} />
-        </div>
-      )}
       {tab === "delivery" && (
-        <div className="dcx-wrap">
-          <div className="dcx-grid">
-            <div className="dcx-wide">
-              <DeliveryDays rows={rowsOf(q.deliveryDays.data)} query={q.deliveryDays} index={4} />
-            </div>
-            <div>
-              <OnTimeMap rows={rowsOf(q.states.data)} query={q.states} index={5} />
-            </div>
-            <div className="dcx-wide">
-              <DeliveryStages rows={rowsOf(q.stages.data)} query={q.stages} index={6} />
-            </div>
-            <div>
-              <ReviewScores rows={rowsOf(q.scores.data)} query={q.scores} index={7} />
-            </div>
-            <div className="dcx-wide">
-              <DeliveryTrend
-                rows={rowsOf(q.deliveryMonthly.data)}
-                query={q.deliveryMonthly}
-                index={8}
-              />
-            </div>
-            <div>
-              <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={9} />
-            </div>
-            <div>
-              <Geography rows={rowsOf(q.states.data)} query={q.states} index={10} />
-            </div>
-            <div className="dcx-wide">
-              <SellerDelivery
-                rows={rowsOf(q.sellerDelivery.data)}
-                query={q.sellerDelivery}
-                index={11}
-              />
-            </div>
+        <div className="dg">
+          <div className="dg-8">
+            <DeliveryDays rows={rowsOf(q.deliveryDays.data)} query={q.deliveryDays} index={4} />
+          </div>
+          <div className="dg-4">
+            <OnTimeMap rows={rowsOf(q.states.data)} query={q.states} index={5} />
+          </div>
+          <div className="dg-8">
+            <DeliveryStages rows={rowsOf(q.stages.data)} query={q.stages} index={6} />
+          </div>
+          <div className="dg-4">
+            <ReviewScores rows={rowsOf(q.scores.data)} query={q.scores} index={7} />
+          </div>
+          <div className="dg-12">
+            <DeliveryTrend
+              rows={rowsOf(q.deliveryMonthly.data)}
+              query={q.deliveryMonthly}
+              index={8}
+            />
+          </div>
+          <div className="dg-6">
+            <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={9} />
+          </div>
+          <div className="dg-6">
+            <Geography rows={rowsOf(q.states.data)} query={q.states} index={10} />
+          </div>
+          <div className="dg-12">
+            <SellerDelivery
+              rows={rowsOf(q.sellerDelivery.data)}
+              query={q.sellerDelivery}
+              index={11}
+            />
           </div>
         </div>
       )}
       {tab === "customers" && (
-        <div className="dcx-wrap">
-          <div className="dcx-grid">
-            <div className="dcx-wide">
-              <CustomersMonthly
-                rows={rowsOf(q.customersMonthly.data)}
-                query={q.customersMonthly}
-                index={6}
-              />
-            </div>
-            <div>
-              <OrdersPerCustomer
-                rows={rowsOf(q.perCustomer.data)}
-                query={q.perCustomer}
-                index={7}
-              />
-            </div>
-            <div>
-              <CustomerMap
-                rows={rowsOf(q.customerStates.data)}
-                query={q.customerStates}
-                index={8}
-              />
-            </div>
-            <div className="dcx-wide">
-              <CustomerStates
-                rows={rowsOf(q.customerStates.data)}
-                query={q.customerStates}
-                index={9}
-              />
-            </div>
+        <div className="dg">
+          <div className="dg-8">
+            <CustomersMonthly
+              rows={rowsOf(q.customersMonthly.data)}
+              query={q.customersMonthly}
+              index={6}
+            />
+          </div>
+          <div className="dg-4">
+            <OrdersPerCustomer rows={rowsOf(q.perCustomer.data)} query={q.perCustomer} index={7} />
+          </div>
+          <div className="dg-6">
+            <CustomerMap rows={rowsOf(q.customerStates.data)} query={q.customerStates} index={8} />
+          </div>
+          <div className="dg-6">
+            <CustomerStates
+              rows={rowsOf(q.customerStates.data)}
+              query={q.customerStates}
+              index={9}
+            />
           </div>
         </div>
       )}

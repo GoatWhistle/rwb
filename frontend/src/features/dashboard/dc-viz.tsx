@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { Row } from "@/shared/format"
 import { month, number, numeric, percent } from "@/shared/format"
 import { EmptyState } from "@/shared/ui/controls"
@@ -7,6 +8,21 @@ import "@/shared/styles/viz-palette.css"
 import "@/shared/styles/viz-extra-dc.css"
 
 const num = (value: unknown) => numeric(value) ?? 0
+
+function useBoxWidth(active: boolean, fallback = 640) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(fallback)
+  useEffect(() => {
+    const el = ref.current
+    if (!active || !el || typeof ResizeObserver === "undefined") return
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setWidth(Math.max(240, Math.round(entry.contentRect.width)))
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [active])
+  return [ref, width] as const
+}
 
 export function Histogram({
   rows,
@@ -23,9 +39,9 @@ export function Histogram({
 }) {
   const items = rows.map((row) => ({ x: num(row[x]), y: num(row[y]) })).sort((a, b) => a.x - b.x)
   const total = items.reduce((sum, item) => sum + item.y, 0)
+  const [box, W] = useBoxWidth(items.length > 0 && total > 0)
   if (!items.length || !total) return <EmptyState />
-  const W = 640
-  const H = 220
+  const H = 240
   const pad = { l: 44, r: 12, t: 18, b: 26 }
   const maxX = Math.max(...items.map((item) => item.x))
   const maxY = Math.max(...items.map((item) => item.y))
@@ -44,8 +60,15 @@ export function Histogram({
   const p90 = quantile(0.9)
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => t * maxY)
   return (
-    <div className="dcx-hist">
-      <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Гистограмма">
+    <div className="dcx-hist" ref={box}>
+      <svg
+        className="chart-svg"
+        width={W}
+        height={H}
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label="Гистограмма"
+      >
         {ticks.map((t) => (
           <g key={t}>
             <line className="chart-grid" x1={pad.l} x2={W - pad.r} y1={sy(t)} y2={sy(t)} />
@@ -119,9 +142,9 @@ export function StackedBars({
   format: (n: number) => string
   formatTick?: (n: number) => string
 }) {
+  const [box, W] = useBoxWidth(rows.length > 0)
   if (!rows.length) return <EmptyState />
-  const W = 640
-  const H = 220
+  const H = 260
   const pad = { l: 44, r: 8, t: 10, b: 26 }
   const totals = rows.map((row) => series.reduce((sum, s) => sum + num(row[s.key]), 0))
   const maxY = Math.max(...totals, 1e-9) * 1.08
@@ -129,12 +152,14 @@ export function StackedBars({
   const bw = Math.min(step * 0.72, 34)
   const sy = (v: number) => (v / maxY) * (H - pad.t - pad.b)
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => t * maxY)
-  const every = Math.ceil(rows.length / 10)
+  const every = Math.max(1, Math.ceil(rows.length / Math.max(2, Math.floor((W - pad.l) / 64))))
   return (
-    <div className="dcx-stack">
+    <div className="dcx-stack" ref={box}>
       <Legend series={series} />
       <svg
         className="chart-svg"
+        width={W}
+        height={H}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="Столбцы с накоплением"

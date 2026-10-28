@@ -38,8 +38,7 @@
 .dcx-hist svg,
 .dcx-stack svg {
   display: block;
-  width: 100%;
-  height: auto;
+  max-width: 100%;
 }
 .dcx-ytick {
   text-anchor: end;
@@ -185,7 +184,7 @@
 
 .dcx-score {
   display: grid;
-  gap: 10px;
+  gap: 16px;
 }
 .dcx-score-row {
   display: grid;
@@ -194,13 +193,13 @@
   gap: 10px;
 }
 .dcx-stars {
-  color: var(--viz-warning);
+  color: #f5a524;
   font-size: 13px;
   letter-spacing: 1px;
   white-space: nowrap;
 }
 .dcx-stars em {
-  color: var(--viz-grid);
+  color: #e2e2e7;
   font-style: normal;
 }
 .dcx-score-bars {
@@ -211,7 +210,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 12px;
+  height: 16px;
 }
 .dcx-score-bar span {
   height: 100%;

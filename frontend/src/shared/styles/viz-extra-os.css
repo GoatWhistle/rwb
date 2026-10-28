@@ -25,7 +25,7 @@
   align-self: center;
 }
 .vx-heat-cell {
-  aspect-ratio: 1;
+  aspect-ratio: 1 / 1.15;
   border-radius: 3px;
   min-height: 10px;
   transition: outline-color 0.15s;
@@ -142,7 +142,7 @@
   display: flex;
   align-items: flex-end;
   gap: 3px;
-  height: 180px;
+  height: 260px;
 }
 .vx-stack-col {
   flex: 1;
