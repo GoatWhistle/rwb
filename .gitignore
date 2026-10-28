@@ -22,3 +22,7 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 data/*.part
+
+.playwright-mcp/
+.claude/worktrees/
+*.playwright.png
