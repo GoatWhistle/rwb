@@ -82,6 +82,7 @@ for (const plate of PLATES) {
     1000,
     `<polygon points="${poly(left)}" fill="${mix(plate.color.slice(1), "000000", 0.22)}"/><polygon points="${poly(right)}" fill="${mix(plate.color.slice(1), "000000", 0.38)}"/><polygon points="${poly(under)}" fill="${mix(plate.color.slice(1), "000000", 0.45)}"/>`,
   )
+  let all = ""
   for (let i = 0; i < N; i += 1) {
     let cells = ""
     for (let j = 0; j < N; j += 1) {
@@ -91,6 +92,7 @@ for (const plate of PLATES) {
       const o = Math.min(1, Math.max(0.35, 0.55 + light * 0.45 - random() * 0.12))
       cells += `<polygon points="${poly(pts)}" fill="${plate.color}" fill-opacity="${o.toFixed(2)}"/>`
     }
+    all += cells
     add(`st-${plate.name}-row${i}`, 1000, 1000, `<rect x="0" y="0" width="1000" height="1000" fill="none"/>${cells}`)
     for (let j = 0; j < N; j += 1) {
       const m = cells.match(/<polygon[^>]*\/>/g)[j]
@@ -105,6 +107,7 @@ for (const plate of PLATES) {
       add(`cell-${plate.name}-${i}-${j}`, bw, bh, m, `${bx} ${by} ${bw} ${bh}`)
     }
   }
+  add(`st-${plate.name}-full`, 1000, 1000, `<polygon points="${poly(left)}" fill="${mix(plate.color.slice(1), "000000", 0.22)}"/><polygon points="${poly(right)}" fill="${mix(plate.color.slice(1), "000000", 0.38)}"/><polygon points="${poly(under)}" fill="${mix(plate.color.slice(1), "000000", 0.45)}"/>${all}`)
 }
 {
   const top = PLATES[2].top
@@ -149,7 +152,7 @@ fs.writeFileSync(path.join(HERE, "data", "waffle.json"), JSON.stringify({ w: WW,
 fs.mkdirSync(OUT, { recursive: true })
 const browser = await launch()
 const page = await browser.newPage({ deviceScaleFactor: 2 })
-for (const job of jobs) {
+for (const job of jobs.filter((j) => !process.argv.includes('--only-full') || j.name.endsWith('-full'))) {
   await page.setViewportSize({ width: job.w, height: job.h })
   await page.setContent(`<html><body style="margin:0;background:transparent">${job.svg}</body></html>`)
   await page.screenshot({ path: path.join(OUT, `${job.name}.png`), omitBackground: true, clip: { x: 0, y: 0, width: job.w, height: job.h } })

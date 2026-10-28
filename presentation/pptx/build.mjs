@@ -64,7 +64,12 @@ const fxName = (fx, label = "el", morph) => {
   if (fx) PLANS.at(-1).anims[name] = fx
   return name
 }
-const fx = (kind, delayMs, durMs = 600, lt = false) => `${kind}@${Math.round(delayMs)}@${Math.round(durMs)}${lt ? "|lt" : ""}`
+const TEMPO = 0.45
+const LOOP_KINDS = ["hover", "pulse", "breathe", "runner"]
+const fx = (kind, delayMs, durMs = 600, lt = false) => {
+  const k = LOOP_KINDS.includes(kind) ? 1 : TEMPO
+  return `${kind}@${Math.round(delayMs * TEMPO)}@${Math.round(durMs * k)}${lt ? "|lt" : ""}`
+}
 const and = (...parts) => parts.join(";")
 
 const text = (slide, runs, o) => {
@@ -174,7 +179,6 @@ const content = (sid, transition = "fade") => {
   return slide
 }
 
-const CELLS = JSON.parse(fs.readFileSync(path.join(HERE, "data", "cells.json"), "utf8"))
 const PLATES = ["raw", "core", "mart"]
 const MARK = { x: 119.9, y: 44, s: 40.2 }
 
@@ -196,38 +200,15 @@ const runner = (slide, pts, o) => {
   box(slide, { shape: pres.shapes.OVAL, x: x0 - s / 2, y: y0 - s / 2, w: s, h: s, fill: o.color ?? K.cobalt, name })
 }
 
-const cellsStack = (slide, ox, oy, size, opts = {}) => {
-  const sc = size / 1000
-  const rnd = seeded(opts.seed ?? 17)
+const plateStack = (slide, ox, oy, size, opts = {}) => {
   PLATES.forEach((p, pi) => {
-    const pd = (opts.base ?? 0) + pi * 520
-    img(slide, `st-${p}-base`, { x: ox, y: oy, w: size, h: size, morph: `base-${p}`, fx: opts.anim ? fx("fade", pd + 700, 600) : undefined })
-    for (const c of CELLS.filter((q) => q.plate === p)) {
-      let f
-      if (opts.anim) {
-        const angle = rnd() * Math.PI * 2
-        const dist = 0.22 + rnd() * 0.38
-        const dx = (Math.cos(angle) * dist).toFixed(3)
-        const dy = (Math.sin(angle) * dist * 0.8 - 0.12).toFixed(3)
-        f = fx(`curve_${dx}_${dy}`, pd + (c.i + c.j) * 26 + rnd() * 80, 950)
-      }
-      img(slide, `cell-${p}-${c.i}-${c.j}`, { x: ox + c.x * sc, y: oy + c.y * sc, w: c.w * sc, h: c.h * sc, morph: `cell-${p}-${c.i}-${c.j}`, fx: f })
-    }
+    const f = opts.anim ? fx("platein", (opts.base ?? 0) + pi * 330, 1000) : undefined
+    img(slide, `st-${p}-full`, { x: ox, y: oy, w: size, h: size, morph: `plate-${p}`, fx: f })
   })
-  const cd = (opts.base ?? 0) + 2000
-  img(slide, "st-shadow", { x: ox, y: oy, w: size, h: size, morph: "shadow", fx: opts.anim ? fx("fade", cd + 350, 500) : undefined })
-  img(slide, "st-cube", { x: ox, y: oy, w: size, h: size, morph: "cube", fx: opts.anim ? and(fx("drop", cd, 1000), fx("hover", cd + 1300, 2600)) : undefined })
-}
-
-const rowsStack = (slide, ox, oy, size, opts = {}) => {
-  PLATES.forEach((p, pi) => {
-    const f = opts.anim ? fx("slam", (opts.base ?? 0) + pi * 180, 1000) : undefined
-    img(slide, `st-${p}-base`, { x: ox, y: oy, w: size, h: size, morph: `rb-${p}`, fx: f })
-    for (let k = 0; k < 10; k += 1) img(slide, `st-${p}-row${k}`, { x: ox, y: oy, w: size, h: size, morph: `row-${p}-${k}`, fx: f })
-  })
-  const cd = (opts.base ?? 0) + 800
-  img(slide, "st-shadow", { x: ox, y: oy, w: size, h: size, morph: "rshadow", fx: opts.anim ? fx("fade", cd + 300, 500) : undefined })
-  img(slide, "st-cube", { x: ox, y: oy, w: size, h: size, morph: "rcube", fx: opts.anim ? and(fx("drop", cd, 1000), fx("hover", cd + 1300, 2600)) : opts.hover ? fx("hover", opts.hover, 2600) : undefined })
+  const cd = (opts.base ?? 0) + 1150
+  img(slide, "st-shadow", { x: ox, y: oy, w: size, h: size, morph: "shadow", fx: opts.anim ? fx("fade", cd + 300, 500) : undefined })
+  const cube = opts.anim ? and(fx("drop", cd, 1000), fx("hover", cd * TEMPO + 900, 2600)) : opts.hover ? fx("hover", opts.hover, 2600) : undefined
+  img(slide, "st-cube", { x: ox, y: oy, w: size, h: size, morph: "cube", fx: cube })
 }
 
 const wordmark = (slide, x, y, h, base) => {
@@ -239,7 +220,7 @@ const wordmark = (slide, x, y, h, base) => {
   plan("fade")
   const slide = pres.addSlide({ masterName: "BARE" })
   slide.addNotes(SPEECH.cover)
-  cellsStack(slide, 1060, 140, 840, { anim: true, base: 150 })
+  plateStack(slide, 1060, 140, 840, { anim: true, base: 200 })
   wordmark(slide, 120, 286, 176, 300)
   text(slide, [{ text: "Модель данных Capibara:", bold: true, br: true }, { text: "от корзины до выкупа", font: SERIF, italic: true, color: K.azure, size: 72 }], { x: 120, y: 600, w: 900, h: 190, size: 64, fx: fx("rise", 1000, 450, true), lh: 0.95 })
   box(slide, { shape: pres.shapes.OVAL, x: 120, y: 975, w: 16, h: 16, fill: K.cobalt, fx: and(fx("pop", 2300, 500), fx("pulse", 2900, 900)) })
@@ -248,21 +229,21 @@ const wordmark = (slide, x, y, h, base) => {
 
 {
   const slide = content("sources", "morph")
-  cellsStack(slide, MARK.x, MARK.y, MARK.s, {})
+  plateStack(slide, MARK.x, MARK.y, MARK.s, {})
   title(slide, "550 759 строк ", "и все текстом")
   const h = 600
   const w = (WAF.w * h) / WAF.h
-  for (let t = 0; t < 8; t += 1) img(slide, `wf-${t}`, { x: 120, y: 290, w, h, fx: fx("wiperight", 500 + t * 200, 480) })
+  for (let t = 0; t < 8; t += 1) img(slide, `wf-${t}`, { x: 120, y: 290, w, h, fx: fx("wiperight", 300 + t * 110, 380) })
   const names = ["order_items", "order_payments", "orders", "order_reviews", "customers", "products", "sellers", "category_translation"]
   const counts = ["112 650", "103 886", "99 441", "99 224", "99 441", "32 951", "3 095", "71"]
   names.forEach((n, i) => {
     const y = 310 + i * 64
-    const d = 600 + i * 200
+    const d = 350 + i * 110
     box(slide, { x: 1200, y: y + 10, w: 28, h: 28, r: 8, fill: WAF.colors[i].slice(1), fx: fx("pop", d, 500) })
     text(slide, n, { x: 1250, y, w: 380, h: 48, size: 24, font: MONO, color: K.ink, valign: "middle", fx: fx("slider", d, 500) })
     text(slide, counts[i], { x: 1620, y, w: 180, h: 48, size: 28, bold: true, align: "right", valign: "middle", fx: fx("rise", d + 100, 350, true) })
   })
-  text(slide, "1 клетка = 1 000 строк. Даты, суммы и оценки приехали строками, каждую колонку проверили скриптами.", { x: 120, y: 925, w: 1680, h: 40, size: 22, color: K.fg3, fx: fx("fade", 2400, 600) })
+  text(slide, "1 клетка = 1 000 строк. Даты, суммы и оценки приехали строками, каждую колонку проверили скриптами.", { x: 120, y: 925, w: 1680, h: 40, size: 22, color: K.fg3, fx: fx("fade", 1400, 500) })
 }
 
 {
@@ -275,8 +256,8 @@ const wordmark = (slide, x, y, h, base) => {
     const a = -Math.PI / 2 + (i * 2 * Math.PI) / 17
     const x = cx + Math.cos(a) * 250
     const y = cy + Math.sin(a) * 250
-    line(slide, cx, cy, x, y, { color: K.cobalt, lw: 2.25, fx: fx(wipeFor(cx, cy, x, y), 1250 + i * 40, 450) })
-    box(slide, { x: x - 28, y: y - 19, w: 56, h: 38, r: 11, fill: K.mist, line: K.strong, lw: 1.25, fx: fx(`fly_${(Math.cos(a) * 0.12).toFixed(3)}_${(Math.sin(a) * 0.2).toFixed(3)}`, 350 + i * 50, 700) })
+    line(slide, cx, cy, x, y, { color: K.cobalt, lw: 2.25, fx: fx("fade", 900 + i * 15, 350) })
+    box(slide, { x: x - 28, y: y - 19, w: 56, h: 38, r: 11, fill: K.mist, line: K.strong, lw: 1.25, fx: fx("zoom", 250 + i * 25, 400) })
   }
   box(slide, { shape: pres.shapes.OVAL, x: cx - 92, y: cy - 92, w: 184, h: 184, fill: K.cobalt, fx: and(fx("pop", 1050, 700), fx("breathe", 2400, 1300)) })
   icon(slide, "user", "white", { x: cx - 42, y: cy - 42, s: 84, fx: fx("pop", 1250, 600) })
@@ -351,38 +332,53 @@ const wordmark = (slide, x, y, h, base) => {
 {
   const slide = content("chrono")
   title(slide, "Хронология ", "и грязь")
-  const gh = SER.gap_hist
-  const GW = 1100
-  const base = 740
-  const GH = 410
-  const bw = GW / gh.length
-  const zx = 120 + 10 * bw
-  box(slide, { x: 120, y: base - GH, w: zx - 120, h: GH, r: 18, fill: K.dangerTint, fx: fx("wipeleft", 1100, 700) })
-  gh.forEach((v, i) => {
-    const h = Math.max(4, (Math.sqrt(v) / Math.sqrt(28090)) * (GH - 30))
-    box(slide, { x: 120 + i * bw + 3, y: base - h, w: bw - 6, h, r: 4, fill: i < 10 ? K.danger : K.azure, fx: fx("grow", i < 10 ? 1200 + (9 - i) * 60 : 300 + (i - 10) * 35, 700) })
+  const Y = 720
+  const xs = [200, 530, 870, 1200]
+  const labels = ["оформлен", "оплачен", "передан", "вручён"]
+  line(slide, 160, Y, 1240, Y, { color: K.strong, lw: 3, fx: fx("wiperight", 100, 700) })
+  xs.forEach((x, i) => {
+    box(slide, { shape: pres.shapes.OVAL, x: x - 18, y: Y - 18, w: 36, h: 36, fill: i === 3 ? K.cobalt : K.white, line: K.cobalt, lw: 3, fx: fx("pop", 200 + i * 160, 500) })
+    text(slide, labels[i], { x: x - 110, y: Y + 30, w: 220, h: 34, size: 24, bold: true, align: "center", fx: fx("rise", 250 + i * 160, 400) })
   })
-  line(slide, 120, base, 120 + GW, base, { color: K.strong, lw: 1.5, fx: fx("wiperight", 150, 600) })
-  line(slide, zx, base - GH - 10, zx, base + 10, { color: K.danger, lw: 2.5, dash: "dash", fx: fx("wipedown", 1000, 600) })
-  text(slide, "раньше оплаты", { x: zx - 260, y: base + 16, w: 250, h: 30, size: 19, bold: true, color: K.danger, align: "right", fx: fx("slidel", 1500, 500) })
-  text(slide, "дни от оплаты до отгрузки", { x: zx + 12, y: base + 16, w: 500, h: 30, size: 19, bold: true, fx: fx("slider", 700, 500) })
-  box(slide, { x: 145, y: base - GH + 24, w: 290, h: 110, r: 20, fill: K.white, line: K.line, shadow: true, fx: fx("pop", 1900, 600) })
-  text(slide, "1 359", { x: 168, y: base - GH + 32, w: 250, h: 52, size: 42, bold: true, color: K.danger, fx: fx("pop", 1900, 600) })
-  text(slide, "отгружены раньше оплаты", { x: 168, y: base - GH + 86, w: 260, h: 30, size: 19, color: K.fg2, fx: fx("pop", 1900, 600) })
-  const sx = 1300
-  const right = [["23", "вручены раньше отгрузки", 280], ["6", "отменённых с датой вручения", 395], ["1 139", "заказов: платежи не бьются с позициями", 510]]
-  right.forEach(([v, c, y], i) => {
-    text(slide, v, { x: sx, y, w: 500, h: 60, size: 52, bold: true, color: K.danger, valign: "bottom", fx: fx("rise", 1300 + i * 160, 350, true) })
-    text(slide, c, { x: sx, y: y + 66, w: 500, h: 40, size: 20, color: K.fg3, fx: fx("slider", 1400 + i * 160, 500) })
-  })
-  let cy = 640
+  const arc = (xa, xb, h, lw, d) => {
+    const top = Y - 20 - h
+    const x0 = Math.min(xa, xb)
+    slide.addShape(pres.shapes.CUSTOM_GEOMETRY, {
+      x: X(x0),
+      y: X(top),
+      w: X(Math.abs(xb - xa)),
+      h: X(h),
+      points: [
+        { x: X(xa - x0), y: X(h), moveTo: true },
+        { x: X(xb - x0), y: X(h), curve: { type: "cubic", x1: X(xa - x0), y1: X(-h * 0.33), x2: X(xb - x0), y2: X(-h * 0.33) } },
+      ],
+      fill: { type: "none" },
+      line: { color: K.danger, width: lw, endArrowType: "triangle" },
+      objectName: fxName(fx("wipeleft", d, 700), "arc"),
+    })
+  }
+  arc(870, 530, 170, 9, 900)
+  arc(870, 200, 300, 4.5, 1150)
+  arc(1200, 870, 120, 3.5, 1400)
+  const tag = (x, y, v, c, d) => {
+    text(slide, v, { x: x - 200, y, w: 400, h: 56, size: 48, bold: true, color: K.danger, align: "center", valign: "bottom", fx: fx("pop", d, 500) })
+    text(slide, c, { x: x - 200, y: y + 58, w: 400, h: 30, size: 19, color: K.fg2, align: "center", fx: fx("fade", d + 100, 400) })
+  }
+  tag(700, Y - 150, "1 359", "отгружены раньше оплаты", 1250)
+  tag(535, Y - 20 - 300 - 100, "166", "отгружены раньше оформления", 1450)
+  tag(1035, Y - 20 - 120 - 104, "23", "вручены раньше отгрузки", 1650)
+  pill(slide, "6 отменённых с датой вручения", { x: 1010, y: Y + 78, w: 380, size: 19, fill: K.dangerTint, color: K.danger, fx: fx("pop", 1800, 500) })
+  const sx = 1400
+  text(slide, "611", { x: sx, y: 300, w: 400, h: 70, size: 64, bold: true, valign: "bottom", fx: fx("rise", 500, 300, true) })
+  text(slide, "написаний городов у продавцов", { x: sx, y: 374, w: 400, h: 30, size: 20, color: K.fg3, fx: fx("fade", 600, 400) })
+  let cy = 420
   for (const [i, [c, bad]] of [["auriflama/sp", false], ["rio de janeiro \\ rio de janeiro", false], ["04482255", true]].entries()) {
-    pill(slide, c, { x: sx, y: cy, size: 19, font: MONO, bold: false, fill: bad ? K.dangerTint : K.mist, color: bad ? K.danger : K.ink, fx: fx("slider", 1850 + i * 120, 500), h: 40 })
+    pill(slide, c, { x: sx, y: cy, size: 19, font: MONO, bold: false, fill: bad ? K.dangerTint : K.mist, color: bad ? K.danger : K.ink, fx: fx("slider", 700 + i * 120, 450), h: 40 })
     cy += 48
   }
-  text(slide, "611", { x: sx, y: 768, w: 500, h: 60, size: 52, bold: true, valign: "bottom", fx: fx("rise", 2200, 350, true) })
-  text(slide, "написаний городов, индекс вместо города", { x: sx, y: 834, w: 500, h: 40, size: 20, color: K.fg3, fx: fx("fade", 2300, 500) })
-  key(slide, "shield", "Вывод: ", "источникам доверять нельзя. Проверки живут в модели, а не в голове аналитика.", { x: 120, y: 900, w: 1680, h: 80, fx: fx("rise", 2500, 600) })
+  text(slide, "1 139", { x: sx, y: 590, w: 400, h: 70, size: 64, bold: true, color: K.danger, valign: "bottom", fx: fx("rise", 1100, 300, true) })
+  text(slide, "заказов: платежи не бьются с суммой позиций", { x: sx, y: 664, w: 400, h: 60, size: 20, color: K.fg3, fx: fx("fade", 1200, 400), lh: 1.1 })
+  key(slide, "shield", "Вывод: ", "источникам доверять нельзя. Проверки живут в модели, а не в голове аналитика.", { x: 120, y: 900, w: 1680, h: 80, fx: fx("rise", 1900, 500) })
 }
 
 {
@@ -423,7 +419,7 @@ const wordmark = (slide, x, y, h, base) => {
 {
   const slide = content("layers")
   title(slide, "Три слоя, ", "как в нашем знаке")
-  rowsStack(slide, 90, 210, 780, { anim: true, base: 200 })
+  plateStack(slide, 90, 210, 780, { anim: true, base: 150 })
   const rows = [
     ["ответы", "считаются из core", K.cobalt, 300, 1500],
     ["mart", "витрины под задачу: исполнение заказа", K.cyan, 430, 750],
@@ -580,7 +576,7 @@ const wordmark = (slide, x, y, h, base) => {
 
 {
   const slide = content("block-a")
-  rowsStack(slide, MARK.x, MARK.y, MARK.s, {})
+  plateStack(slide, MARK.x, MARK.y, MARK.s, {})
   title(slide, "Блок А: ", "все пять контролей сошлись")
   text(slide, "13 221 498,11", { x: 120, y: 240, w: 900, h: 110, size: 96, bold: true, color: K.cobalt, fx: fx("rise", 300, 320, true) })
   text(slide, "выручка за 24 месяца, R$, товары без доставки по доставленным заказам", { x: 120, y: 352, w: 1200, h: 32, size: 21, color: K.fg3, fx: fx("fade", 900, 500) })
@@ -620,7 +616,7 @@ const wordmark = (slide, x, y, h, base) => {
   plan("morph")
   const slide = pres.addSlide({ masterName: "BARE" })
   slide.addNotes("Готовы к вашим вопросам.")
-  rowsStack(slide, 640, 20, 640, { hover: 1600 })
+  plateStack(slide, 640, 20, 640, { hover: 1200 })
   wordmark(slide, 120, 70, 90, 900)
   text(slide, [{ text: "Готовы к вашим ", bold: true }, { text: "вопросам", font: SERIF, italic: true, color: K.azure, size: 132 }], { x: 120, y: 680, w: 1680, h: 160, size: 116, align: "center", valign: "middle", fx: fx("rise", 1100, 420, true) })
   text(slide, [{ text: "Team ", color: K.fg3 }, { text: "GoatWhistle", bold: true, color: K.ink }], { x: 120, y: 860, w: 1680, h: 50, size: 32, align: "center", fx: fx("fade", 2000, 700) })

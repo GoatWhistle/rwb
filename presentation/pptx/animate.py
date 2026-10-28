@@ -69,6 +69,8 @@ def entrance(ids: Ids, spid: str, kind: str, dur: int) -> tuple[int, int, str]:
         return 2, 1, body + effect(ids, spid, "fade", int(dur * 0.5)) + keys(ids, spid, "ppt_y", [(0, "#ppt_y-0.28"), (70000, "#ppt_y+0.008"), (100000, "#ppt_y")], dur)
     if kind == "slam":
         return 2, 1, body + effect(ids, spid, "fade", int(dur * 0.4)) + keys(ids, spid, "ppt_y", [(0, "#ppt_y-0.16"), (75000, "#ppt_y+0.006"), (100000, "#ppt_y")], dur)
+    if kind == "platein":
+        return 9, 0, body + effect(ids, spid, "dissolve", int(dur * 0.8)) + keys(ids, spid, "ppt_y", [(0, "#ppt_y-0.07"), (75000, "#ppt_y+0.004"), (100000, "#ppt_y")], dur, False)
     if kind == "zoom":
         return 53, 16, body + keys(ids, spid, "ppt_w", [(0, "0"), (100000, "#ppt_w")], dur) + keys(ids, spid, "ppt_h", [(0, "0"), (100000, "#ppt_h")], dur) + effect(ids, spid, "fade", dur)
     if kind == "pop":
@@ -161,7 +163,7 @@ FADE = f'<p:transition xmlns:p="{NS["p"]}" spd="med"><p:fade/></p:transition>'
 MORPH = (
     '<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">'
     f'<mc:Choice xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main" Requires="p159">'
-    f'<p:transition xmlns:p="{NS["p"]}" xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" spd="slow" p14:dur="1400"><p159:morph option="byObject"/></p:transition>'
+    f'<p:transition xmlns:p="{NS["p"]}" xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" spd="med" p14:dur="900"><p159:morph option="byObject"/></p:transition>'
     f'</mc:Choice><mc:Fallback><p:transition xmlns:p="{NS["p"]}" spd="slow"><p:fade/></p:transition></mc:Fallback></mc:AlternateContent>'
 )
 
