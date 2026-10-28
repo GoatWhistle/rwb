@@ -35,7 +35,7 @@
 }
 
 .st-cube-t {
-  fill: var(--accent-300);
+  fill: color-mix(in oklab, var(--deck-accent) 58%, var(--dz-white));
 }
 
 .st-cube-l {
@@ -43,7 +43,25 @@
 }
 
 .st-cube-r {
-  fill: var(--accent-700);
+  fill: color-mix(in oklab, var(--deck-accent) 78%, var(--neutral-950));
+}
+
+.st-shadow {
+  fill: var(--neutral-950);
+  opacity: 0.18;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.play .st-shadow {
+  animation: st-shadow-in 1s var(--ease-out) 2.05s both;
+}
+
+@keyframes st-shadow-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
 }
 
 .st-glow {
@@ -81,9 +99,7 @@
 }
 
 .play .st-cube {
-  animation:
-    st-cube-in 1s var(--ease-out) var(--d) both,
-    st-hover 3.2s var(--ease-in-out) calc(var(--d) + 1.2s) infinite;
+  animation: st-cube-in 1s var(--ease-out) var(--d) both;
 }
 
 .play .st-glow {
@@ -111,7 +127,7 @@
 @keyframes st-cube-in {
   from {
     opacity: 0;
-    transform: translateY(-360px) rotate(-30deg);
+    transform: translateY(-320px);
   }
 }
 
