@@ -14,14 +14,24 @@ import {
 } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
-import { Button, EmptyState, IconButton, Panel, Tip } from "@/shared/ui/controls"
+import { Button, EmptyState, IconButton, Tip } from "@/shared/ui/controls"
 import { DataTable } from "@/shared/ui/data-table"
 import { Money } from "@/shared/ui/money"
+import type { CardQuery } from "./card"
+import { Card } from "./card"
 
-export function SalesTrend({ result }: { result: MetricResult }) {
+export function SalesTrend({
+  result,
+  query,
+  index,
+}: {
+  result: MetricResult | undefined
+  query?: CardQuery
+  index?: number
+}) {
   const [series, setSeries] = useState("revenue")
   const [table, setTable] = useState(false)
-  const rows = result.table.rows
+  const rows = result?.table.rows ?? []
   const last = rows.at(-1),
     prior = rows.at(-2)
   const a = numeric(last?.[series]),
@@ -30,9 +40,12 @@ export function SalesTrend({ result }: { result: MetricResult }) {
   const format = series === "revenue" ? (n: number) => money(n) : number
   const tick = series === "revenue" ? (n: number) => money(n, true) : compact
   return (
-    <Panel
+    <Card
       title={ru.trend}
+      accent="продажи"
       description={ru.trendNote}
+      query={query}
+      index={index}
       actions={
         <div className="panel-actions">
           <div className="segmented">
@@ -120,20 +133,33 @@ export function SalesTrend({ result }: { result: MetricResult }) {
           formatLabel={month}
         />
       )}
-    </Panel>
+    </Card>
   )
 }
-export function Categories({ rows }: { rows: Row[] }) {
+export function Categories({
+  rows,
+  query,
+  index,
+  limit = 5,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+  limit?: number
+}) {
   const [all, setAll] = useState(false)
-  const shown = all ? rows : rows.slice(0, 5)
+  const shown = all ? rows : rows.slice(0, limit)
   const max = Math.max(
     ...rows.map((row) => numeric(row.revenue)).filter((value): value is number => value !== null),
     1,
   )
   return (
-    <Panel
+    <Card
       title={ru.categories}
+      accent="выручку"
       description={ru.categoriesNote}
+      query={query}
+      index={index}
       actions={<Tip text={ru.tips.categories} />}
     >
       {rows.length === 0 && <EmptyState />}
@@ -150,24 +176,39 @@ export function Categories({ rows }: { rows: Row[] }) {
               </div>
               {revenue !== null && (
                 <div className="category-track">
-                  <div style={{ width: `${(revenue / max) * 100}%` }} />
+                  <div className="hbar-fill" style={{ width: `${(revenue / max) * 100}%` }} />
                 </div>
               )}
             </div>
           )
         })}
       </div>
-      {rows.length > 5 && (
+      {rows.length > limit && (
         <Button className="text-button" onClick={() => setAll(!all)}>
           {all ? ru.showLess : ru.showAll}
         </Button>
       )}
-    </Panel>
+    </Card>
   )
 }
-export function Sellers({ rows }: { rows: Row[] }) {
+export function Sellers({
+  rows,
+  query,
+  index,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+}) {
   return (
-    <Panel title={ru.sellers} description={ru.sellersNote} actions={<Tip text={ru.tips.sellers} />}>
+    <Card
+      title={ru.sellers}
+      accent="больше"
+      description={ru.sellersNote}
+      query={query}
+      index={index}
+      actions={<Tip text={ru.tips.sellers} />}
+    >
       <DataTable
         rows={rows}
         searchable
@@ -184,6 +225,6 @@ export function Sellers({ rows }: { rows: Row[] }) {
           },
         ]}
       />
-    </Panel>
+    </Card>
   )
 }

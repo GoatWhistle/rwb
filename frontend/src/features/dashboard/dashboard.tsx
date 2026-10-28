@@ -1,8 +1,9 @@
+import type { CSSProperties } from "react"
 import { useLayoutEffect, useRef, useState } from "react"
 import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metrics"
 import { useMetric } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
-import { Button, ErrorState, Skeleton } from "@/shared/ui/controls"
+import { Button, ErrorState } from "@/shared/ui/controls"
 import { CustomerProfile } from "./customer-profile"
 import { DeliveryTrend, Geography, Lateness, SellerDelivery } from "./delivery-panels"
 import { FiltersBar } from "./filters"
@@ -38,25 +39,27 @@ export function Dashboard({
     observer.observe(nav)
     return () => observer.disconnect()
   }, [tab])
-  const sales = tab === "overview" || tab === "sales"
+  const overview = tab === "overview"
+  const salesTab = tab === "sales"
   const delivery = tab === "delivery"
-  const monthly = useMetric("block_a.1", filters, sales)
+  const monthly = useMetric("block_a.1", filters, overview || salesTab)
   const avg = useMetric("block_a.3", filters, !delivery)
   const customers = useMetric("block_a.4", filters, !delivery)
-  const categories = useMetric("block_a.5", filters, sales)
-  const sellers = useMetric("block_a.2", filters, sales)
-  const kpi = useMetric("dashboard.kpi", filters, delivery)
+  const categories = useMetric("block_a.5", filters, overview || salesTab)
+  const sellers = useMetric("block_a.2", filters, salesTab)
+  const kpi = useMetric("dashboard.kpi", filters, overview || delivery)
   const deliveryMonthly = useMetric("dashboard.monthly", filters, delivery)
-  const states = useMetric("dashboard.states", filters, delivery)
+  const states = useMetric("dashboard.states", filters, overview || delivery)
   const lateness = useMetric("dashboard.lateness", filters, delivery)
   const sellerDelivery = useMetric("dashboard.sellers", filters, delivery)
-  const queries = sales
-    ? [monthly, avg, customers, categories, sellers]
-    : delivery
-      ? [kpi, deliveryMonthly, states, lateness, sellerDelivery]
-      : [customers, avg]
-  const error = queries.some((q) => q.isError)
-  const loading = queries.some((q) => q.isPending)
+  const kpiQueries = {
+    overview: [monthly, avg, kpi],
+    sales: [monthly, avg, customers],
+    delivery: [kpi],
+    customers: [customers, avg],
+  }[tab]
+  const kpiError = kpiQueries.some((q) => q.isError)
+  const kpiLoading = kpiQueries.some((q) => q.isPending)
   const { salesMetrics, deliveryMetrics, customerMetrics, returnedPct } = getMetricGroups(
     monthly.data,
     avg.data,
@@ -64,8 +67,12 @@ export function Dashboard({
     kpi.data,
   )
   const result = delivery ? kpi.data : (monthly.data ?? customers.data)
+  const overviewMetrics = [
+    ...salesMetrics.filter((m) => m.key !== "repeat"),
+    ...deliveryMetrics.filter((m) => m.key === "otd"),
+  ]
   const activeMetrics = {
-    overview: salesMetrics,
+    overview: overviewMetrics,
     sales: salesMetrics,
     delivery: deliveryMetrics,
     customers: customerMetrics,
@@ -92,49 +99,92 @@ export function Dashboard({
         ))}
       </nav>
       <FiltersBar value={filters} onChange={onFilters} />
-      {error ? (
-        <ErrorState
-          retry={() => {
-            for (const q of queries) void q.refetch()
-          }}
-        />
-      ) : loading ? (
-        <Skeleton />
-      ) : (
-        <div key={tab} className="tab-panel">
-          <div className="metric-grid">
-            {activeMetrics.map((metric) => (
-              <MetricCard
-                key={metric.key}
-                metric={metric}
-                filters={filters}
-                result={result}
-                onAsk={onAsk}
-              />
+      <div key={tab} className="tab-panel">
+        {kpiError ? (
+          <ErrorState
+            retry={() => {
+              for (const q of kpiQueries) if (q.isError) void q.refetch()
+            }}
+          />
+        ) : kpiLoading ? (
+          <div className="metric-grid" role="status" aria-label={ru.loading}>
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="metric-card metric-skeleton" />
             ))}
           </div>
-          {sales && monthly.data && <SalesTrend result={monthly.data} />}
-          {sales && (
-            <div className="detail-grid">
-              <Categories rows={rowsOf(categories.data)} />
-              <Sellers rows={rowsOf(sellers.data)} />
-            </div>
-          )}
-          {delivery && (
-            <>
-              <DeliveryTrend rows={rowsOf(deliveryMonthly.data)} />
-              <div className="detail-grid">
-                <Geography rows={rowsOf(states.data)} />
-                <div className="panel-stack">
-                  <Lateness rows={rowsOf(lateness.data)} />
-                  <SellerDelivery rows={rowsOf(sellerDelivery.data)} />
-                </div>
+        ) : (
+          <div className="metric-grid">
+            {activeMetrics.map((metric, i) => (
+              <div key={metric.key} className="dash-enter" style={{ "--i": i } as CSSProperties}>
+                <MetricCard metric={metric} filters={filters} result={result} onAsk={onAsk} />
               </div>
-            </>
-          )}
-          {tab === "customers" && <CustomerProfile returnedPct={returnedPct} />}
+            ))}
+          </div>
+        )}
+        <TabCards
+          tab={tab}
+          q={{ monthly, categories, sellers, states, deliveryMonthly, lateness, sellerDelivery }}
+        />
+        {tab === "customers" && <CustomerProfile returnedPct={returnedPct} />}
+      </div>
+    </div>
+  )
+}
+
+type Query = ReturnType<typeof useMetric>
+function TabCards({
+  tab,
+  q,
+}: {
+  tab: DashboardTab
+  q: Record<
+    | "monthly"
+    | "categories"
+    | "sellers"
+    | "states"
+    | "deliveryMonthly"
+    | "lateness"
+    | "sellerDelivery",
+    Query
+  >
+}) {
+  return (
+    <>
+      {(tab === "overview" || tab === "sales") && (
+        <SalesTrend result={q.monthly.data} query={q.monthly} index={4} />
+      )}
+      {tab === "overview" && (
+        <div className="detail-grid">
+          <Geography rows={rowsOf(q.states.data)} query={q.states} index={5} limit={5} />
+          <Categories rows={rowsOf(q.categories.data)} query={q.categories} index={6} limit={5} />
         </div>
       )}
-    </div>
+      {tab === "sales" && (
+        <div className="detail-grid">
+          <Categories rows={rowsOf(q.categories.data)} query={q.categories} index={5} />
+          <Sellers rows={rowsOf(q.sellers.data)} query={q.sellers} index={6} />
+        </div>
+      )}
+      {tab === "delivery" && (
+        <>
+          <DeliveryTrend
+            rows={rowsOf(q.deliveryMonthly.data)}
+            query={q.deliveryMonthly}
+            index={4}
+          />
+          <div className="detail-grid">
+            <Geography rows={rowsOf(q.states.data)} query={q.states} index={5} />
+            <div className="panel-stack">
+              <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={6} />
+              <SellerDelivery
+                rows={rowsOf(q.sellerDelivery.data)}
+                query={q.sellerDelivery}
+                index={7}
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }

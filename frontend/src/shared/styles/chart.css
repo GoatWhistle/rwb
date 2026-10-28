@@ -75,3 +75,68 @@
     min-height: 0;
   }
 }
+.chart-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: chart-draw 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes chart-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+.chart-area {
+  animation: chart-fade 600ms 300ms ease-out both;
+}
+@keyframes chart-fade {
+  from {
+    opacity: 0;
+  }
+}
+.chart-bar {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: chart-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 160ms ease-out;
+}
+.chart-svg:has(.chart-bar.active) .chart-bar:not(.active) {
+  opacity: 0.45;
+}
+@keyframes chart-grow {
+  from {
+    transform: scaleY(0.02);
+  }
+}
+.chart-point {
+  animation: chart-fade 160ms ease-out both;
+}
+.chart-target line {
+  stroke: #5e5e66;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+.chart-target text {
+  font:
+    500 12px Inter,
+    sans-serif;
+  fill: #5e5e66;
+}
+.chart-tooltip {
+  animation: chart-tip 160ms ease-out both;
+  white-space: nowrap;
+}
+@keyframes chart-tip {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-line,
+  .chart-area,
+  .chart-bar,
+  .chart-point,
+  .chart-tooltip {
+    animation: none;
+  }
+}
