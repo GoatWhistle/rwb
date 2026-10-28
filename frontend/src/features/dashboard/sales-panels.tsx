@@ -96,25 +96,29 @@ function TrendHead({
   return (
     <div className="os-chart-head">
       <div className="os-legend">
-        <Button
-          aria-pressed={series === "revenue"}
-          className={series === "revenue" ? "on" : ""}
-          onClick={() => onSeries("revenue")}
-        >
-          <i />
-          {ru.revenue}
-        </Button>
-        <Button
-          aria-pressed={series === "orders_cnt"}
-          className={series === "orders_cnt" ? "on" : ""}
-          onClick={() => onSeries("orders_cnt")}
-        >
-          <i />
-          {ru.orders}
-        </Button>
+        <fieldset className="os-seg" aria-label={ru.trend}>
+          <Button
+            aria-pressed={series === "revenue"}
+            className={series === "revenue" ? "on" : ""}
+            onClick={() => onSeries("revenue")}
+          >
+            {ru.revenue}
+          </Button>
+          <Button
+            aria-pressed={series === "orders_cnt"}
+            className={series === "orders_cnt" ? "on" : ""}
+            onClick={() => onSeries("orders_cnt")}
+          >
+            {ru.orders}
+          </Button>
+        </fieldset>
+        <span className="os-key">
+          <i className="os-key-line" />
+          {series === "revenue" ? ru.revenue : ru.orders}
+        </span>
         {prior && (
-          <span className="os-legend-prior">
-            <i />
+          <span className="os-key">
+            <i className="os-key-dash" />
             {priorLabel}
           </span>
         )}
