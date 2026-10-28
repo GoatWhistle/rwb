@@ -1,8 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http"
 import type { Plugin } from "vite"
+import blockB from "../../backend/catalog/block_b.json" with { type: "json" }
 import dcReports from "../../backend/catalog/delivery_customers.json" with { type: "json" }
 import overviewSales from "../../backend/catalog/overview_sales.json" with { type: "json" }
 import reports from "../../backend/catalog/reports.json" with { type: "json" }
+import { blockBBuilders } from "./block-b"
 import { scenarioFor } from "./chat"
 import { constructorHandler } from "./constructor"
 import type { MockFilters, Row } from "./data"
@@ -40,7 +42,7 @@ interface Report {
   units: string
   limitations: string[]
 }
-const catalog = [...reports, ...overviewSales, ...dcReports] as unknown as Report[]
+const catalog = [...reports, ...overviewSales, ...dcReports, ...blockB] as unknown as Report[]
 const builders: Record<string, (filters: MockFilters) => Row[]> = {
   "block_a.1": monthlyFor,
   "block_a.2": sellersFor,
@@ -60,6 +62,7 @@ const builders: Record<string, (filters: MockFilters) => Row[]> = {
   "os.states_revenue": statesRevenueFor,
   "os.status_mix": statusMixFor,
   ...deliveryCustomerBuilders,
+  ...blockBBuilders,
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

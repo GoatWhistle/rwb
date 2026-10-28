@@ -1,0 +1,130 @@
+[
+  {
+    "id": "bb.price_history",
+    "title": "Как менялась цена товара по дням",
+    "sql": "WITH sold AS (\n  SELECT i.product_id, i.price, o.purchased_at\n  FROM core.order_items i\n  JOIN core.orders o USING (order_id)\n  WHERE o.status NOT IN ('canceled', 'unavailable')\n),\ntop_product AS (\n  SELECT product_id FROM sold GROUP BY product_id\n  ORDER BY count(DISTINCT price) DESC, product_id\n  LIMIT 1\n)\nSELECT s.product_id,\n       coalesce(p.category_name, '(без категории)') AS category,\n       to_char(s.purchased_at::date, 'YYYY-MM-DD') AS day,\n       s.price,\n       count(*) AS units_sold\nFROM sold s\nJOIN top_product USING (product_id)\nJOIN core.products p USING (product_id)\nGROUP BY 1, 2, 3, 4\nORDER BY 3, 4",
+    "grain": "день × цена для товара с наибольшим числом разных цен",
+    "units": "BRL; шт.",
+    "definitions": {
+      "product_id": "Товар с наибольшим числом разных цен в выбранном срезе; при ничьей — меньший product_id",
+      "price": "Цена позиции order_items.price без доставки",
+      "units_sold": "Позиции заказов кроме canceled и unavailable; одна строка order_items = одна единица",
+      "day": "Дата оформления заказа"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы.",
+      "Товар продают несколько продавцов, поэтому в один день бывает несколько цен — отдельными строками."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/block_b.json"
+  },
+  {
+    "id": "bb.delivery_states",
+    "title": "Доставка по штатам: дни и доля опозданий",
+    "sql": "SELECT customer_state AS state,\n       count(*) AS orders_cnt,\n       round(avg(extract(epoch FROM delivered_at - purchased_at) / 86400)::numeric, 2) AS avg_delivery_days,\n       round(100 * avg((delivered_at::date > estimated_delivery_date)::int), 2) AS late_pct\nFROM core.orders\nWHERE status = 'delivered' AND delivered_at IS NOT NULL\nGROUP BY customer_state\nHAVING count(*) >= 500\nORDER BY orders_cnt DESC",
+    "grain": "штат покупателя",
+    "units": "шт.; дни; проценты 0–100",
+    "definitions": {
+      "orders_cnt": "Доставленные заказы с датой вручения; порог 500 по ним же",
+      "avg_delivery_days": "Среднее (delivered_at − purchased_at) в днях с дробной частью",
+      "late_pct": "Доля заказов, вручённых позже estimated_delivery_date (сравнение по датам)",
+      "state": "Штат покупателя на момент заказа (снимок в core.orders)"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы.",
+      "Штаты с менее чем 500 доставленными заказами в срезе не показываются."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/block_b.json"
+  },
+  {
+    "id": "bb.status_funnel",
+    "title": "Воронка статусов заказов",
+    "sql": "SELECT o.status,\n       CASE o.status WHEN 'created' THEN 1 WHEN 'approved' THEN 2 WHEN 'processing' THEN 3 WHEN 'invoiced' THEN 4 WHEN 'shipped' THEN 5 WHEN 'delivered' THEN 6 WHEN 'canceled' THEN 7 ELSE 8 END AS stage,\n       count(*) AS orders_cnt,\n       round(100.0 * count(*) / sum(count(*)) OVER (), 2) AS orders_pct,\n       count(*) FILTER (WHERE i.order_id IS NULL) AS without_items,\n       count(*) FILTER (WHERE o.approved_at IS NOT NULL) AS approved_cnt,\n       count(*) FILTER (WHERE o.shipped_at IS NOT NULL) AS shipped_cnt,\n       count(*) FILTER (WHERE o.delivered_at IS NOT NULL) AS delivered_cnt\nFROM core.orders o\nLEFT JOIN (SELECT DISTINCT order_id FROM core.order_items) i USING (order_id)\nGROUP BY o.status\nORDER BY stage",
+    "grain": "статус заказа",
+    "units": "шт.; проценты 0–100",
+    "definitions": {
+      "orders_cnt": "Заказы в текущем статусе, без фильтра по позициям",
+      "orders_pct": "Доля статуса от всех заказов среза",
+      "without_items": "Заказы без единой строки в order_items",
+      "stage": "Порядок шага воронки: created → approved → processing → invoiced → shipped → delivered; canceled и unavailable — выходы",
+      "approved_cnt": "Заказы статуса с заполненной датой подтверждения",
+      "shipped_cnt": "Заказы статуса с заполненной датой передачи в доставку",
+      "delivered_cnt": "Заказы статуса с заполненной датой вручения"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы.",
+      "Статус — текущий снимок; истории переходов в данных нет, поэтому воронка — распределение по последнему шагу."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/block_b.json"
+  },
+  {
+    "id": "bb.payments_states",
+    "title": "Способы оплаты и рассрочка по штатам, 2018",
+    "sql": "SELECT o.customer_state AS state,\n       count(*) AS payments_cnt,\n       sum(p.amount) AS amount,\n       round(avg(p.installments), 2) AS avg_installments,\n       round(100 * avg((p.payment_type = 'credit_card')::int), 2) AS card_pct,\n       round(100 * avg((p.payment_type = 'boleto')::int), 2) AS boleto_pct,\n       round(100 * avg((p.payment_type = 'voucher')::int), 2) AS voucher_pct,\n       round(100 * avg((p.payment_type = 'debit_card')::int), 2) AS debit_pct,\n       round(100 * avg((p.installments > 1)::int), 2) AS installment_pct\nFROM core.order_payments p\nJOIN core.orders o USING (order_id)\nWHERE o.purchased_at >= '2018-01-01' AND o.purchased_at < '2019-01-01'\nGROUP BY o.customer_state\nORDER BY amount DESC",
+    "grain": "штат покупателя, 2018 год",
+    "units": "шт.; BRL; части; проценты 0–100",
+    "definitions": {
+      "payments_cnt": "Платежи (строки order_payments) по заказам 2018 года, любой статус",
+      "amount": "Сумма платежей",
+      "avg_installments": "Среднее число частей рассрочки на платёж",
+      "card_pct": "Доля платежей кредитной картой",
+      "boleto_pct": "Доля платежей boleto",
+      "voucher_pct": "Доля платежей ваучером",
+      "debit_pct": "Доля платежей дебетовой картой",
+      "installment_pct": "Доля платежей больше чем в одну часть"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы.",
+      "Год 2018 зашит в метрику; фильтр дат сужает его дальше.",
+      "Единица — платёж, не заказ: заказ бывает оплачен в несколько приёмов."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/block_b.json"
+  },
+  {
+    "id": "bb.payment_types",
+    "title": "Способы оплаты и рассрочка за весь период",
+    "sql": "SELECT p.payment_type,\n       count(*) AS payments_cnt,\n       sum(p.amount) AS amount,\n       round(100.0 * count(*) / sum(count(*)) OVER (), 2) AS payments_pct,\n       round(avg(p.installments), 2) AS avg_installments,\n       max(p.installments) AS max_installments\nFROM core.order_payments p\nJOIN core.orders o USING (order_id)\nGROUP BY p.payment_type\nORDER BY payments_cnt DESC",
+    "grain": "способ оплаты",
+    "units": "шт.; BRL; проценты 0–100; части",
+    "definitions": {
+      "payments_cnt": "Платежи (строки order_payments), любой статус заказа",
+      "payments_pct": "Доля способа от всех платежей среза",
+      "avg_installments": "Среднее число частей рассрочки",
+      "max_installments": "Максимальное число частей"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы.",
+      "У двух платежей картой installments = 0 — ошибка источника, оставлены как есть."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/block_b.json"
+  },
+  {
+    "id": "bb.score_delivery",
+    "title": "Оценка покупателя и срок доставки",
+    "sql": "WITH last_review AS (\n  SELECT DISTINCT ON (order_id) order_id, score\n  FROM core.order_reviews\n  ORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST\n),\nper_score AS (\n  SELECT r.score,\n         count(*) AS orders_cnt,\n         avg(extract(epoch FROM o.delivered_at - o.purchased_at) / 86400) AS avg_days,\n         avg((o.delivered_at::date > o.estimated_delivery_date)::int) AS late_share\n  FROM last_review r\n  JOIN core.orders o USING (order_id)\n  WHERE o.status = 'delivered' AND o.delivered_at IS NOT NULL\n  GROUP BY r.score\n)\nSELECT s.score,\n       coalesce(p.orders_cnt, 0) AS orders_cnt,\n       round(p.avg_days::numeric, 2) AS avg_delivery_days,\n       round(100 * p.late_share, 2) AS late_pct\nFROM generate_series(1, 5) AS s(score)\nLEFT JOIN per_score p USING (score)\nORDER BY s.score",
+    "grain": "оценка 1–5",
+    "units": "шт.; дни; проценты 0–100",
+    "definitions": {
+      "score": "Оценка последнего по времени отзыва на заказ",
+      "orders_cnt": "Доставленные заказы с датой вручения и отзывом",
+      "avg_delivery_days": "Среднее (delivered_at − purchased_at) в днях",
+      "late_pct": "Доля вручённых позже estimated_delivery_date"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы.",
+      "Отзывы на недоставленные заказы не входят: у них нет срока доставки."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/block_b.json"
+  }
+]
