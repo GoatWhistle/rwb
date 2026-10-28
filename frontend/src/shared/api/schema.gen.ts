@@ -4,6 +4,40 @@
  */
 
 export interface paths {
+    "/api/audio/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health */
+        get: operations["health_api_audio_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/audio/transcribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transcribe */
+        post: operations["transcribe_api_audio_transcribe_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/metrics": {
         parameters: {
             query?: never;
@@ -122,6 +156,33 @@ export interface components {
             metric_id: string;
             filters?: components["schemas"]["Filters"];
         };
+        /** SpeechStatus */
+        SpeechStatus: {
+            /** Available */
+            available: boolean;
+            /**
+             * Model
+             * @default GigaAM-v3-e2e-ctc
+             */
+            model: string;
+            /**
+             * Max Seconds
+             * @default 600
+             */
+            max_seconds: number;
+        };
+        /** Transcription */
+        Transcription: {
+            /** Text */
+            text: string;
+            /** Duration Seconds */
+            duration_seconds: number;
+            /**
+             * Model
+             * @default GigaAM-v3-e2e-ctc
+             */
+            model: string;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -144,6 +205,50 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    health_api_audio_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SpeechStatus"];
+                };
+            };
+        };
+    };
+    transcribe_api_audio_transcribe_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "audio/wav": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Transcription"];
+                };
+            };
+        };
+    };
     metrics_api_metrics_get: {
         parameters: {
             query?: never;

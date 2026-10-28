@@ -151,6 +151,7 @@ export function App() {
       )}
       <div className="chat-area" hidden={!chatOpen}>
         <ChatPanel
+          active={chatOpen}
           context={context}
           contextName={contextName}
           initialText={draft.text}

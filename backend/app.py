@@ -13,8 +13,10 @@ from .models import ChatRequest, MetricQuery
 from .storage import session, record
 from .tools import ToolContext
 from .agent import run_agent
+from .speech import router as speech_router
 
 app = FastAPI(title="Capibara metrics and AI",version="0.1.0")
+app.include_router(speech_router)
 app.add_middleware(CORSMiddleware,allow_origins=settings().cors_origins,
                    allow_methods=["GET","POST"],allow_headers=["Content-Type"])
 active_sessions: set[str] = set()
