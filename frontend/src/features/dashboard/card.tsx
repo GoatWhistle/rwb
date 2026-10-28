@@ -1,4 +1,4 @@
-import { BarChart3, Download, Table2 } from "lucide-react"
+import { BarChart3, Download, MoreHorizontal, Table2 } from "lucide-react"
 import type { CSSProperties, MouseEvent, ReactNode } from "react"
 import { useState } from "react"
 import type { Row } from "@/shared/format"
@@ -130,58 +130,72 @@ export function CardTools({
   const [open, setOpen] = useState(false)
   return (
     <div className="os-tools">
-      {view && onView && (
-        <div className="os-view">
-          <IconButton
-            label={ru.chart}
-            aria-pressed={view === "chart"}
-            className={view === "chart" ? "on" : ""}
-            onClick={() => onView("chart")}
-          >
-            <BarChart3 size={16} />
-          </IconButton>
-          <IconButton
-            label={ru.table}
-            aria-pressed={view === "table"}
-            className={view === "table" ? "on" : ""}
-            onClick={() => onView("table")}
-          >
-            <Table2 size={16} />
-          </IconButton>
-        </div>
-      )}
       <Tip text={help} onAsk={onAsk} />
       <div className="os-menu">
         <IconButton
-          label="Скачать"
+          label={ru.widgetMenu}
           aria-expanded={open}
+          aria-haspopup="menu"
           onClick={() => setOpen(!open)}
           onBlur={(e) => {
             if (!e.currentTarget.parentElement?.contains(e.relatedTarget)) setOpen(false)
           }}
         >
-          <Download size={16} />
+          <MoreHorizontal size={16} />
         </IconButton>
         {open && (
-          <div className="os-menu-list">
+          <div className="os-menu-list" role="menu">
+            {view && onView && (
+              <>
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={view === "chart"}
+                  onClick={() => {
+                    onView("chart")
+                    setOpen(false)
+                  }}
+                >
+                  <BarChart3 size={14} />
+                  {ru.chart}
+                </button>
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={view === "table"}
+                  onClick={() => {
+                    onView("table")
+                    setOpen(false)
+                  }}
+                >
+                  <Table2 size={14} />
+                  {ru.table}
+                </button>
+                <hr />
+              </>
+            )}
             <button
               type="button"
+              role="menuitem"
               onClick={() => {
                 downloadCsv(rows, `${filename}.csv`)
                 setOpen(false)
               }}
             >
-              CSV<span>таблица</span>
+              <Download size={14} />
+              Скачать CSV
             </button>
             <button
               type="button"
+              role="menuitem"
               disabled={!png || view === "table"}
               onClick={(e) => {
                 downloadPng(e, `${filename}.png`)
                 setOpen(false)
               }}
             >
-              PNG<span>график</span>
+              <Download size={14} />
+              Скачать PNG
             </button>
           </div>
         )}

@@ -123,16 +123,16 @@
   display: grid;
   background: #fff;
   border: 1px solid var(--os-line);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px #1d1d1b14;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px #1d1d1b1f;
   transform-origin: top right;
   animation: os-pop 160ms var(--os-ease) both;
 }
 .os-menu-list button {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   height: 32px;
   padding: 0 10px;
   border: 0;
@@ -441,4 +441,19 @@
   .os-tools .tip-trigger {
     transition: none;
   }
+}
+.os-menu-list hr {
+  margin: 4px 6px;
+  border: 0;
+  border-top: 1px solid var(--os-line);
+}
+.os-menu-list button[aria-checked="true"] {
+  color: var(--os-cobalt);
+}
+.os-menu-list button svg {
+  color: var(--os-muted);
+  flex: none;
+}
+.os-menu-list button[aria-checked="true"] svg {
+  color: var(--os-cobalt);
 }
