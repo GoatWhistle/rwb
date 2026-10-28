@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { ru } from "@/shared/i18n/ru"
-import { AssistantIcon } from "./assistant-icon"
 
 export function ThinkingStatus({ working }: { working: boolean }) {
   const [seconds, setSeconds] = useState(0)
@@ -14,8 +13,10 @@ export function ThinkingStatus({ working }: { working: boolean }) {
   }, [])
   return (
     <div className="thinking-status" role="status">
-      <span className="thinking-icon">
-        <AssistantIcon size={22} />
+      <span className="thinking-loader" aria-hidden="true">
+        <i />
+        <i />
+        <i />
       </span>
       <span className="shimmer-text">{working ? ru.running : ru.thinking}</span>
       {seconds > 0 && <span className="thinking-time">{`${seconds} с`}</span>}
