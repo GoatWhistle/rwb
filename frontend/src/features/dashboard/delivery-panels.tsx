@@ -8,6 +8,7 @@ import { DataTable } from "@/shared/ui/data-table"
 import { HBars } from "./bars"
 import type { CardQuery } from "./card"
 import { Card } from "./card"
+import { stateName } from "./states"
 
 const TARGET = 0.9
 
@@ -72,16 +73,18 @@ export function Geography({
     <Card
       title={ru.geography}
       accent="опаздывает"
-      description={`Доля доставок вовремя по штатам, ${limit} худших · пунктир — цель 90 %`}
+      description={`Доля доставок вовремя по штатам, ${limit} худших · шкала 70–100 %`}
       query={query}
       index={index}
     >
       <HBars
         rows={rows}
-        label={(row) => String(row.state)}
+        label={(row) => stateName(row.state)}
+        sublabel={(row) => String(row.state)}
         value="otd"
         order="asc"
         limit={limit}
+        min={0.7}
         max={1}
         target={TARGET}
         targetLabel="цель 90 %"
