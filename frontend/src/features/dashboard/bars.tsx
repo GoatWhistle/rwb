@@ -2,6 +2,7 @@ import type { CSSProperties } from "react"
 import type { Row } from "@/shared/format"
 import { numeric } from "@/shared/format"
 import { EmptyState } from "@/shared/ui/controls"
+import "@/shared/styles/viz-palette.css"
 import "@/shared/styles/delivery-customers.css"
 
 export function HBars({
@@ -50,25 +51,25 @@ export function HBars({
           <div
             className={`barlist-row${below ? " below" : ""}`}
             key={`${label(item.row)}-${String(i)}`}
-            style={{ "--i": i } as CSSProperties}
+            style={{ "--i": i, "--w": `${Math.max(at(item.n), 1)}%` } as CSSProperties}
           >
-            <span className="barlist-track">
-              <span className="barlist-fill" style={{ width: `${Math.max(at(item.n), 2)}%` }} />
-              <span className="barlist-name" title={label(item.row)}>
-                {label(item.row)}
-                {sublabel && <small>{sublabel(item.row)}</small>}
-              </span>
+            <span className="barlist-name" title={label(item.row)}>
+              <span className="barlist-text">{label(item.row)}</span>
+              {sublabel && <small>{sublabel(item.row)}</small>}
             </span>
-            <strong className="barlist-value">{format(item.n)}</strong>
+            <span className="barlist-track">
+              <span className="barlist-fill" />
+              <strong className="barlist-value">{format(item.n)}</strong>
+            </span>
           </div>
         )
       })}
       {targetAt && (
         <div className="barlist-axis" aria-hidden="true">
+          <span />
           <span className="barlist-axis-track">
             <span className="barlist-target-label">{targetLabel}</span>
           </span>
-          <span />
         </div>
       )}
     </div>

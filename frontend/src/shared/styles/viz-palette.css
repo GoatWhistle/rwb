@@ -1,0 +1,29 @@
+:root {
+  --viz-1: #2348ff;
+  --viz-2: #3bc4ee;
+  --viz-3: #7f57eb;
+  --viz-4: #3faefd;
+  --viz-5: #0e7c55;
+  --viz-6: #b35c00;
+  --viz-7: #2068f5;
+  --viz-8: #78e9ff;
+  --viz-9: #b597f6;
+  --viz-10: #1a2fa8;
+  --viz-11: #0f8fb5;
+  --viz-12: #5a3bc4;
+  --viz-positive: #0e7c55;
+  --viz-negative: #d3263a;
+  --viz-warning: #b35c00;
+  --viz-gradient-0: #e9edff;
+  --viz-gradient-50: #7f8dff;
+  --viz-gradient-100: #2348ff;
+  --viz-diverging-0: #d3263a;
+  --viz-diverging-50: #f0e4ff;
+  --viz-diverging-100: #2348ff;
+  --viz-text: rgb(0 0 0 / 85%);
+  --viz-text-secondary: rgb(0 0 0 / 55%);
+  --viz-grid: rgb(0 0 0 / 8%);
+  --viz-axis: rgb(0 0 0 / 25%);
+  --viz-track: rgb(0 0 0 / 4%);
+  --viz-tooltip-shadow: 0 2px 12px rgb(0 0 0 / 15%);
+}
