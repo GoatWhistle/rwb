@@ -21,11 +21,12 @@ export interface ChartProps {
   compare?: string | undefined
   compareLabel?: string | undefined
   seriesLabel?: string | undefined
+  legend?: boolean | undefined
   min?: number | undefined
   max?: number | undefined
 }
 const SERIES = "var(--viz-1)"
-const PRIOR = "var(--viz-2)"
+const PRIOR = "#8c8c96"
 function valueAt(values: (number | null)[], index: number | null) {
   return index === null ? null : (values[index] ?? null)
 }
@@ -72,7 +73,16 @@ function domain(
     max: fixedMax ?? Math.ceil(dataMax / step) * step,
   }
 }
-function Legend({ series, prior }: { series: string; prior?: string | undefined }) {
+function Legend({
+  series,
+  prior,
+  hidden,
+}: {
+  series: string
+  prior?: string | undefined
+  hidden: boolean
+}) {
+  if (hidden) return null
   return (
     <ul className="chart-legend" aria-hidden="true">
       <li>
@@ -323,6 +333,7 @@ export function Chart({
   compare = "",
   compareLabel,
   seriesLabel,
+  legend = true,
   min: fixedMin,
   max: fixedMax,
 }: ChartProps) {
@@ -364,7 +375,7 @@ export function Chart({
   const hasPrior = priorMeasured.length > 1
   return (
     <div className="chart-wrap" ref={container}>
-      <Legend series={series} prior={hasPrior ? compareLabel : undefined} />
+      <Legend hidden={!legend} series={series} prior={hasPrior ? compareLabel : undefined} />
       {/* biome-ignore lint/a11y/useSemanticElements: SVG groups contain chart geometry. */}
       <svg
         viewBox={`0 0 ${width} ${height}`}

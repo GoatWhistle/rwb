@@ -204,6 +204,7 @@ export function SalesTrend({
           formatLabel={month}
           compare={hasPrior ? "prior_year" : undefined}
           compareLabel={priorLabel}
+          legend={false}
         />
       )}
     </Card>
