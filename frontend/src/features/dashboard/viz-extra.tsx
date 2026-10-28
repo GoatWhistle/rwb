@@ -2,12 +2,21 @@ import type { Row } from "@/shared/format"
 import { compact, money, month, number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
+import { tipAttrs, VizTip } from "@/shared/ui/viz-tip"
 import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import { stateName } from "./states"
 import "@/shared/styles/viz-extra-os.css"
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+const ordersWord = (n: number) => {
+  const a = Math.abs(Math.round(n)) % 100
+  const b = a % 10
+  if (a > 10 && a < 20) return "заказов"
+  if (b === 1) return "заказ"
+  if (b >= 2 && b <= 4) return "заказа"
+  return "заказов"
+}
 const HOURS = Array.from({ length: 24 }, (_, h) => h)
 const shade = (t: number) =>
   `color-mix(in srgb, var(--viz-gradient-100) ${Math.round(8 + t * 92)}%, var(--viz-gradient-0))`
@@ -38,38 +47,46 @@ export function Heatmap({
       index={index}
       actions={<CardTools rows={rows} filename="heatmap.csv" png={false} />}
     >
-      <div className="vx-heat">
-        <span />
-        {HOURS.map((h) => (
-          <span key={h} className="vx-heat-hour">
-            {h % 3 === 0 ? h : ""}
-          </span>
-        ))}
-        {DAYS.map((day, d) => (
-          <div key={day} className="vx-heat-row">
-            <span className="vx-heat-day">{day}</span>
-            {HOURS.map((h) => {
-              const r = cell.get(`${d + 1}-${h}`)
-              const n = numeric(r?.orders) ?? 0
-              return (
-                <span
-                  key={h}
-                  className="vx-heat-cell"
-                  style={{ background: shade(n / max) }}
-                  title={`${day}, ${h}:00 — ${number(n)} заказов`}
-                />
-              )
-            })}
-          </div>
-        ))}
-      </div>
+      <VizTip>
+        <div className="vx-heat">
+          <span />
+          {HOURS.map((h) => (
+            <span key={h} className="vx-heat-hour">
+              {h % 3 === 0 ? h : ""}
+            </span>
+          ))}
+          {DAYS.map((day, d) => (
+            <div key={day} className="vx-heat-row">
+              <span className="vx-heat-day">{day}</span>
+              {HOURS.map((h) => {
+                const r = cell.get(`${d + 1}-${h}`)
+                const n = numeric(r?.orders) ?? 0
+                return (
+                  <span
+                    key={h}
+                    className="vx-heat-cell"
+                    style={{ background: shade(n / max) }}
+                    {...tipAttrs(`${day}, ${h}:00`, [
+                      { label: "Заказов", value: number(n), color: shade(n / max) },
+                      { label: "Выручка", value: money(numeric(r?.revenue) ?? 0) },
+                    ])}
+                  />
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      </VizTip>
       {info && (
-        <p className="vx-caption">
-          Пик:
+        <p className="vx-caption vx-peak">
+          <span>Пик</span>
           <b>
             {DAYS[(numeric(info.dow) ?? 1) - 1]}, {String(info.hour)}:00
-          </b>{" "}
-          · {number(numeric(info.orders) ?? 0)} заказов · {money(numeric(info.revenue) ?? 0)}
+          </b>
+          <em>
+            {number(numeric(info.orders) ?? 0)} {ordersWord(numeric(info.orders) ?? 0)}
+          </em>
+          <em>{money(numeric(info.revenue) ?? 0)}</em>
         </p>
       )}
     </Card>
@@ -128,27 +145,32 @@ export function TileMap({
       index={index}
       actions={<CardTools rows={rows} filename="states-revenue.csv" png={false} />}
     >
-      <div className="vx-tiles" role="img" aria-label="Выручка по штатам Бразилии">
-        {TILES.map(([code, row, col]) => {
-          const v = byState.get(code)
-          const t = v === undefined ? 0 : Math.sqrt(v / max)
-          return (
-            <span
-              key={code}
-              className={`vx-tile${t > 0.55 ? " dark" : ""}${v === undefined ? " empty" : ""}`}
-              style={{
-                gridRow: row + 1,
-                gridColumn: col + 1,
-                background: shade(t),
-              }}
-              title={`${stateName(code)}: ${money(v ?? 0)} · ${percent(total ? (v ?? 0) / total : 0)}`}
-            >
-              <b>{code}</b>
-              <small>{v === undefined ? "—" : compact(v)}</small>
-            </span>
-          )
-        })}
-      </div>
+      <VizTip>
+        <div className="vx-tiles" role="img" aria-label="Выручка по штатам Бразилии">
+          {TILES.map(([code, row, col]) => {
+            const v = byState.get(code)
+            const t = v === undefined ? 0 : Math.sqrt(v / max)
+            return (
+              <span
+                key={code}
+                className={`vx-tile${t > 0.55 ? " dark" : ""}${v === undefined ? " empty" : ""}`}
+                style={{
+                  gridRow: row + 1,
+                  gridColumn: col + 1,
+                  background: shade(t),
+                }}
+                {...tipAttrs(`${stateName(code)}, ${code}`, [
+                  { label: "Выручка", value: money(v ?? 0), color: shade(t) },
+                  { label: "Доля", value: percent(total ? (v ?? 0) / total : 0) },
+                ])}
+              >
+                <b>{code}</b>
+                <small>{v === undefined ? "—" : compact(v)}</small>
+              </span>
+            )
+          })}
+        </div>
+      </VizTip>
       <div className="vx-scale">
         <span>0</span>
         <i />
@@ -197,24 +219,36 @@ export function PaymentsMix({
           </li>
         ))}
       </ul>
-      <div className="vx-stack">
-        {rows.map((r, i) => (
-          <div
-            key={String(r.month)}
-            className="vx-stack-col"
-            title={`${month(r.month)}: ${PAY_KEYS.map((k) => `${PAY_LABEL[k]} ${money(numeric(r[k]) ?? 0)}`).join(" · ")}`}
-          >
-            <div className="vx-stack-bar" style={{ height: `${((totals[i] ?? 0) / max) * 100}%` }}>
-              {PAY_KEYS.map((k, j) => (
-                <span key={k} className={`vx-c${j}`} style={{ flexGrow: numeric(r[k]) ?? 0 }} />
-              ))}
+      <VizTip>
+        <div className="vx-stack">
+          {rows.map((r, i) => (
+            <div
+              key={String(r.month)}
+              className="vx-stack-col"
+              {...tipAttrs(month(r.month, true), [
+                ...PAY_KEYS.map((k, j) => ({
+                  label: PAY_LABEL[k] ?? k,
+                  value: money(numeric(r[k]) ?? 0),
+                  swatch: `vx-c${j}`,
+                })),
+                { label: "Итого", value: money(totals[i] ?? 0) },
+              ])}
+            >
+              <div
+                className="vx-stack-bar"
+                style={{ height: `${((totals[i] ?? 0) / max) * 100}%` }}
+              >
+                {PAY_KEYS.map((k, j) => (
+                  <span key={k} className={`vx-c${j}`} style={{ flexGrow: numeric(r[k]) ?? 0 }} />
+                ))}
+              </div>
+              <small>
+                {String(r.month).slice(5, 7) === "01" || i === 0 ? String(r.month).slice(2, 7) : ""}
+              </small>
             </div>
-            <small>
-              {String(r.month).slice(5, 7) === "01" || i === 0 ? String(r.month).slice(2, 7) : ""}
-            </small>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </VizTip>
     </Card>
   )
 }
@@ -250,16 +284,25 @@ export function StatusBar({
       index={index}
       actions={<CardTools rows={rows} filename="status-mix.csv" png={false} />}
     >
-      <div className="vx-status">
-        {rows.map((r, i) => (
-          <span
-            key={String(r.status)}
-            className={`vx-s${Math.min(i, 5)}`}
-            style={{ flexGrow: numeric(r.orders) ?? 0 }}
-            title={`${STATUS_LABEL[String(r.status)] ?? String(r.status)}: ${number(numeric(r.orders) ?? 0)}`}
-          />
-        ))}
-      </div>
+      <VizTip>
+        <div className="vx-status">
+          {rows.map((r, i) => (
+            <span
+              key={String(r.status)}
+              className={`vx-s${Math.min(i, 5)}`}
+              style={{ flexGrow: numeric(r.orders) ?? 0 }}
+              {...tipAttrs(STATUS_LABEL[String(r.status)] ?? String(r.status), [
+                {
+                  label: "Заказов",
+                  value: number(numeric(r.orders) ?? 0),
+                  swatch: `vx-s${Math.min(i, 5)}`,
+                },
+                { label: "Доля", value: percent(total ? (numeric(r.orders) ?? 0) / total : 0, 1) },
+              ])}
+            />
+          ))}
+        </div>
+      </VizTip>
       <ul className="vx-legend vx-legend-grid">
         {rows.slice(0, 6).map((r, i) => (
           <li key={String(r.status)}>
@@ -294,21 +337,26 @@ export function Installments({
       index={index}
       actions={<CardTools rows={rows} filename="installments.csv" png={false} />}
     >
-      <div className="vx-columns">
-        {rows.map((r) => {
-          const n = numeric(r.orders) ?? 0
-          return (
-            <div
-              key={String(r.installments)}
-              title={`${String(r.installments)}: ${number(n)} заказов`}
-            >
-              <em>{percent(total ? n / total : 0, 0)}</em>
-              <span style={{ height: `${(n / max) * 100}%` }} />
-              <small>{Number(r.installments) >= 10 ? "10+" : String(r.installments)}</small>
-            </div>
-          )
-        })}
-      </div>
+      <VizTip>
+        <div className="vx-columns">
+          {rows.map((r) => {
+            const n = numeric(r.orders) ?? 0
+            return (
+              <div
+                key={String(r.installments)}
+                {...tipAttrs(`Платежей: ${String(r.installments)}`, [
+                  { label: "Заказов", value: number(n), color: "var(--viz-1)" },
+                  { label: "Доля", value: percent(total ? n / total : 0, 1) },
+                ])}
+              >
+                <em>{percent(total ? n / total : 0, 0)}</em>
+                <span style={{ height: `${(n / max) * 100}%` }} />
+                <small>{Number(r.installments) >= 10 ? "10+" : String(r.installments)}</small>
+              </div>
+            )
+          })}
+        </div>
+      </VizTip>
     </Card>
   )
 }

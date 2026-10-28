@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react"
 import type { Row } from "@/shared/format"
 import { month, number, numeric, percent } from "@/shared/format"
 import { EmptyState } from "@/shared/ui/controls"
+import { tipAttrs, VizTip } from "@/shared/ui/viz-tip"
 import { stateName } from "./states"
 import "@/shared/styles/viz-palette.css"
 import "@/shared/styles/viz-extra-dc.css"
@@ -61,51 +62,60 @@ export function Histogram({
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => t * maxY)
   return (
     <div className="dcx-hist" ref={box}>
-      <svg
-        className="chart-svg"
-        width={W}
-        height={H}
-        viewBox={`0 0 ${W} ${H}`}
-        role="img"
-        aria-label="Гистограмма"
-      >
-        {ticks.map((t) => (
-          <g key={t}>
-            <line className="chart-grid" x1={pad.l} x2={W - pad.r} y1={sy(t)} y2={sy(t)} />
-            <text className="chart-axis dcx-ytick" x={pad.l - 6} y={sy(t) + 4}>
-              {number(t)}
+      <VizTip>
+        <svg
+          className="chart-svg"
+          width={W}
+          height={H}
+          viewBox={`0 0 ${W} ${H}`}
+          role="img"
+          aria-label="Гистограмма"
+        >
+          {ticks.map((t) => (
+            <g key={t}>
+              <line className="chart-grid" x1={pad.l} x2={W - pad.r} y1={sy(t)} y2={sy(t)} />
+              <text className="chart-axis dcx-ytick" x={pad.l - 6} y={sy(t) + 4}>
+                {number(t)}
+              </text>
+            </g>
+          ))}
+          {items.map((item) => (
+            <rect
+              key={item.x}
+              className={`dcx-hist-bar${item.x <= median ? " in" : ""}${tailLabel && item.x === maxX ? " tail" : ""}`}
+              x={sx(item.x) + 0.5}
+              y={sy(item.y)}
+              width={Math.max(bw - 1, 1)}
+              height={Math.max(H - pad.b - sy(item.y), 0)}
+              {...tipAttrs(item.x === maxX && tailLabel ? tailLabel : `${item.x} ${unit}`, [
+                { label: "Заказов", value: number(item.y), color: "var(--viz-1)" },
+                { label: "Доля", value: percent(item.y / total) },
+              ])}
+            />
+          ))}
+          {Array.from({ length: Math.floor(maxX / 10) + 1 }, (_, i) => i * 10).map((t) => (
+            <text key={t} className="chart-axis dcx-xtick" x={sx(t) + bw / 2} y={H - 8}>
+              {t === maxX && tailLabel ? tailLabel : t}
             </text>
-          </g>
-        ))}
-        {items.map((item) => (
-          <rect
-            key={item.x}
-            className={`dcx-hist-bar${item.x <= median ? " in" : ""}${tailLabel && item.x === maxX ? " tail" : ""}`}
-            x={sx(item.x) + 0.5}
-            y={sy(item.y)}
-            width={Math.max(bw - 1, 1)}
-            height={Math.max(H - pad.b - sy(item.y), 0)}
-          >
-            <title>{`${item.x === maxX && tailLabel ? tailLabel : `${item.x} ${unit}`}: ${number(item.y)} (${percent(item.y / total)})`}</title>
-          </rect>
-        ))}
-        {Array.from({ length: Math.floor(maxX / 10) + 1 }, (_, i) => i * 10).map((t) => (
-          <text key={t} className="chart-axis dcx-xtick" x={sx(t) + bw / 2} y={H - 8}>
-            {t === maxX && tailLabel ? tailLabel : t}
-          </text>
-        ))}
-        {[
-          { v: median, label: `медиана ${median} ${unit}`, cls: "median" },
-          { v: p90, label: `90 % за ${p90} ${unit}`, cls: "p90" },
-        ].map((mark) => (
-          <g key={mark.cls} className={`dcx-mark ${mark.cls}`}>
-            <line x1={sx(mark.v) + bw / 2} x2={sx(mark.v) + bw / 2} y1={pad.t - 6} y2={H - pad.b} />
-            <text x={sx(mark.v) + bw / 2 + 4} y={pad.t}>
-              {mark.label}
-            </text>
-          </g>
-        ))}
-      </svg>
+          ))}
+          {[
+            { v: median, label: `медиана ${median} ${unit}`, cls: "median" },
+            { v: p90, label: `90 % за ${p90} ${unit}`, cls: "p90" },
+          ].map((mark) => (
+            <g key={mark.cls} className={`dcx-mark ${mark.cls}`}>
+              <line
+                x1={sx(mark.v) + bw / 2}
+                x2={sx(mark.v) + bw / 2}
+                y1={pad.t - 6}
+                y2={H - pad.b}
+              />
+              <text x={sx(mark.v) + bw / 2 + 4} y={pad.t}>
+                {mark.label}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </VizTip>
     </div>
   )
 }
@@ -156,59 +166,69 @@ export function StackedBars({
   return (
     <div className="dcx-stack" ref={box}>
       <Legend series={series} />
-      <svg
-        className="chart-svg"
-        width={W}
-        height={H}
-        viewBox={`0 0 ${W} ${H}`}
-        role="img"
-        aria-label="Столбцы с накоплением"
-      >
-        {ticks.map((t) => (
-          <g key={t}>
-            <line
-              className="chart-grid"
-              x1={pad.l}
-              x2={W - pad.r}
-              y1={H - pad.b - sy(t)}
-              y2={H - pad.b - sy(t)}
-            />
-            <text className="chart-axis dcx-ytick" x={pad.l - 6} y={H - pad.b - sy(t) + 4}>
-              {formatTick(t)}
-            </text>
-          </g>
-        ))}
-        {rows.map((row, i) => {
-          let base = H - pad.b
-          const cx = pad.l + step * i + step / 2
-          return (
-            <g key={String(row[x])} className="dcx-stack-col">
-              {series.map((s) => {
-                const h = sy(num(row[s.key]))
-                base -= h
-                return (
-                  <rect
-                    key={s.key}
-                    x={cx - bw / 2}
-                    y={base}
-                    width={bw}
-                    height={Math.max(h, 0)}
-                    style={{ fill: s.color }}
-                  >
-                    <title>{`${month(row[x], true)} · ${s.label}: ${format(num(row[s.key]))}`}</title>
-                  </rect>
-                )
-              })}
-              <title>{`${month(row[x], true)}: ${format(totals[i] ?? 0)}`}</title>
-              {i % every === 0 && (
-                <text className="chart-axis dcx-xtick" x={cx} y={H - 8}>
-                  {month(row[x])}
-                </text>
-              )}
+      <VizTip>
+        <svg
+          className="chart-svg"
+          width={W}
+          height={H}
+          viewBox={`0 0 ${W} ${H}`}
+          role="img"
+          aria-label="Столбцы с накоплением"
+        >
+          {ticks.map((t) => (
+            <g key={t}>
+              <line
+                className="chart-grid"
+                x1={pad.l}
+                x2={W - pad.r}
+                y1={H - pad.b - sy(t)}
+                y2={H - pad.b - sy(t)}
+              />
+              <text className="chart-axis dcx-ytick" x={pad.l - 6} y={H - pad.b - sy(t) + 4}>
+                {formatTick(t)}
+              </text>
             </g>
-          )
-        })}
-      </svg>
+          ))}
+          {rows.map((row, i) => {
+            let base = H - pad.b
+            const cx = pad.l + step * i + step / 2
+            return (
+              <g
+                key={String(row[x])}
+                className="dcx-stack-col"
+                {...tipAttrs(month(row[x], true), [
+                  ...series.map((s) => ({
+                    label: s.label,
+                    value: format(num(row[s.key])),
+                    color: s.color,
+                  })),
+                  { label: "Итого", value: format(totals[i] ?? 0) },
+                ])}
+              >
+                {series.map((s) => {
+                  const h = sy(num(row[s.key]))
+                  base -= h
+                  return (
+                    <rect
+                      key={s.key}
+                      x={cx - bw / 2}
+                      y={base}
+                      width={bw}
+                      height={Math.max(h, 0)}
+                      style={{ fill: s.color }}
+                    />
+                  )
+                })}
+                {i % every === 0 && (
+                  <text className="chart-axis dcx-xtick" x={cx} y={H - 8}>
+                    {month(row[x])}
+                  </text>
+                )}
+              </g>
+            )
+          })}
+        </svg>
+      </VizTip>
     </div>
   )
 }
@@ -267,12 +287,14 @@ function Tile({
   const n = data ? numeric(data[value]) : null
   const at = n === null ? 0 : scale(n)
   const dark = n !== null && (diverging ? at < 0.22 || at > 0.78 : at > 0.55)
-  const detail = data && extra ? ` · ${extra(data)}` : ""
   return (
     <div
       className={`dcx-tile${n === null ? " empty" : ""}${dark ? " dark" : ""}`}
       style={{ gridColumn: col + 1, gridRow: row + 1, "--t": at } as CSSProperties}
-      title={`${stateName(code)} (${code}): ${n === null ? "нет данных" : format(n)}${detail}`}
+      {...tipAttrs(`${stateName(code)}, ${code}`, [
+        { label: "Значение", value: n === null ? "нет данных" : format(n) },
+        ...(data && extra ? [{ label: "Детали", value: extra(data) }] : []),
+      ])}
     >
       <b>{code}</b>
       <span>{n === null ? "—" : format(n)}</span>
@@ -312,22 +334,24 @@ export function DeliveryTileMap({
   }
   return (
     <div className={`dcx-tiles${diverging ? " diverging" : ""}`}>
-      <div className="dcx-tile-grid">
-        {TILES.map(([code, col, row]) => (
-          <Tile
-            key={code}
-            code={code}
-            col={col}
-            row={row}
-            data={byState.get(code)}
-            value={value}
-            scale={t}
-            diverging={diverging}
-            format={format}
-            extra={extra}
-          />
-        ))}
-      </div>
+      <VizTip>
+        <div className="dcx-tile-grid">
+          {TILES.map(([code, col, row]) => (
+            <Tile
+              key={code}
+              code={code}
+              col={col}
+              row={row}
+              data={byState.get(code)}
+              value={value}
+              scale={t}
+              diverging={diverging}
+              format={format}
+              extra={extra}
+            />
+          ))}
+        </div>
+      </VizTip>
       <div className="dcx-scale">
         <span>{format(lo)}</span>
         <i />
@@ -348,7 +372,7 @@ export function ScoreBars({ rows, series }: { rows: Row[]; series: Series[] }) {
     }))
   const max = Math.max(...shares.flatMap((item) => item.values), 1e-9)
   return (
-    <div className="dcx-score">
+    <VizTip className="dcx-score">
       <Legend series={series} />
       {shares.map((item) => (
         <div className="dcx-score-row" key={item.score}>
@@ -358,7 +382,13 @@ export function ScoreBars({ rows, series }: { rows: Row[]; series: Series[] }) {
           </span>
           <div className="dcx-score-bars">
             {series.map((s, i) => (
-              <div key={s.key} className="dcx-score-bar">
+              <div
+                key={s.key}
+                className="dcx-score-bar"
+                {...tipAttrs(`Оценка ${item.score}, ${s.label}`, [
+                  { label: "Доля заказов", value: percent(item.values[i] ?? 0), color: s.color },
+                ])}
+              >
                 <span
                   style={{
                     width: `${((item.values[i] ?? 0) / max) * 100}%`,
@@ -371,6 +401,6 @@ export function ScoreBars({ rows, series }: { rows: Row[]; series: Series[] }) {
           </div>
         </div>
       ))}
-    </div>
+    </VizTip>
   )
 }

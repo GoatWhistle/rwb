@@ -1,0 +1,62 @@
+.viz-tip-host {
+  position: relative;
+  min-width: 0;
+}
+.viz-tip-host .chart-tooltip.viz-tip {
+  top: 0;
+  left: 0;
+  min-width: 150px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 16px;
+  z-index: 5;
+  animation: viz-tip-in 120ms ease-out both;
+}
+.viz-tip-host .viz-tip .chart-tooltip-head {
+  font-weight: 600;
+  color: var(--viz-text);
+}
+.viz-tip-host .viz-tip-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.viz-tip-host [data-tip-head] {
+  transition:
+    transform 0.12s ease-out,
+    box-shadow 0.12s ease-out,
+    filter 0.12s ease-out;
+}
+.viz-tip-host .viz-tip-on:not(rect):not(g) {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px var(--viz-1),
+    0 4px 10px rgb(20 20 40 / 0.12);
+}
+.viz-tip-host rect.viz-tip-on,
+.viz-tip-host g.viz-tip-on rect {
+  filter: brightness(1.12);
+  opacity: 1;
+}
+@keyframes viz-tip-in {
+  from {
+    opacity: 0;
+    translate: 0 3px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .viz-tip-host .chart-tooltip.viz-tip,
+  .viz-tip-host [data-tip-head] {
+    animation: none;
+    transition: none;
+  }
+}
