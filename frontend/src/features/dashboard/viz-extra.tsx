@@ -8,6 +8,7 @@ import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import { stateName } from "./states"
 import "@/shared/styles/viz-extra-os.css"
+import "@/shared/styles/fill-pay-cat.css"
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 const ordersWord = (n: number) => {
@@ -210,6 +211,7 @@ export function PaymentsMix({
       hint={ru.osHints.payments}
       query={query}
       index={index}
+      className="pc-pay"
       actions={<CardTools rows={rows} filename="payments-monthly.csv" png={false} />}
     >
       <ul className="vx-legend">
@@ -220,7 +222,7 @@ export function PaymentsMix({
           </li>
         ))}
       </ul>
-      <VizTip>
+      <VizTip className="pc-pay-plot">
         <div className="vx-stack">
           {rows.map((r, i) => (
             <div

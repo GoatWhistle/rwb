@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react"
 import type { CSSProperties } from "react"
-import { useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { MetricResult } from "@/shared/api/metrics"
 import type { Row } from "@/shared/format"
 import { categoryName, compact, money, month, number, numeric, percent } from "@/shared/format"
@@ -11,6 +11,7 @@ import { DataTable } from "@/shared/ui/data-table"
 import { Money } from "@/shared/ui/money"
 import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
+import "@/shared/styles/fill-pay-cat.css"
 
 const shareFormat = new Intl.NumberFormat("ru-RU", { style: "percent", maximumFractionDigits: 1 })
 const priorLabel = "Год назад"
@@ -206,6 +207,53 @@ export function SalesTrend({
     </Card>
   )
 }
+const BASE_GAP = 4
+const MAX_GAP = 16
+
+type Fit = { height: number; rows: number; gap: number }
+
+function measureFit(box: HTMLElement, list: HTMLElement, count: number): Fit {
+  const height = box.clientHeight
+  const items = list.querySelectorAll<HTMLElement>(".os-barlist > li")
+  const head = items[0]?.offsetHeight ?? 20
+  const row = items[1]?.offsetHeight ?? 32
+  const rows = Math.max(1, Math.min(count, Math.floor((height - head) / (row + BASE_GAP))))
+  const gap = Math.min(MAX_GAP, Math.max(BASE_GAP, (height - head - rows * row) / rows))
+  return { height, rows, gap }
+}
+
+function useFitRows(count: number, limit: number) {
+  const boxRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const [fit, setFit] = useState<Fit>({ height: 0, rows: limit, gap: BASE_GAP })
+  const [all, setAll] = useState(false)
+  const [grown, setGrown] = useState(false)
+  const [full, setFull] = useState(0)
+  useLayoutEffect(() => {
+    const box = boxRef.current
+    const list = listRef.current
+    if (!box || !list || count === 0 || grown) return
+    const measure = () => setFit(measureFit(box, list, count))
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(box)
+    return () => observer.disconnect()
+  }, [count, grown])
+  useEffect(() => {
+    if (all) return
+    const timer = window.setTimeout(() => setGrown(false), 340)
+    return () => window.clearTimeout(timer)
+  }, [all])
+  const toggle = () => {
+    if (!all) {
+      setFull(listRef.current?.scrollHeight ?? 0)
+      setGrown(true)
+    }
+    setAll(!all)
+  }
+  return { boxRef, listRef, fit, all, grown, toggle, height: all ? full : fit.height }
+}
+
 export function Categories({
   rows,
   query,
@@ -217,27 +265,8 @@ export function Categories({
   index?: number
   limit?: number
 }) {
-  const [all, setAll] = useState(false)
-  const listRef = useRef<HTMLDivElement>(null)
-  const [height, setHeight] = useState<number | undefined>(undefined)
   const total = rows.reduce((sum, row) => sum + (numeric(row.revenue) ?? 0), 0)
-  useLayoutEffect(() => {
-    const box = listRef.current
-    if (!box || rows.length === 0) return
-    const measure = () => {
-      const items = box.querySelectorAll<HTMLElement>(".os-barlist > li")
-      const cut = items[limit + 1]
-      setHeight(
-        all || !cut
-          ? box.scrollHeight
-          : cut.getBoundingClientRect().top - box.getBoundingClientRect().top,
-      )
-    }
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(box)
-    return () => observer.disconnect()
-  }, [all, limit, rows.length])
+  const { boxRef, listRef, fit, all, grown, toggle, height } = useFitRows(rows.length, limit)
   return (
     <Card
       title={ru.categories}
@@ -246,24 +275,30 @@ export function Categories({
       hint={ru.tips.categories}
       query={query}
       index={index}
-      className="os-card"
+      className="os-card pc-cat"
       actions={<CardTools rows={rows} filename="datum-categories" png={false} />}
     >
       {rows.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="os-collapse" ref={listRef} style={{ height }}>
-          <BarList
-            rows={rows}
-            label={(row) => categoryName(row.category)}
-            value="revenue"
-            total={total}
-            format={(n) => money(n, true)}
-          />
+        <div
+          className={`pc-cat-fill${grown ? " is-grown" : ""}`}
+          ref={boxRef}
+          style={{ minHeight: 20 + limit * 44, "--pc-gap": `${fit.gap}px` } as CSSProperties}
+        >
+          <div className="os-collapse" ref={listRef} style={{ height }}>
+            <BarList
+              rows={rows}
+              label={(row) => categoryName(row.category)}
+              value="revenue"
+              total={total}
+              format={(n) => money(n, true)}
+            />
+          </div>
         </div>
       )}
-      {rows.length > limit && (
-        <Button className="os-more" aria-expanded={all} onClick={() => setAll(!all)}>
+      {rows.length > fit.rows && (
+        <Button className="os-more" aria-expanded={all} onClick={toggle}>
           <span>{all ? ru.showLess : ru.showAll}</span>
           {!all && <span className="os-more-count">{number(rows.length)}</span>}
           <ChevronDown size={16} className="os-more-chevron" aria-hidden="true" />
