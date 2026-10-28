@@ -1,8 +1,4 @@
-#cover .cover-lockup { position: absolute; left: var(--gutter); top: 300px; display: flex; align-items: center; gap: 56px; }
-#cover .cover-wm { color: var(--dz-on-brand); }
-#cover .cover-title { position: absolute; left: var(--gutter); top: 600px; width: 1500px; font-size: 84px; font-weight: 700; line-height: 1.02; letter-spacing: -0.03em; color: var(--dz-on-brand); }
-#cover .cover-title em { color: var(--dz-on-brand); }
-#cover .cover-sub { position: absolute; left: var(--gutter); top: 820px; font-size: 34px; color: var(--dz-on-brand); opacity: 0.88; }
-#cover .cover-event { position: absolute; left: var(--gutter); bottom: 72px; font-size: 22px; font-weight: 700; color: var(--dz-on-brand); opacity: 0.8; }
-#cover.play .cover-event { animation-name: dz-cover-event; }
-@keyframes dz-cover-event { from { opacity: 0; } to { opacity: 0.8; } }
+#cover .cv-strata { right: 30px; top: 140px; width: 840px; height: 840px; }
+#cover .cv-brand { position: absolute; left: var(--gutter); top: 300px; color: var(--deck-fg); }
+#cover .cv-title { position: absolute; left: var(--gutter); top: 600px; width: 880px; font-size: 64px; font-weight: 700; line-height: 1.06; letter-spacing: -0.025em; color: var(--deck-fg); }
+#cover .cv-event { position: absolute; left: var(--gutter); bottom: 80px; font-size: 22px; font-weight: 700; color: var(--deck-fg-3); }

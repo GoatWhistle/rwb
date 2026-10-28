@@ -1,6 +1,0 @@
-#summary .body { top: 340px; bottom: 220px; }
-#summary .sm-card { align-content: end; gap: 16px; padding: 48px; }
-#summary .sm-card h3 { font-size: 40px; letter-spacing: -0.02em; }
-#summary .sm-card p { font-size: 27px; }
-#summary .sm-ico { display: grid; place-items: center; width: 104px; height: 104px; margin-bottom: auto; border-radius: 32px; background: var(--dz-grad-sky); color: var(--dz-on-brand); }
-#summary .is-brand .sm-ico { background: var(--dz-white); color: var(--deck-accent); }

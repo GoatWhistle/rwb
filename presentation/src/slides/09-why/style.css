@@ -1,5 +1,11 @@
-#why .dz-row { --cols: 1fr 1.15fr 360px; min-height: 104px; }
-#why .dz-row b { font-size: 28px; }
-#why .why-bad { display: flex; gap: 14px; align-items: center; color: var(--deck-fg-2); }
-#why .why-bad .ico { color: var(--deck-danger); }
-#why .dz-pill { justify-self: start; font-size: 22px; padding: 10px 20px; }
+#why .wy { display: grid; gap: 14px; align-content: start; }
+#why .wy-head, #why .wy-row { display: grid; grid-template-columns: 330px 250px 40px 270px 1fr 330px; gap: 20px; align-items: center; }
+#why .wy-head { font-size: 20px; font-weight: 700; color: var(--deck-fg-3); padding: 0 28px; }
+#why .wy-row { min-height: 108px; padding: 0 28px; border-radius: 22px; background: var(--dz-mist); }
+#why .wy-name { font-size: 27px; font-weight: 700; }
+#why .wy-wrong { font-size: 32px; font-weight: 700; color: var(--deck-danger); text-decoration: line-through; text-decoration-thickness: 3px; white-space: nowrap; }
+#why .wy-arrow { color: var(--deck-fg-3); }
+#why .wy-right { font-size: 36px; font-weight: 700; color: var(--deck-accent); white-space: nowrap; }
+#why .wy-track { height: 22px; border-radius: var(--radius-pill); background: var(--deck-bg); overflow: hidden; }
+#why .wy-fill { display: block; height: 100%; border-radius: inherit; background: var(--deck-danger); transform: scaleX(var(--w)); }
+#why .wy-how { font-size: 21px; color: var(--deck-fg-2); }

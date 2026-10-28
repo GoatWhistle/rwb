@@ -573,3 +573,29 @@
 .body.grid {
   height: auto;
 }
+
+.dz-light {
+  background: var(--deck-bg);
+}
+
+.dz-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  background: var(--dz-grad-cover);
+  transform-origin: left;
+}
+
+.play .dz-band {
+  animation: deck-grow 1.4s var(--ease-in-out) 0.1s both;
+}
+
+.dz-light .st-glow {
+  fill: var(--dz-sky);
+}
+
+.dz-light .st-ring {
+  stroke: var(--deck-accent);
+}

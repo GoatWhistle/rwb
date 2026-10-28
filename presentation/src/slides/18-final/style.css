@@ -1,6 +1,4 @@
-#final .fn-lockup { position: absolute; left: 0; right: 0; top: 230px; display: flex; justify-content: center; align-items: center; gap: 64px; }
-#final .fn-wm { color: var(--dz-on-brand); }
-#final .fn-title { position: absolute; left: 0; right: 0; top: 620px; text-align: center; font-size: 104px; font-weight: 700; letter-spacing: -0.03em; color: var(--dz-on-brand); }
-#final .fn-title em { color: var(--dz-on-brand); }
-#final .fn-sub { position: absolute; left: 0; right: 0; top: 800px; text-align: center; font-size: 30px; color: var(--dz-on-brand); }
-#final .fn-pix-r svg { transform: scale(-1, -1); }
+#final .fn-strata { left: 50%; top: 40px; width: 640px; height: 640px; margin-left: -320px; }
+#final .fn-wm { position: absolute; left: var(--gutter); top: 80px; color: var(--deck-fg); }
+#final .fn-title { position: absolute; left: 0; right: 0; top: 690px; text-align: center; font-size: 120px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; color: var(--deck-fg); }
+#final .fn-sub { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font-size: 32px; color: var(--deck-fg-2); }

@@ -1,32 +1,32 @@
 <section class="slide" id="dashboard" data-title="Дашборд">
-  <h2 class="title a">Дашборд: <em>исполнение заказа</em></h2>
-  <div class="body is-tall db-grid">
-    <div class="db-kpis">
-      <div class="card db-kpi db-otd a" style="--d:0.3s">
-        <div class="db-ring-wrap"><svg class="db-ring" viewBox="0 0 240 240" aria-hidden="true"><circle class="db-ring-bg" cx="120" cy="120" r="100"/><circle class="db-ring-val" pathLength="1" cx="120" cy="120" r="100"/></svg>
-        <span class="db-ring-num num count" data-num="otd"></span></div>
-        <p>вручено в обещанный срок, OTD</p>
-      </div>
-      <div class="card db-kpi a" style="--d:0.45s">
-        <span class="dz-big num count" data-num="median_days"></span>
-        <p>медиана доставки в днях</p>
-        <div class="db-cmp"><i class="dz-bar" style="--w:0.425;--d:0.9s"></i><i class="dz-bar is-muted" style="--w:1;--d:1s"></i></div>
-        <span class="dz-note">обещали 24 дня</span>
-      </div>
-      <div class="card db-kpi a" style="--d:0.6s">
-        <span class="dz-big db-split">1.8 <small>/</small> 7.1</span>
-        <p>дни продавца и перевозчика</p>
-        <div class="db-stack"><i class="db-seg is-seller" style="--d:1.1s"></i><i class="db-seg is-carrier" style="--d:1.25s"></i></div>
-      </div>
-      <div class="card db-kpi is-lilac a" style="--d:0.75s">
-        <span class="dz-big num count" data-num="stuck"></span>
-        <p>заказов застряли в пути дольше обещания</p>
-      </div>
+  <h2 class="title a">Дашборд <em>исполнения заказа</em></h2>
+  <div class="body is-tall db">
+    <div class="db-left">
+      <div class="db-ring-wrap a" style="--d:0.3s"><svg class="db-ring" viewBox="0 0 240 240" aria-hidden="true"><circle class="db-ring-bg" cx="120" cy="120" r="100"/><circle class="db-ring-val" pathLength="1" cx="120" cy="120" r="100"/></svg><span class="db-ring-num num count" data-num="otd"></span></div>
+      <p class="db-cap a" style="--d:0.5s">вручено в обещанный срок</p>
+      <svg class="db-spark" viewBox="0 0 520 190" aria-hidden="true">
+        <path class="c-line dr" pathLength="1" style="--d:1s;--t:1.4s" d="M0.0 19.8 L27.4 20.5 L54.7 31.4 L82.1 45.0 L109.5 20.5 L136.8 20.5 L164.2 19.1 L191.6 19.8 L218.9 30.0 L246.3 28.6 L273.7 84.5 L301.1 51.1 L328.4 38.9 L355.8 96.1 L383.2 129.5 L410.5 30.7 L437.9 45.0 L465.3 8.2 L492.6 23.2 L520.0 42.3"/>
+        <circle class="c-dot is-bad pop" style="--d:2s" cx="383.2" cy="129.5" r="10"/>
+        <text class="c-lbl is-bad" x="383" y="184" text-anchor="middle">март 2018: 81%</text>
+      </svg>
     </div>
-    <div class="db-side">
-      <div class="card a" style="--d:1s"><h3><span class="ico is-sm" data-icon="users"></span> Кто решает</h3><p>Операционный директор и логистика: где теряем срок, каким штатам менять обещание, каких продавцов подтягивать (90.9% отгрузок в срок).</p></div>
-      <div class="card a" style="--d:1.2s"><h3><span class="ico is-sm" data-icon="alert"></span> Что нельзя складывать</h3><p>Медианы и доли (OTD, p90) по месяцам и штатам не суммируются: каждый срез пересчитываем из витрины.</p></div>
-      <p class="dz-note a" style="--d:1.4s">Срезы: месяц, штат покупателя, продавец. Источник: mart.order_fulfillment и mart.seller_shipment, период до августа 2018.</p>
+    <div class="db-hist">
+      <svg viewBox="0 0 1060 440" aria-hidden="true">
+        <rect class="c-bar" x="2.0" y="379.4" width="16.8" height="2.0" rx="3" style="--d:0.40s"/><rect class="c-bar" x="22.8" y="304.0" width="16.8" height="76.0" rx="3" style="--d:0.42s"/><rect class="c-bar" x="43.6" y="226.8" width="16.8" height="153.2" rx="3" style="--d:0.44s"/><rect class="c-bar" x="64.4" y="193.9" width="16.8" height="186.1" rx="3" style="--d:0.46s"/><rect class="c-bar" x="85.1" y="146.5" width="16.8" height="233.5" rx="3" style="--d:0.48s"/><rect class="c-bar" x="105.9" y="99.0" width="16.8" height="281.0" rx="3" style="--d:0.50s"/><rect class="c-bar" x="126.7" y="50.9" width="16.8" height="329.1" rx="3" style="--d:0.52s"/><rect class="c-bar" x="147.5" y="10.0" width="16.8" height="370.0" rx="3" style="--d:0.54s"/><rect class="c-bar" x="168.3" y="53.8" width="16.8" height="326.2" rx="3" style="--d:0.56s"/><rect class="c-bar" x="189.1" y="88.0" width="16.8" height="292.0" rx="3" style="--d:0.58s"/><rect class="c-bar" x="209.8" y="108.5" width="16.8" height="271.5" rx="3" style="--d:0.60s"/><rect class="c-bar" x="230.6" y="132.7" width="16.8" height="247.3" rx="3" style="--d:0.62s"/><rect class="c-bar" x="251.4" y="154.0" width="16.8" height="226.0" rx="3" style="--d:0.64s"/><rect class="c-bar" x="272.2" y="168.4" width="16.8" height="211.6" rx="3" style="--d:0.66s"/><rect class="c-bar" x="293.0" y="194.5" width="16.8" height="185.5" rx="3" style="--d:0.68s"/><rect class="c-bar" x="313.8" y="226.7" width="16.8" height="153.3" rx="3" style="--d:0.70s"/><rect class="c-bar" x="334.5" y="252.7" width="16.8" height="127.3" rx="3" style="--d:0.72s"/><rect class="c-bar" x="355.3" y="265.9" width="16.8" height="114.1" rx="3" style="--d:0.74s"/><rect class="c-bar" x="376.1" y="274.8" width="16.8" height="105.2" rx="3" style="--d:0.76s"/><rect class="c-bar" x="396.9" y="292.2" width="16.8" height="87.8" rx="3" style="--d:0.78s"/><rect class="c-bar" x="417.7" y="296.6" width="16.8" height="83.4" rx="3" style="--d:0.80s"/><rect class="c-bar" x="438.5" y="307.9" width="16.8" height="72.1" rx="3" style="--d:0.82s"/><rect class="c-bar" x="459.3" y="321.5" width="16.8" height="58.5" rx="3" style="--d:0.84s"/><rect class="c-bar" x="480.0" y="328.3" width="16.8" height="51.7" rx="3" style="--d:0.86s"/><rect class="c-bar is-violet" x="500.8" y="334.8" width="16.8" height="45.2" rx="3" style="--d:0.88s"/><rect class="c-bar is-violet" x="521.6" y="340.5" width="16.8" height="39.5" rx="3" style="--d:0.90s"/><rect class="c-bar is-violet" x="542.4" y="345.6" width="16.8" height="34.4" rx="3" style="--d:0.92s"/><rect class="c-bar is-violet" x="563.2" y="348.1" width="16.8" height="31.9" rx="3" style="--d:0.94s"/><rect class="c-bar is-violet" x="584.0" y="351.7" width="16.8" height="28.3" rx="3" style="--d:0.96s"/><rect class="c-bar is-violet" x="604.7" y="357.2" width="16.8" height="22.8" rx="3" style="--d:0.98s"/><rect class="c-bar is-violet" x="625.5" y="359.1" width="16.8" height="20.9" rx="3" style="--d:1.00s"/><rect class="c-bar is-violet" x="646.3" y="362.1" width="16.8" height="17.9" rx="3" style="--d:1.02s"/><rect class="c-bar is-violet" x="667.1" y="363.8" width="16.8" height="16.2" rx="3" style="--d:1.04s"/><rect class="c-bar is-violet" x="687.9" y="364.7" width="16.8" height="15.3" rx="3" style="--d:1.06s"/><rect class="c-bar is-violet" x="708.7" y="365.8" width="16.8" height="14.2" rx="3" style="--d:1.08s"/><rect class="c-bar is-violet" x="729.5" y="366.3" width="16.8" height="13.7" rx="3" style="--d:1.10s"/><rect class="c-bar is-violet" x="750.2" y="368.7" width="16.8" height="11.3" rx="3" style="--d:1.12s"/><rect class="c-bar is-violet" x="771.0" y="370.5" width="16.8" height="9.5" rx="3" style="--d:1.14s"/><rect class="c-bar is-violet" x="791.8" y="372.1" width="16.8" height="7.9" rx="3" style="--d:1.16s"/><rect class="c-bar is-violet" x="812.6" y="371.9" width="16.8" height="8.1" rx="3" style="--d:1.18s"/><rect class="c-bar is-violet" x="833.4" y="373.1" width="16.8" height="6.9" rx="3" style="--d:1.20s"/><rect class="c-bar is-violet" x="854.2" y="372.2" width="16.8" height="7.8" rx="3" style="--d:1.22s"/><rect class="c-bar is-violet" x="874.9" y="373.6" width="16.8" height="6.4" rx="3" style="--d:1.24s"/><rect class="c-bar is-violet" x="895.7" y="374.3" width="16.8" height="5.7" rx="3" style="--d:1.26s"/><rect class="c-bar is-violet" x="916.5" y="374.7" width="16.8" height="5.3" rx="3" style="--d:1.28s"/><rect class="c-bar is-violet" x="937.3" y="374.2" width="16.8" height="5.8" rx="3" style="--d:1.30s"/><rect class="c-bar is-violet" x="958.1" y="375.5" width="16.8" height="4.5" rx="3" style="--d:1.32s"/><rect class="c-bar is-violet" x="978.9" y="376.3" width="16.8" height="3.7" rx="3" style="--d:1.34s"/><rect class="c-bar is-violet" x="999.6" y="376.8" width="16.8" height="3.2" rx="3" style="--d:1.36s"/><rect class="c-bar is-violet" x="1020.4" y="376.8" width="16.8" height="3.2" rx="3" style="--d:1.38s"/><rect class="c-bar is-violet" x="1041.2" y="377.1" width="16.8" height="2.9" rx="3" style="--d:1.40s"/>
+        <path class="c-axis" d="M0 380 H1060"/>
+        <path class="c-mark is-accent dr" pathLength="1" style="--d:1.6s" d="M212 0 V380"/>
+        <path class="c-mark is-violet dr" pathLength="1" style="--d:1.8s" d="M482 0 V380"/>
+        <text class="c-lbl" x="0" y="420">0</text>
+        <text class="c-lbl" x="624" y="420" text-anchor="middle">30</text>
+        <text class="c-lbl" x="1060" y="420" text-anchor="end">50 дней</text>
+      </svg>
+      <div class="dz-callout is-accent db-c1 pop" style="--d:2s" ><b>10.2 дня</b>медиана доставки</div>
+      <div class="dz-callout db-c2 pop" style="--d:2.2s"><b class="db-v">23.2 дня</b>медиана обещания</div>
+      <div class="db-kpis">
+        <div class="dz-stat a" style="--d:2.3s"><b>1.8 <small>/</small> 7.1</b><span>дни продавца и перевозчика</span></div>
+        <div class="dz-stat is-bad a" style="--d:2.4s"><b class="num count" data-num="stuck"></b><span>застряли дольше обещания</span></div>
+        <div class="dz-stat a" style="--d:2.5s"><b>90.9%</b><span>отгрузок продавцов в срок</span></div>
+      </div>
     </div>
   </div>
 </section>

@@ -1,7 +1,10 @@
-#schema .er-wrap { top: 290px; }
+#schema .er { top: 270px; }
 #schema .er-box rect { fill: var(--dz-mist); }
-#schema .er-box:nth-child(9) rect, #schema .er-box:nth-child(12) rect { fill: var(--dz-lilac); }
-#schema .er-name { font-size: 30px; font-weight: 700; fill: var(--deck-fg); }
-#schema .er-pk { font-family: var(--font-code); font-size: 21px; fill: var(--deck-accent) !important; }
-#schema .er-note { font-size: 20px; fill: var(--deck-fg-2) !important; }
-#schema .er-dot { fill: var(--deck-accent); }
+#schema .er-box.is-hot rect { fill: var(--deck-bg); stroke: var(--deck-accent); stroke-width: 4; }
+#schema .er-name { font-size: 32px; font-weight: 700; }
+#schema .er-pk { font-family: var(--font-code); font-size: 22px; fill: var(--deck-fg-3) !important; }
+#schema .er-box.is-hot .er-pk { fill: var(--deck-accent) !important; }
+#schema .er-path { fill: none; stroke: var(--deck-accent); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: 0.25; }
+#schema .er-runner-box { position: absolute; left: 0; top: 0; width: 1680px; height: 640px; pointer-events: none; }
+#schema .er-runner-box svg { display: none; }
+#schema .er-cap { position: absolute; left: 1260px; top: 470px; width: 420px; font-size: 23px; line-height: 1.35; color: var(--deck-fg-2); }

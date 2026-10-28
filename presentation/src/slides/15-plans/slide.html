@@ -1,26 +1,14 @@
 <section class="slide" id="plans" data-title="План запроса">
-  <h2 class="title a">Чем выше слой, <em>тем проще план</em></h2>
-  <div class="body is-tall grid is-2 pl-grid">
-    <div class="card pl-card a" style="--d:0.2s">
-      <header><span><code class="dz-code">EXPLAIN ANALYZE</code><h3>Топ продавцов из core</h3></span><span class="pl-joins"><b>2</b> join</span></header>
-      <ul class="pl-tree">
-          <li class="pl-node a" style="--lvl:0;--d:0.50s"><span class="pl-dot"></span>Limit 10</li>
-          <li class="pl-node a" style="--lvl:1;--d:0.62s"><span class="pl-dot"></span>Sort top-N по выручке</li>
-          <li class="pl-node a" style="--lvl:2;--d:0.74s"><span class="pl-dot"></span>GroupAggregate: 2 970 продавцов</li>
-          <li class="pl-node is-join a" style="--lvl:3;--d:0.86s"><span class="pl-dot"></span>Hash Join по seller_id</li>
-          <li class="pl-node is-join a" style="--lvl:4;--d:0.98s"><span class="pl-dot"></span>Hash Join по order_id</li>
-          <li class="pl-node a" style="--lvl:5;--d:1.10s"><span class="pl-dot"></span>Seq Scan items: 112 650</li>
-          <li class="pl-node a" style="--lvl:5;--d:1.22s"><span class="pl-dot"></span>Seq Scan orders: filter delivered, −2 963</li>
-      </ul>
+  <h2 class="title a">Чем выше слой, <em>тем короче план</em></h2>
+  <div class="body is-tall pl">
+    <div class="pl-col">
+      <div class="pl-head a" style="--d:0.2s"><span>Топ продавцов из <b>core</b></span><span class="dz-pill is-bad">2 join</span></div>
+      <svg viewBox="0 0 760 560" aria-hidden="true"><g class="pl-node  s" style="--d:0.40s"><rect x="0" y="0" width="740" height="56" rx="16"/><text x="24" y="36">Limit 10</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.54s" d="M24 56 V108 H0"/><g class="pl-node  s" style="--d:0.54s"><rect x="0" y="80" width="740" height="56" rx="16"/><text x="24" y="116">Sort: top-N по выручке</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.68s" d="M24 136 V188 H46"/><g class="pl-node  s" style="--d:0.68s"><rect x="46" y="160" width="694" height="56" rx="16"/><text x="70" y="196">GroupAggregate: 2 970 продавцов</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.82s" d="M70 216 V268 H92"/><g class="pl-node is-join  s" style="--d:0.82s"><rect x="92" y="240" width="648" height="56" rx="16"/><text x="116" y="276">Hash Join: seller_id</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.96s" d="M116 296 V348 H138"/><g class="pl-node is-join  s" style="--d:0.96s"><rect x="138" y="320" width="602" height="56" rx="16"/><text x="162" y="356">Hash Join: order_id</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.10s" d="M162 376 V428 H184"/><g class="pl-node  s" style="--d:1.10s"><rect x="184" y="400" width="556" height="56" rx="16"/><text x="208" y="436">Seq Scan items: 112 650</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.24s" d="M208 456 V508 H184"/><g class="pl-node  s" style="--d:1.24s"><rect x="184" y="480" width="556" height="56" rx="16"/><text x="208" y="516">Seq Scan orders: delivered</text></g></svg>
     </div>
-    <div class="card pl-card is-lilac a" style="--d:0.4s">
-      <header><span><code class="dz-code">EXPLAIN ANALYZE</code><h3>OTD по месяцам из mart</h3></span><span class="pl-joins is-zero"><b>0</b> join</span></header>
-      <ul class="pl-tree">
-          <li class="pl-node a" style="--lvl:0;--d:0.90s"><span class="pl-dot"></span>GroupAggregate: 23 месяца</li>
-          <li class="pl-node a" style="--lvl:1;--d:1.02s"><span class="pl-dot"></span>Sort по месяцу</li>
-          <li class="pl-node a" style="--lvl:2;--d:1.14s"><span class="pl-dot"></span>Seq Scan order_fulfillment: 96 470 строк</li>
-      </ul>
-      <p class="dz-note a" style="--d:1.5s">on_time и дни уже лежат в витрине, один проход по таблице.</p>
+    <div class="pl-col">
+      <div class="pl-head a" style="--d:0.4s"><span>OTD по месяцам из <b>mart</b></span><span class="dz-pill is-ok">0 join</span></div>
+      <svg viewBox="0 0 760 560" aria-hidden="true"><g class="pl-node is-mart s" style="--d:0.80s"><rect x="0" y="0" width="740" height="56" rx="16"/><text x="24" y="36">GroupAggregate: 23 месяца</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.94s" d="M24 56 V108 H0"/><g class="pl-node is-mart s" style="--d:0.94s"><rect x="0" y="80" width="740" height="56" rx="16"/><text x="24" y="116">Sort: месяц</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.08s" d="M24 136 V188 H46"/><g class="pl-node is-mart s" style="--d:1.08s"><rect x="46" y="160" width="694" height="56" rx="16"/><text x="70" y="196">Seq Scan order_fulfillment</text></g></svg>
+      <div class="dz-callout is-accent pl-c pop" style="--d:1.6s"><b>1 проход</b>on_time и дни уже лежат в витрине</div>
     </div>
   </div>
 </section>

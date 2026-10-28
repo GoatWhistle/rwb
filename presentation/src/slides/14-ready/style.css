@@ -1,8 +1,11 @@
-#ready .rd-grid { display: grid; grid-template-columns: 640px 1fr; gap: 72px; align-items: stretch; }
-#ready .rd-slot { position: relative; display: grid; align-content: center; justify-items: start; gap: 22px; padding: 56px; border-radius: 40px; background: var(--dz-mist); }
-#ready .rd-border { position: absolute; inset: 0; width: 100%; height: 100%; }
-#ready .rd-big { font-size: 60px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
-#ready .rd-slot p { font-size: 26px; color: var(--deck-fg-2); }
-#ready .rd-list { display: grid; gap: 22px; align-content: center; }
-#ready .rd-list li { display: grid; grid-template-columns: 72px 1fr; gap: 24px; align-items: center; font-size: 28px; line-height: 1.3; }
-#ready .rd-ico { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 22px; background: var(--dz-grad-sky); color: var(--dz-on-brand); }
+#ready .rd { display: grid; grid-template-rows: 1fr auto; gap: 56px; }
+#ready .rd-slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; }
+#ready .rd-slot { position: relative; display: grid; place-content: center; justify-items: center; gap: 6px; border-radius: 34px; background: var(--dz-mist); text-align: center; }
+#ready .rd-slot > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#ready .rd-slot b { font-size: 96px; font-weight: 700; line-height: 1; color: var(--deck-line-strong); }
+#ready .rd-slot span { font-size: 22px; color: var(--deck-fg-3); }
+#ready .rd-slot.is-inject { background: var(--dz-grad-ink); color: var(--dz-on-brand); padding: 24px; }
+#ready .rd-slot.is-inject b { font-size: 44px; color: var(--dz-on-brand); }
+#ready .rd-slot.is-inject span { color: var(--dz-on-brand); opacity: 0.85; }
+#ready .rd-why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding-top: 28px; border-top: 2px solid var(--deck-line); }
+#ready .rd-why .dz-stat b { font-size: 80px; color: var(--deck-accent); }

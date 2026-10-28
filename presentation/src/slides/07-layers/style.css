@@ -1,31 +1,14 @@
-#layers .ly-grid { display: grid; grid-template-columns: 640px 1fr; gap: 80px; align-items: center; }
-#layers .ly-stack { width: 640px; height: 640px; overflow: visible; }
-#layers .ly-plate, #layers .ly-cube { transform-box: view-box; }
-#layers.play .ly-plate { animation: dz-plate 0.9s var(--ease-out) var(--d) both; }
-#layers.play .ly-cube { animation: dz-plate-cube 1s var(--ease-out) var(--d) both, layers-hover 3.2s var(--ease-in-out) 2.4s infinite; }
-@keyframes dz-plate { from { opacity: 0; transform: translateY(-120px); } }
-@keyframes dz-plate-cube { from { opacity: 0; transform: translateY(-200px) rotate(-30deg); transform-origin: 320px 130px; } }
-@keyframes layers-hover { 50% { transform: translateY(-8px); } }
-#layers .ly-raw .ly-top { fill: var(--dz-violet); }
-#layers .ly-core .ly-top { fill: var(--dz-rail); }
-#layers .ly-mart .ly-top { fill: var(--dz-cyan); }
-#layers .ly-side-l { fill: color-mix(in oklab, currentColor 80%, var(--neutral-950)); }
-#layers .ly-raw { color: var(--dz-violet); }
-#layers .ly-core { color: var(--dz-rail); }
-#layers .ly-mart { color: var(--dz-cyan); }
-#layers .ly-side-l { fill: color-mix(in oklab, currentColor 82%, var(--neutral-950)); }
-#layers .ly-side-r { fill: color-mix(in oklab, currentColor 68%, var(--neutral-950)); }
-#layers .ly-c-t { fill: var(--accent-300); }
-#layers .ly-c-l { fill: var(--deck-accent); }
-#layers .ly-c-r { fill: var(--accent-700); }
-#layers .ly-t { font-size: 34px; font-weight: 700; fill: var(--dz-on-brand); }
-#layers .ly-rows { display: grid; gap: 22px; }
-#layers .ly-row { display: grid; grid-template-columns: 22px 1fr; gap: 24px; align-items: start; padding: 26px 32px; border-radius: var(--radius-md); background: var(--dz-mist); }
-#layers .ly-row .dz-dot { margin-top: 10px; }
-#layers .ly-dot-raw { background: var(--dz-violet); }
-#layers .ly-row:nth-child(2) .dz-dot { background: var(--dz-rail); }
-#layers .ly-row:first-child .dz-dot { background: var(--dz-cyan); }
-#layers .ly-row h3 { font-size: 32px; margin-bottom: 6px; }
-#layers .ly-row p { font-size: 24px; color: var(--deck-fg-2); }
-#layers .ly-chain { display: flex; align-items: center; gap: 12px; margin-top: 8px; color: var(--deck-fg-3); }
-#layers .ly-chain .dz-pill { font-family: var(--font-code); font-weight: 400; font-size: 20px; }
+#layers .ly-strata { left: 0; top: -60px; width: 760px; height: 760px; }
+#layers .ly-tag { position: absolute; left: 820px; display: grid; grid-template-columns: 26px auto 1fr; gap: 20px; align-items: baseline; font-size: 28px; color: var(--deck-fg-2); }
+#layers .ly-tag b { font-size: 40px; color: var(--deck-fg); }
+#layers .ly-dot { width: 22px; height: 22px; border-radius: 50%; align-self: center; }
+#layers .ly-mart { top: 180px; }
+#layers .ly-mart .ly-dot { background: var(--dz-cyan); }
+#layers .ly-core { top: 290px; }
+#layers .ly-core .ly-dot { background: var(--dz-rail); }
+#layers .ly-raw { top: 400px; }
+#layers .ly-raw .ly-dot { background: var(--dz-violet); }
+#layers .ly-cube { top: 60px; }
+#layers .ly-cube .ly-dot { background: var(--deck-accent); }
+#layers .ly-files { position: absolute; left: 820px; bottom: 40px; display: flex; gap: 12px; align-items: center; color: var(--deck-fg-3); }
+#layers .ly-files .dz-pill { font-family: var(--font-code); font-weight: 400; font-size: 21px; }
