@@ -8,6 +8,7 @@ import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import { stateName } from "./states"
 import "@/shared/styles/viz-extra-os.css"
+import "@/shared/styles/fill-heat-geo.css"
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 const ordersWord = (n: number) => {
@@ -48,8 +49,8 @@ export function Heatmap({
       index={index}
       actions={<CardTools rows={rows} filename="heatmap.csv" png={false} />}
     >
-      <VizTip>
-        <div className="vx-heat">
+      <VizTip className="hg-heat-host">
+        <div className="vx-heat hg-heat">
           <span />
           {HOURS.map((h) => (
             <span key={h} className="vx-heat-hour">
