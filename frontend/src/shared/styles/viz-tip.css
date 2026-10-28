@@ -33,7 +33,11 @@
     box-shadow 0.12s ease-out,
     filter 0.12s ease-out;
 }
-.viz-tip-host .viz-tip-on:not(rect):not(g) {
+.viz-tip-host .viz-tip-on:not(rect, g, .vx-heat-cell, .vx-tile, .dcx-tile) {
+  background-color: #f3f5ff;
+  border-radius: 8px;
+}
+.viz-tip-host :is(.vx-heat-cell, .vx-tile, .dcx-tile).viz-tip-on {
   position: relative;
   z-index: 1;
   transform: translateY(-1px);
@@ -76,4 +80,10 @@
 .viz-tip-host:has(.viz-tip-on) .vx-stack-col:not(.viz-tip-on) .vx-stack-bar,
 .viz-tip-host:has(.viz-tip-on) .fs-inst-col:not(.viz-tip-on) .fs-inst-track span {
   opacity: 0.4;
+}
+.viz-tip-host tr.viz-tip-on {
+  background-color: transparent;
+}
+.viz-tip-host tr.viz-tip-on > td {
+  background: #f3f5ff;
 }

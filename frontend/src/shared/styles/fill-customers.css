@@ -119,3 +119,11 @@
 .dashboard .dash-card.fc-map-card .dcx-tile {
   aspect-ratio: auto;
 }
+.dashboard .dash-card .fc-states thead th:first-child,
+.dashboard .dash-card .fc-states tbody td:first-child {
+  padding-left: 12px;
+}
+.dashboard .dash-card .fc-states thead th:last-child,
+.dashboard .dash-card .fc-states tbody td:last-child {
+  padding-right: 12px;
+}
