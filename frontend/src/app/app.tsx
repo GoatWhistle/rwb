@@ -14,6 +14,7 @@ import { initialFilters } from "@/features/dashboard/filters"
 import type { DashboardContext, Filters } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { IconButton } from "@/shared/ui/controls"
+import { DatumLogo } from "@/shared/ui/datum-logo"
 import "@/shared/styles/dashboard.css"
 import "@/shared/styles/chat.css"
 
@@ -53,7 +54,7 @@ export function App() {
         <div className="nav-heading">
           {navOpen && (
             <a href="/" className="nav-logo" aria-label={ru.product}>
-              <img src="/brand/01-strata-lockup.svg" alt="" width={120} height={36} />
+              <DatumLogo />
             </a>
           )}
           <IconButton

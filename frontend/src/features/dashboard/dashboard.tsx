@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metrics"
 import { useMetric } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
@@ -12,7 +12,8 @@ import { Categories, SalesTrend, Sellers } from "./sales-panels"
 
 const rowsOf = (result: MetricResult | undefined) => result?.table.rows ?? []
 
-export type DashboardTab = "overview" | "sales" | "delivery" | "customers"
+const TABS = ["overview", "sales", "delivery", "customers"] as const
+export type DashboardTab = (typeof TABS)[number]
 export function Dashboard({
   filters,
   onFilters,
@@ -23,6 +24,20 @@ export function Dashboard({
   onAsk: (context: DashboardContext, name: string) => void
 }) {
   const [tab, setTab] = useState<DashboardTab>("overview")
+  const tabsRef = useRef<HTMLElement>(null)
+  const [indicator, setIndicator] = useState<{ x: number; w: number } | null>(null)
+  useLayoutEffect(() => {
+    const nav = tabsRef.current
+    if (!nav) return
+    const place = () => {
+      const active = nav.querySelectorAll<HTMLElement>("button")[TABS.indexOf(tab)]
+      if (active) setIndicator({ x: active.offsetLeft, w: active.offsetWidth })
+    }
+    place()
+    const observer = new ResizeObserver(place)
+    observer.observe(nav)
+    return () => observer.disconnect()
+  }, [tab])
   const sales = tab === "overview" || tab === "sales"
   const delivery = tab === "delivery"
   const monthly = useMetric("block_a.1", filters, sales)
@@ -57,8 +72,15 @@ export function Dashboard({
   }[tab]
   return (
     <div className="dashboard">
-      <nav className="dashboard-tabs" aria-label={ru.analytics}>
-        {(["overview", "sales", "delivery", "customers"] as const).map((name) => (
+      <nav ref={tabsRef} className="dashboard-tabs" aria-label={ru.analytics}>
+        {indicator && (
+          <span
+            className="tabs-indicator"
+            aria-hidden="true"
+            style={{ transform: `translateX(${indicator.x}px) scaleX(${indicator.w})` }}
+          />
+        )}
+        {TABS.map((name) => (
           <Button
             key={name}
             aria-current={tab === name ? "page" : undefined}
@@ -79,7 +101,7 @@ export function Dashboard({
       ) : loading ? (
         <Skeleton />
       ) : (
-        <>
+        <div key={tab} className="tab-panel">
           <div className="metric-grid">
             {activeMetrics.map((metric) => (
               <MetricCard
@@ -111,7 +133,7 @@ export function Dashboard({
             </>
           )}
           {tab === "customers" && <CustomerProfile returnedPct={returnedPct} />}
-        </>
+        </div>
       )}
     </div>
   )

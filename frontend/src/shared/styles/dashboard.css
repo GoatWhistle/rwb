@@ -115,6 +115,7 @@
   gap: 20px;
 }
 .dashboard-tabs {
+  position: relative;
   display: flex;
   gap: 24px;
   border-bottom: 1px solid var(--line);
@@ -125,10 +126,77 @@
   min-height: 42px;
   padding: 6px 1px 14px;
   border-bottom: 2px solid transparent;
+  transition: color 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .dashboard-tabs .active {
   color: var(--brand);
-  border-bottom-color: var(--brand);
+}
+.tabs-indicator {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 1px;
+  height: 2px;
+  background: var(--brand);
+  transform-origin: 0 0;
+  transition: transform 260ms cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+.datum-logo {
+  display: block;
+  width: 120px;
+  height: auto;
+  overflow: visible;
+}
+.datum-logo-plate,
+.datum-logo-cube,
+.datum-logo-glow {
+  transition:
+    transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.datum-logo-glow {
+  opacity: 0.6;
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav-logo:hover .datum-logo-plate-middle {
+    transform: translateY(-2px);
+  }
+  .nav-logo:hover .datum-logo-plate-top {
+    transform: translateY(-4px);
+  }
+  .nav-logo:hover .datum-logo-cube {
+    transform: translateY(-9px);
+    transition-delay: 40ms;
+  }
+  .nav-logo:hover .datum-logo-glow {
+    opacity: 1;
+  }
+}
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: tab-panel-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes tab-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tabs-indicator {
+    transition: none;
+  }
+  .tab-panel {
+    animation: none;
+  }
+  .datum-logo-plate,
+  .datum-logo-cube,
+  .datum-logo-glow {
+    transition: none;
+  }
 }
 .filters-bar {
   display: flex;
