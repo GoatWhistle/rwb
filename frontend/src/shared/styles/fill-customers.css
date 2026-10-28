@@ -127,3 +127,11 @@
 .dashboard .dash-card .fc-states tbody td:last-child {
   padding-right: 12px;
 }
+.dashboard .fc-states tbody td:first-child,
+.dashboard .fc-states tbody td:first-child * {
+  font-variant-numeric: normal;
+}
+.dashboard .fc-states tbody tr.fc-rest td,
+.dashboard .fc-states tbody tr.fc-rest td * {
+  color: var(--viz-text-secondary);
+}
