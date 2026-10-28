@@ -91,6 +91,16 @@ function readRows(value: string | null): TipRow[] {
   }
 }
 
+function cursorAnchor(event: PointerEvent): TipAnchor {
+  return { x: event.clientX, top: event.clientY - 10, bottom: event.clientY + 22 }
+}
+
+function anchorFor(event: Event, target: Element): TipAnchor {
+  if (event instanceof PointerEvent && event.pointerType !== "touch") return cursorAnchor(event)
+  const rect = target.getBoundingClientRect()
+  return { x: rect.left + rect.width / 2, top: rect.top, bottom: rect.bottom }
+}
+
 export function VizTip({ children, className }: { children: ReactNode; className?: string }) {
   const host = useRef<HTMLDivElement>(null)
   const [state, setState] = useState<TipState | null>(null)
@@ -106,12 +116,16 @@ export function VizTip({ children, className }: { children: ReactNode; className
       active?.classList.remove("viz-tip-on")
       active = target
       target.classList.add("viz-tip-on")
-      const rect = target.getBoundingClientRect()
       setState({
         head: target.getAttribute("data-tip-head") ?? "",
         rows: readRows(target.getAttribute("data-tip-rows")),
-        anchor: { x: rect.left + rect.width / 2, top: rect.top, bottom: rect.bottom },
+        anchor: anchorFor(event, target),
       })
+    }
+    const move = (event: PointerEvent) => {
+      if (!active) return
+      const anchor = cursorAnchor(event)
+      setState((prev) => (prev ? { ...prev, anchor } : prev))
     }
     const hide = (event: Event) => {
       const next = event instanceof FocusEvent ? event.relatedTarget : null
@@ -121,11 +135,13 @@ export function VizTip({ children, className }: { children: ReactNode; className
       setState(null)
     }
     el.addEventListener("pointerover", show)
+    el.addEventListener("pointermove", move)
     el.addEventListener("focusin", show)
     el.addEventListener("pointerleave", hide)
     el.addEventListener("focusout", hide)
     return () => {
       el.removeEventListener("pointerover", show)
+      el.removeEventListener("pointermove", move)
       el.removeEventListener("focusin", show)
       el.removeEventListener("pointerleave", hide)
       el.removeEventListener("focusout", hide)
