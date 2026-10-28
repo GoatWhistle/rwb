@@ -1,0 +1,215 @@
+.os-legend .os-key-line {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--viz-1, #2348ff);
+}
+.os-legend .os-key-dash {
+  width: 16px;
+  height: 0;
+  border-radius: 0;
+  background: none;
+  border-top: 2px dashed #8c8c96;
+}
+.hint-title .hint-trigger {
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .dashboard .fs-sellers {
+    margin: 0 -8px;
+  }
+  .dashboard .fs-sellers > li,
+  .dashboard .fs-sellers > .fs-sellers-head {
+    grid-template-columns: minmax(0, 1fr) auto 52px;
+    column-gap: 12px;
+  }
+  .dashboard .fs-sellers > li:not(.fs-sellers-head) {
+    grid-template-rows: auto 4px;
+    row-gap: 6px;
+    min-height: 56px;
+    padding-block: 8px;
+  }
+  .dashboard .fs-sellers > li > :nth-child(3) {
+    display: none;
+  }
+  .dashboard .fs-sellers > li > .fs-seller-rev {
+    display: contents;
+  }
+  .dashboard .fs-sellers > li > .fs-seller-rev strong {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    font-size: 14px;
+  }
+  .dashboard .fs-sellers > li > :nth-child(4) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .dashboard .fs-sellers > li .fs-seller-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 4px;
+    border-radius: 2px;
+  }
+  .dashboard .fs-seller b {
+    font-size: 14px;
+  }
+  .dashboard .os-card .os-chart-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .dashboard .os-card .os-legend {
+    justify-content: space-between;
+    gap: 8px 12px;
+  }
+  .dashboard .os-card .os-legend .os-seg + .os-key {
+    display: none;
+  }
+  .dashboard .os-card .os-legend .os-seg .button {
+    min-height: 40px;
+    padding-inline: 16px;
+    font-size: 14px;
+  }
+  .dashboard .os-card .os-delta {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .dashboard .os-menu > button {
+    width: 40px;
+    height: 40px;
+  }
+  .dashboard .os-menu-list {
+    min-width: 220px;
+    max-width: calc(100vw - 48px);
+  }
+  .dashboard .os-menu-list button {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .dashboard .ovt-map-fit {
+    min-height: min(108cqw, 460px);
+  }
+  .dashboard .ovt-tiles .vx-tile {
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .dashboard .ovt-tiles .vx-tile small {
+    display: none;
+  }
+  .dashboard .vx-scale.ovt-scale {
+    margin-top: 12px;
+    font-size: 12px;
+  }
+
+  .dashboard .vx-heat.hg-heat {
+    grid-auto-flow: column;
+    grid-template-columns: 36px repeat(7, minmax(0, 1fr));
+    grid-template-rows: auto repeat(24, 15px);
+    gap: 3px 4px;
+    font-size: 12px;
+  }
+  .dashboard .hg-heat .vx-heat-hour {
+    padding: 0 6px 0 0;
+    align-self: center;
+    text-align: right;
+    line-height: 1;
+  }
+  .dashboard .hg-heat .vx-heat-day {
+    padding-bottom: 4px;
+    text-align: center;
+  }
+  .dashboard .hg-heat .vx-heat-cell {
+    border-radius: 5px;
+  }
+  .dashboard .vx-caption.vx-peak {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .dashboard .dash-card .pc-pay-plot {
+    min-height: 200px;
+  }
+  .dashboard .pc-pay .vx-legend {
+    gap: 8px 16px;
+  }
+  .dashboard .pc-pay .vx-stack-col small {
+    font-size: 12px;
+    overflow: visible;
+    white-space: nowrap;
+  }
+
+  .dashboard .pc-cat .os-barlist-head {
+    display: none;
+  }
+  .dashboard .pc-cat .os-barlist li:not(.os-barlist-head) {
+    grid-template-columns: minmax(0, 1fr) 112px;
+    grid-template-rows: auto auto;
+    column-gap: 16px;
+    row-gap: 0;
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .dashboard .pc-cat .os-barlist li > .os-bar {
+    grid-row: 1 / 3;
+    height: 40px;
+  }
+  .dashboard .pc-cat .os-barlist li > strong {
+    grid-column: 2;
+    white-space: nowrap;
+    grid-row: 1;
+    align-self: end;
+  }
+  .dashboard .pc-cat .os-barlist li > span:last-child {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .dashboard .os-menu-list {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard .ovt-donut-fit {
+    min-height: 0;
+  }
+  .dashboard .vx-donut-wrap.ovt-donut-wrap {
+    position: static;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-items: center;
+    gap: 20px;
+  }
+  .dashboard .ovt-donut-wrap .ovt-donut-box {
+    width: min(196px, 54vw);
+    height: min(196px, 54vw);
+  }
+  .dashboard .ovt-donut-wrap .ovt-donut-legend,
+  .dashboard .ovt-donut-wrap.is-stack .ovt-donut-legend,
+  .dashboard .ovt-donut-wrap.is-side .ovt-donut-legend {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    font-size: 14px;
+  }
+  .dashboard .ovt-donut-wrap .ovt-donut-legend li,
+  .dashboard .ovt-donut-wrap.is-stack .ovt-donut-legend li {
+    grid-template-columns: 10px minmax(0, 1fr) auto 64px;
+    column-gap: 12px;
+    min-height: 40px;
+    border-top: 1px solid #f1f1f3;
+  }
+  .dashboard .ovt-donut-wrap .ovt-donut-legend li:first-child {
+    border-top: 0;
+  }
+}

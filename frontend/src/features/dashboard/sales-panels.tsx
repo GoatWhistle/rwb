@@ -14,6 +14,7 @@ import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import "@/shared/styles/fill-pay-cat.css"
 import "@/shared/styles/fill-sales.css"
+import "@/shared/styles/mobile-charts-a.css"
 
 const shareFormat = new Intl.NumberFormat("ru-RU", { style: "percent", maximumFractionDigits: 1 })
 const roundCompact = new Intl.NumberFormat("ru-RU", {
