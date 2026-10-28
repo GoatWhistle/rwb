@@ -27,3 +27,8 @@
 .dashboard .pc-pay .vx-legend {
   flex: none;
 }
+.dashboard .dg > .row-open + *,
+.dashboard .dg > *:has(+ .row-open) {
+  align-self: start;
+  height: var(--frozen-h);
+}

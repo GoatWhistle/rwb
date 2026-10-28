@@ -245,6 +245,13 @@ function useFitRows(count: number, limit: number) {
     observer.observe(box)
     return () => observer.disconnect()
   }, [count, grown])
+  useLayoutEffect(() => {
+    const item = boxRef.current?.closest<HTMLElement>(".dg > *")
+    if (!item || !grown) return
+    item.parentElement?.style.setProperty("--frozen-h", `${item.offsetHeight}px`)
+    item.classList.add("row-open")
+    return () => item.classList.remove("row-open")
+  }, [grown])
   useEffect(() => {
     if (all) return
     const timer = window.setTimeout(() => setGrown(false), 340)
