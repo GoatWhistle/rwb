@@ -15,7 +15,7 @@ export function CustomerProfile({
 }) {
   return (
     <div className="customers-grid">
-      <Panel title={ru.customerProfile} description={ru.customerProfileNote}>
+      <Panel className="dash-card" title={ru.customerProfile} description={ru.customerProfileNote}>
         {returnedPct === null ? (
           <EmptyState />
         ) : (
@@ -44,7 +44,11 @@ export function CustomerProfile({
           </>
         )}
       </Panel>
-      <Panel title="Где живут покупатели" description="Доставленные заказы по штатам, топ-10">
+      <Panel
+        className="dash-card"
+        title="Где живут покупатели"
+        description="Доставленные заказы по штатам, топ-10"
+      >
         <HBars
           rows={states}
           label={(row) => stateName(row.state)}

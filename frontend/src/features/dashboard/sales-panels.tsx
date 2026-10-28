@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react"
 import type { CSSProperties } from "react"
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import type { MetricResult } from "@/shared/api/metrics"
 import type { Row } from "@/shared/format"
 import { categoryName, compact, money, month, number, numeric, percent } from "@/shared/format"
@@ -214,8 +214,22 @@ export function Categories({
   limit?: number
 }) {
   const [all, setAll] = useState(false)
-  const shown = all ? rows : rows.slice(0, limit)
+  const listRef = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState<number | undefined>(undefined)
   const total = rows.reduce((sum, row) => sum + (numeric(row.revenue) ?? 0), 0)
+  useLayoutEffect(() => {
+    const box = listRef.current
+    if (!box) return
+    const measure = () => {
+      const items = box.querySelectorAll<HTMLElement>(".os-barlist > li")
+      const cut = items[limit + 1]
+      setHeight(all || !cut ? box.scrollHeight : cut.offsetTop)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(box)
+    return () => observer.disconnect()
+  }, [all, limit])
   return (
     <Card
       title={ru.categories}
@@ -230,13 +244,15 @@ export function Categories({
       {rows.length === 0 ? (
         <EmptyState />
       ) : (
-        <BarList
-          rows={shown}
-          label={(row) => categoryName(row.category)}
-          value="revenue"
-          total={total}
-          format={(n) => money(n, true)}
-        />
+        <div className="os-collapse" ref={listRef} style={{ height }}>
+          <BarList
+            rows={rows}
+            label={(row) => categoryName(row.category)}
+            value="revenue"
+            total={total}
+            format={(n) => money(n, true)}
+          />
+        </div>
       )}
       {rows.length > limit && (
         <Button className="os-more" aria-expanded={all} onClick={() => setAll(!all)}>
