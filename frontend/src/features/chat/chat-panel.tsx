@@ -1,12 +1,10 @@
 import {
-  ArrowUp,
   ArrowUpRight,
   CircleHelp,
   Maximize2,
   MessageSquare,
   Minimize2,
   Plus,
-  Square,
   TrendingUp,
   Truck,
   Wallet,
@@ -17,10 +15,13 @@ import { useEffect, useRef, useState } from "react"
 import type { DashboardContext } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { Button, IconButton } from "@/shared/ui/controls"
+import { ChatComposer } from "./chat-composer"
 import { Message } from "./message"
 import { useChat } from "./use-chat"
+import { useVoiceInput } from "./use-voice-input"
 
 export function ChatPanel({
+  active,
   context,
   contextName,
   initialText,
@@ -30,6 +31,7 @@ export function ChatPanel({
   onExpand,
   onClose,
 }: {
+  active: boolean
   context: DashboardContext
   contextName: string
   initialText: string
@@ -43,6 +45,12 @@ export function ChatPanel({
   const [input, setInput] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const voice = useVoiceInput(active, (text) => {
+    setInput((current) =>
+      `${current}${current && !/\s$/u.test(current) ? " " : ""}${text}`.slice(0, 20000),
+    )
+    requestAnimationFrame(() => inputRef.current?.focus())
+  })
   const follow = useRef(true)
   const lastRequest = useRef(0)
   useEffect(() => {
@@ -63,7 +71,7 @@ export function ChatPanel({
     { text: ru.suggestion3, Icon: Wallet },
   ]
   const send = (text = input) => {
-    if (!text.trim() || chat.pending) return
+    if (!text.trim() || chat.pending || voice.busy) return
     follow.current = true
     chat.send(text, context)
     setInput("")
@@ -92,7 +100,11 @@ export function ChatPanel({
             </div>
           </div>
           <div className="chat-heading-actions">
-            <IconButton label={ru.newChat} onClick={chat.reset} disabled={chat.pending}>
+            <IconButton
+              label={ru.newChat}
+              onClick={chat.reset}
+              disabled={chat.pending || voice.busy}
+            >
               <Plus size={18} />
             </IconButton>
             <IconButton label={expanded ? ru.contract : ru.expand} onClick={onExpand}>
@@ -164,37 +176,15 @@ export function ChatPanel({
               </IconButton>
             </div>
           )}
-          <form
-            className="chat-composer"
-            onSubmit={(e) => {
-              e.preventDefault()
-              send()
-            }}
-          >
-            <textarea
-              ref={inputRef}
-              value={input}
-              rows={1}
-              maxLength={20000}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={ru.placeholder}
-              aria-label={ru.placeholder}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                  e.preventDefault()
-                  send()
-                }
-              }}
-            />
-            <IconButton
-              label={chat.pending ? ru.stop : ru.send}
-              className={`send-button ${input.trim() || chat.pending ? "ready" : ""}`}
-              onClick={() => (chat.pending ? chat.stop() : send())}
-              disabled={!chat.pending && !input.trim()}
-            >
-              {chat.pending ? <Square size={17} /> : <ArrowUp size={21} />}
-            </IconButton>
-          </form>
+          <ChatComposer
+            input={input}
+            onInput={setInput}
+            inputRef={inputRef}
+            pending={chat.pending}
+            onSend={() => send()}
+            onStop={chat.stop}
+            voice={voice}
+          />
         </div>
       </aside>
     </>

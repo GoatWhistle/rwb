@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,6 +18,8 @@ class Settings(BaseSettings):
     sql_row_limit: int = 500
     max_turns: int = 12
     run_timeout_seconds: int = 300
+    gigaam_model_dir: Path = Path(".local/models/gigaam")
+    gigaam_threads: int = 4
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
 
 

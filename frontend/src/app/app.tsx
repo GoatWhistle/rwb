@@ -93,6 +93,7 @@ export function App() {
         hidden={!chatOpen}
       >
         <ChatPanel
+          active={chatOpen}
           context={context}
           contextName={contextName}
           initialText={draft.text}
