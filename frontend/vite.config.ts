@@ -1,9 +1,10 @@
 import { fileURLToPath } from "node:url"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vitest/config"
+import { mockApi } from "./mocks/plugin"
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), mockApi()],
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   server: {
     host: "127.0.0.1",

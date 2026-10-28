@@ -1,0 +1,519 @@
+{
+  "built_at": "2026-10-28",
+  "kpi": {
+    "orders": 99421,
+    "delivered": 96470,
+    "otd": 0.9323,
+    "otd_naive": 0.9189,
+    "on_promise_day": 1292,
+    "median_days": 10.2,
+    "p90_days": 23.1,
+    "median_promised": 24.0,
+    "median_approve": 0.01,
+    "median_seller": 1.8,
+    "median_carrier": 7.1,
+    "cancel_rate": 0.0122,
+    "stuck": 1107,
+    "avg_score": 4.16,
+    "seller_on_time": 0.9087,
+    "seller_pairs": 96379,
+    "sellers_100plus": 205
+  },
+  "checks": {
+    "orders_with_items": 98666,
+    "orders_without_items": 775,
+    "multi_seller_orders": 1278,
+    "order_seller_pairs": 100010,
+    "multi_review_orders": 547,
+    "diff_score_orders": 202,
+    "no_review_orders": 768,
+    "shipped_before_approved": 1359,
+    "shipped_before_purchase": 166,
+    "delivered_no_date": 8,
+    "tail_orders": 20,
+    "tail_canceled": 19,
+    "review_before_delivery": 5127
+  },
+  "monthly": [
+    {
+      "month": "2017-01",
+      "delivered": 750,
+      "otd": 0.9707,
+      "median_days": 10.7,
+      "median_seller": 1.8,
+      "median_carrier": 7.2
+    },
+    {
+      "month": "2017-02",
+      "delivered": 1653,
+      "otd": 0.9704,
+      "median_days": 11.0,
+      "median_seller": 1.9,
+      "median_carrier": 7.3
+    },
+    {
+      "month": "2017-03",
+      "delivered": 2546,
+      "otd": 0.9544,
+      "median_days": 10.1,
+      "median_seller": 1.8,
+      "median_carrier": 7.0
+    },
+    {
+      "month": "2017-04",
+      "delivered": 2303,
+      "otd": 0.9344,
+      "median_days": 12.7,
+      "median_seller": 2.0,
+      "median_carrier": 8.9
+    },
+    {
+      "month": "2017-05",
+      "delivered": 3545,
+      "otd": 0.9701,
+      "median_days": 9.8,
+      "median_seller": 1.6,
+      "median_carrier": 7.0
+    },
+    {
+      "month": "2017-06",
+      "delivered": 3135,
+      "otd": 0.9697,
+      "median_days": 10.8,
+      "median_seller": 1.9,
+      "median_carrier": 7.4
+    },
+    {
+      "month": "2017-07",
+      "delivered": 3872,
+      "otd": 0.9721,
+      "median_days": 10.2,
+      "median_seller": 1.9,
+      "median_carrier": 7.1
+    },
+    {
+      "month": "2017-08",
+      "delivered": 4193,
+      "otd": 0.9709,
+      "median_days": 9.8,
+      "median_seller": 1.9,
+      "median_carrier": 6.9
+    },
+    {
+      "month": "2017-09",
+      "delivered": 4150,
+      "otd": 0.9561,
+      "median_days": 10.3,
+      "median_seller": 2.0,
+      "median_carrier": 7.1
+    },
+    {
+      "month": "2017-10",
+      "delivered": 4478,
+      "otd": 0.9582,
+      "median_days": 10.3,
+      "median_seller": 2.0,
+      "median_carrier": 7.0
+    },
+    {
+      "month": "2017-11",
+      "delivered": 7288,
+      "otd": 0.876,
+      "median_days": 12.7,
+      "median_seller": 2.7,
+      "median_carrier": 8.8
+    },
+    {
+      "month": "2017-12",
+      "delivered": 5513,
+      "otd": 0.9254,
+      "median_days": 13.1,
+      "median_seller": 2.2,
+      "median_carrier": 9.1
+    },
+    {
+      "month": "2018-01",
+      "delivered": 7069,
+      "otd": 0.943,
+      "median_days": 11.8,
+      "median_seller": 2.1,
+      "median_carrier": 8.0
+    },
+    {
+      "month": "2018-02",
+      "delivered": 6555,
+      "otd": 0.8587,
+      "median_days": 14.3,
+      "median_seller": 2.2,
+      "median_carrier": 11.0
+    },
+    {
+      "month": "2018-03",
+      "delivered": 7003,
+      "otd": 0.8104,
+      "median_days": 13.4,
+      "median_seller": 2.1,
+      "median_carrier": 9.9
+    },
+    {
+      "month": "2018-04",
+      "delivered": 6798,
+      "otd": 0.955,
+      "median_days": 9.3,
+      "median_seller": 1.5,
+      "median_carrier": 6.9
+    },
+    {
+      "month": "2018-05",
+      "delivered": 6749,
+      "otd": 0.9344,
+      "median_days": 9.1,
+      "median_seller": 1.3,
+      "median_carrier": 6.5
+    },
+    {
+      "month": "2018-06",
+      "delivered": 6096,
+      "otd": 0.9884,
+      "median_days": 8.0,
+      "median_seller": 1.2,
+      "median_carrier": 5.9
+    },
+    {
+      "month": "2018-07",
+      "delivered": 6156,
+      "otd": 0.9662,
+      "median_days": 7.5,
+      "median_seller": 1.3,
+      "median_carrier": 5.3
+    },
+    {
+      "month": "2018-08",
+      "delivered": 6351,
+      "otd": 0.9381,
+      "median_days": 7.0,
+      "median_seller": 1.2,
+      "median_carrier": 5.0
+    }
+  ],
+  "states": [
+    {
+      "state": "AL",
+      "delivered": 397,
+      "otd": 0.7859,
+      "median_days": 22.3,
+      "median_promised": 32.0
+    },
+    {
+      "state": "MA",
+      "delivered": 717,
+      "otd": 0.8257,
+      "median_days": 19.2,
+      "median_promised": 31.0
+    },
+    {
+      "state": "SE",
+      "delivered": 335,
+      "otd": 0.8478,
+      "median_days": 18.0,
+      "median_promised": 30.0
+    },
+    {
+      "state": "PI",
+      "delivered": 476,
+      "otd": 0.8613,
+      "median_days": 16.3,
+      "median_promised": 30.0
+    },
+    {
+      "state": "CE",
+      "delivered": 1279,
+      "otd": 0.8624,
+      "median_days": 18.2,
+      "median_promised": 32.0
+    },
+    {
+      "state": "RR",
+      "delivered": 41,
+      "otd": 0.878,
+      "median_days": 25.0,
+      "median_promised": 45.0
+    },
+    {
+      "state": "BA",
+      "delivered": 3256,
+      "otd": 0.8784,
+      "median_days": 16.9,
+      "median_promised": 30.0
+    },
+    {
+      "state": "RJ",
+      "delivered": 12350,
+      "otd": 0.8789,
+      "median_days": 12.0,
+      "median_promised": 25.0
+    },
+    {
+      "state": "PA",
+      "delivered": 946,
+      "otd": 0.8879,
+      "median_days": 21.1,
+      "median_promised": 37.0
+    },
+    {
+      "state": "ES",
+      "delivered": 1995,
+      "otd": 0.8927,
+      "median_days": 13.6,
+      "median_promised": 26.0
+    },
+    {
+      "state": "PB",
+      "delivered": 517,
+      "otd": 0.8956,
+      "median_days": 18.2,
+      "median_promised": 33.0
+    },
+    {
+      "state": "TO",
+      "delivered": 274,
+      "otd": 0.9015,
+      "median_days": 15.9,
+      "median_promised": 29.0
+    },
+    {
+      "state": "MS",
+      "delivered": 701,
+      "otd": 0.903,
+      "median_days": 13.9,
+      "median_promised": 26.0
+    },
+    {
+      "state": "PE",
+      "delivered": 1593,
+      "otd": 0.904,
+      "median_days": 15.7,
+      "median_promised": 32.0
+    },
+    {
+      "state": "RN",
+      "delivered": 474,
+      "otd": 0.9072,
+      "median_days": 16.1,
+      "median_promised": 32.5
+    },
+    {
+      "state": "SC",
+      "delivered": 3546,
+      "otd": 0.9179,
+      "median_days": 13.0,
+      "median_promised": 26.0
+    },
+    {
+      "state": "GO",
+      "delivered": 1957,
+      "otd": 0.9346,
+      "median_days": 13.9,
+      "median_promised": 27.0
+    },
+    {
+      "state": "RS",
+      "delivered": 5344,
+      "otd": 0.9392,
+      "median_days": 13.2,
+      "median_promised": 29.0
+    },
+    {
+      "state": "MT",
+      "delivered": 886,
+      "otd": 0.9402,
+      "median_days": 16.1,
+      "median_promised": 32.0
+    },
+    {
+      "state": "DF",
+      "delivered": 2080,
+      "otd": 0.9433,
+      "median_days": 11.4,
+      "median_promised": 25.0
+    },
+    {
+      "state": "MG",
+      "delivered": 11354,
+      "otd": 0.9543,
+      "median_days": 10.3,
+      "median_promised": 24.0
+    },
+    {
+      "state": "SP",
+      "delivered": 40494,
+      "otd": 0.9551,
+      "median_days": 7.2,
+      "median_promised": 19.0
+    },
+    {
+      "state": "PR",
+      "delivered": 4923,
+      "otd": 0.9596,
+      "median_days": 10.4,
+      "median_promised": 25.0
+    },
+    {
+      "state": "AC",
+      "delivered": 80,
+      "otd": 0.9625,
+      "median_days": 18.4,
+      "median_promised": 41.0
+    },
+    {
+      "state": "AP",
+      "delivered": 67,
+      "otd": 0.9701,
+      "median_days": 24.3,
+      "median_promised": 48.0
+    },
+    {
+      "state": "RO",
+      "delivered": 243,
+      "otd": 0.9712,
+      "median_days": 17.6,
+      "median_promised": 38.0
+    },
+    {
+      "state": "AM",
+      "delivered": 145,
+      "otd": 0.9724,
+      "median_days": 25.9,
+      "median_promised": 46.0
+    }
+  ],
+  "lateness": [
+    {
+      "ord": 1,
+      "bucket": "Вовремя",
+      "reviews": 89443,
+      "avg_score": 4.29,
+      "neg_share": 0.0927
+    },
+    {
+      "ord": 2,
+      "bucket": "1–3 дня",
+      "reviews": 1852,
+      "avg_score": 3.29,
+      "neg_share": 0.3213
+    },
+    {
+      "ord": 3,
+      "bucket": "4–7 дней",
+      "reviews": 1748,
+      "avg_score": 2.1,
+      "neg_share": 0.6762
+    },
+    {
+      "ord": 4,
+      "bucket": "8–14 дней",
+      "reviews": 1446,
+      "avg_score": 1.67,
+      "neg_share": 0.8015
+    },
+    {
+      "ord": 5,
+      "bucket": "15+ дней",
+      "reviews": 1335,
+      "avg_score": 1.72,
+      "neg_share": 0.7835
+    }
+  ],
+  "sellers": [
+    {
+      "seller": "1ca7077d",
+      "state": "SP",
+      "shipments": 112,
+      "on_time": 0.4643
+    },
+    {
+      "seller": "88460e8e",
+      "state": "PR",
+      "shipments": 227,
+      "on_time": 0.489
+    },
+    {
+      "seller": "f4aba7c0",
+      "state": "SP",
+      "shipments": 109,
+      "on_time": 0.5596
+    },
+    {
+      "seller": "213b25e6",
+      "state": "SP",
+      "shipments": 138,
+      "on_time": 0.6159
+    },
+    {
+      "seller": "dd7ddc04",
+      "state": "SP",
+      "shipments": 115,
+      "on_time": 0.6174
+    },
+    {
+      "seller": "7aa4334b",
+      "state": "SP",
+      "shipments": 214,
+      "on_time": 0.6355
+    },
+    {
+      "seller": "8e6cc767",
+      "state": "MG",
+      "shipments": 103,
+      "on_time": 0.6408
+    },
+    {
+      "seller": "37515688",
+      "state": "SP",
+      "shipments": 222,
+      "on_time": 0.6441
+    },
+    {
+      "seller": "79ebd9a6",
+      "state": "PR",
+      "shipments": 125,
+      "on_time": 0.656
+    },
+    {
+      "seller": "4c2b2301",
+      "state": "SP",
+      "shipments": 256,
+      "on_time": 0.6758
+    },
+    {
+      "seller": "2eb70248",
+      "state": "SP",
+      "shipments": 186,
+      "on_time": 0.6774
+    },
+    {
+      "seller": "06a2c3af",
+      "state": "MA",
+      "shipments": 391,
+      "on_time": 0.6854
+    },
+    {
+      "seller": "7c67e144",
+      "state": "SP",
+      "shipments": 970,
+      "on_time": 0.7021
+    },
+    {
+      "seller": "c31eff83",
+      "state": "SP",
+      "shipments": 118,
+      "on_time": 0.7203
+    },
+    {
+      "seller": "431af27f",
+      "state": "SP",
+      "shipments": 115,
+      "on_time": 0.7304
+    }
+  ]
+}

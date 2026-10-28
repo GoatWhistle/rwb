@@ -40,3 +40,9 @@ npm run verify
 ```bash
 npx openapi-typescript http://127.0.0.1:8090/openapi.json -o src/shared/api/schema.gen.ts
 ```
+
+## Моки API
+
+`npm run dev:mock` запускает Vite с dev-middleware из `mocks/` (режим `--mode mock`; также включается `MOCK=1 npm run dev`). Бэкенд не нужен: мокаются `GET /api/health`, `GET /api/metrics`, `POST /api/metrics/query` (все метрики `block_a.*` и `dashboard.*`, фильтры по периоду и штату учитываются) и `POST /api/chat/stream` (SSE с теми же событиями, что у бэкенда). Цифры взяты из контрольных значений `docs/tasks.md` и `solution/dashboard.html`.
+
+Удалить моки: папку `mocks/`, импорт `mockApi` и `mockApi()` в `vite.config.ts`, `"mocks"` в `tsconfig.json` и скрипт `dev:mock` в `package.json`.
