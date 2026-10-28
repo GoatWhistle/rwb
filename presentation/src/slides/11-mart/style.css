@@ -19,3 +19,7 @@
 #mart .mt-n1 b { color: var(--deck-accent); }
 #mart .mt-n2 { top: 330px; }
 #mart .mt-n2 b { color: var(--dz-violet); }
+
+#mart .mt-key { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 100px; }
+#mart .mt-t span { max-width: 560px; }
+#mart .mt-t1 { top: -46px; }

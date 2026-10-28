@@ -23,10 +23,10 @@
     "digits": 0,
     "unit": ""
   },
-  "shipped_nodate": {
-    "value": 1107,
+  "lost_rev": {
+    "value": 170726.63,
     "source": "report.html",
-    "digits": 0,
+    "digits": 2,
     "unit": ""
   },
   "neg_ship": {

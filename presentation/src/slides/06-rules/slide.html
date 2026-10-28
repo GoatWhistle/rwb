@@ -1,7 +1,7 @@
-<section class="slide" id="rules" data-title="Правила переноса">
-  <h2 class="title a">Одна строка raw <em>на пути в core</em></h2>
+<section class="slide" id="rules" data-title="Как решили">
+  <h2 class="title a">Как решили: <em>правила переноса</em></h2>
   <div class="body is-tall rl">
-    <div class="rl-tags"><span class="dz-pill is-lilac f" style="--d:0.2s">raw: всё text</span><span class="dz-pill is-brand f" style="--d:1.4s">core: типы, NULL, ключи, CHECK</span></div>
+    <div class="rl-tags"><span class="dz-pill is-lilac f" style="--d:0.2s">raw: всё text</span><span class="dz-pill is-brand f" style="--d:1.4s">core: типы, NULL, PK, FK, CHECK</span></div>
     <div class="rl-grid"><div class="rl-col" style="--d:0.30s">
         <span class="rl-name f">purchase_ts</span>
         <span class="rl-raw a">'2017-10-02 10:56:33'</span>
@@ -10,29 +10,29 @@
       </div><div class="rl-col" style="--d:0.42s">
         <span class="rl-name f">approved_at</span>
         <span class="rl-raw a">''</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:0.92s"></i><span class="rl-rule pop" style="--d:1.22s">NULLIF(trim)</span></span>
-        <span class="rl-core a" style="--d:1.52s">NULL<small>нет данных</small></span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:0.92s"></i><span class="rl-rule pop" style="--d:1.22s">NULLIF(trim(x), '')</span></span>
+        <span class="rl-core a" style="--d:1.52s">NULL<small>данных нет</small></span>
       </div><div class="rl-col" style="--d:0.54s">
         <span class="rl-name f">price</span>
         <span class="rl-raw a">'29.99'</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:1.04s"></i><span class="rl-rule pop" style="--d:1.34s">::numeric(10,2)</span></span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:1.04s"></i><span class="rl-rule pop" style="--d:1.34s">::numeric, CHECK ≥ 0</span></span>
         <span class="rl-core a" style="--d:1.64s">29.99<small>numeric</small></span>
       </div><div class="rl-col" style="--d:0.66s">
-        <span class="rl-name f">seller_city</span>
-        <span class="rl-raw a">' Auriflama/SP '</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:1.16s"></i><span class="rl-rule pop" style="--d:1.46s">trim, lower</span></span>
-        <span class="rl-core a" style="--d:1.76s">auriflama/sp<small>text</small></span>
+        <span class="rl-name f">order_status</span>
+        <span class="rl-raw a">'delivered'</span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:1.16s"></i><span class="rl-rule pop" style="--d:1.46s">CHECK из списка</span></span>
+        <span class="rl-core a" style="--d:1.76s">delivered<small>статус есть</small></span>
       </div><div class="rl-col" style="--d:0.78s">
         <span class="rl-name f">seller_id</span>
         <span class="rl-raw a">'3504c0cb…'</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:1.28s"></i><span class="rl-rule pop" style="--d:1.58s">REFERENCES</span></span>
-        <span class="rl-core a" style="--d:1.88s">3504c0cb…<small>FK есть</small></span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:1.28s"></i><span class="rl-rule pop" style="--d:1.58s">REFERENCES sellers</span></span>
+        <span class="rl-core a" style="--d:1.88s">3504c0cb…<small>FK найден</small></span>
       </div><div class="rl-col" style="--d:0.90s">
         <span class="rl-name f">score</span>
         <span class="rl-raw a">'7'</span>
         <span class="rl-pipe"><i class="rl-line" style="--d:1.40s"></i><span class="rl-rule pop" style="--d:1.70s">CHECK 1–5</span></span>
         <span class="rl-core is-bad a" style="--d:2.00s">отказ<small>сборка падает</small></span>
       </div></div>
-    <p class="rl-foot f" style="--d:2.4s"><span class="ico is-sm" data-icon="refresh"></span> <b class="dz-code">build_core.sql</b> пересобирает всё с нуля: DROP SCHEMA и одна транзакция</p>
+    <p class="rl-foot f" style="--d:2.4s"><span class="ico is-sm" data-icon="refresh"></span> Один скрипт <b class="dz-code">build_core.sql</b>, DROP SCHEMA и BEGIN … COMMIT: наполовину собранной модели не бывает</p>
   </div>
 </section>

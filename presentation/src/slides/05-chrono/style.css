@@ -6,3 +6,6 @@
 #chrono .ch-side { display: grid; gap: 26px; }
 #chrono .ch-city { display: flex; flex-wrap: wrap; gap: 8px; }
 #chrono .ch-city .dz-pill { font-family: var(--font-code); font-weight: 400; font-size: 19px; }
+
+#chrono .body { bottom: 200px; }
+#chrono .ch-key { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 100px; }

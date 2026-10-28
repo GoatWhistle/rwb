@@ -3275,6 +3275,9 @@ body {
 #cover .cv-title { position: absolute; left: var(--gutter); top: 600px; width: 880px; font-size: 64px; font-weight: 700; line-height: 1.06; letter-spacing: -0.025em; color: var(--deck-fg); }
 #cover .cv-event { position: absolute; left: var(--gutter); bottom: 80px; font-size: 22px; font-weight: 700; color: var(--deck-fg-3); }
 
+#cover .cv-team { position: absolute; left: var(--gutter); top: 790px; display: flex; align-items: center; gap: 18px; font-size: 32px; font-weight: 700; }
+#cover .cv-team-mark { display: grid; place-items: center; height: 56px; padding: 0 18px; border-radius: 16px; background: var(--dz-grad-cover); color: var(--dz-on-brand); font-size: 24px; letter-spacing: 0.04em; }
+
 </style>
 <style>
 #sources .src { display: grid; grid-template-columns: 1fr 520px; grid-template-rows: 1fr auto; gap: 24px 64px; }
@@ -3327,6 +3330,8 @@ body {
 #gaps .gp-ne { font-style: normal; color: var(--deck-danger); }
 #gaps .gp-stats { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding-top: 28px; border-top: 2px solid var(--deck-line); }
 
+#gaps .gp-chart { height: 470px; top: 20px; }
+
 </style>
 <style>
 #chrono .ch { display: grid; grid-template-columns: 1100px 1fr; gap: 72px; align-items: center; }
@@ -3337,6 +3342,9 @@ body {
 #chrono .ch-side { display: grid; gap: 26px; }
 #chrono .ch-city { display: flex; flex-wrap: wrap; gap: 8px; }
 #chrono .ch-city .dz-pill { font-family: var(--font-code); font-weight: 400; font-size: 19px; }
+
+#chrono .body { bottom: 200px; }
+#chrono .ch-key { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 100px; }
 
 </style>
 <style>
@@ -3379,18 +3387,21 @@ body {
 #schema .er { top: 270px; }
 #schema .er-box rect { fill: var(--dz-mist); }
 #schema .er-box.is-hot rect { fill: var(--deck-bg); stroke: var(--deck-accent); stroke-width: 4; }
-#schema .er-name { font-size: 32px; font-weight: 700; }
-#schema .er-pk { font-family: var(--font-code); font-size: 22px; fill: var(--deck-fg-3) !important; }
-#schema .er-box.is-hot .er-pk { fill: var(--deck-accent) !important; }
-#schema .er-path { fill: none; stroke: var(--deck-accent); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; opacity: 0.25; }
-#schema .er-runner-box { position: absolute; left: 0; top: 0; width: 1680px; height: 640px; pointer-events: none; }
-#schema .er-runner-box svg { display: none; }
-#schema .er-cap { position: absolute; left: 1260px; top: 470px; width: 420px; font-size: 23px; line-height: 1.35; color: var(--deck-fg-2); }
+#schema .er-name { font-size: 30px; font-weight: 700; }
+#schema .er-pk { font-family: var(--font-code); font-size: 21px; fill: var(--deck-fg-2) !important; }
+#schema .er-box.is-hot .er-pk { fill: var(--deck-accent) !important; font-weight: 700; }
+#schema .er-note { font-size: 19px; fill: var(--deck-fg-3) !important; }
+#schema .er-dot { fill: var(--deck-accent); }
+#schema .er-pulse { fill: none; stroke: var(--deck-accent); stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; }
+#schema.play .er-pulse { animation: dz-pulse 2.6s var(--ease-out) var(--d) infinite; }
+.is-reduced #schema .er-pulse { display: none; }
+#schema .er-chips { position: absolute; left: 1260px; top: 500px; width: 420px; display: grid; gap: 12px; justify-items: start; }
+#schema .er-chips .dz-pill { font-size: 20px; padding: 10px 18px; white-space: normal; }
 
 </style>
 <style>
 #why .wy { display: grid; gap: 14px; align-content: start; }
-#why .wy-head, #why .wy-row { display: grid; grid-template-columns: 330px 250px 40px 270px 1fr 330px; gap: 20px; align-items: center; }
+#why .wy-head, #why .wy-row { display: grid; grid-template-columns: 290px 260px 40px 280px 1fr 380px; gap: 20px; align-items: center; }
 #why .wy-head { font-size: 20px; font-weight: 700; color: var(--deck-fg-3); padding: 0 28px; }
 #why .wy-row { min-height: 108px; padding: 0 28px; border-radius: 22px; background: var(--dz-mist); }
 #why .wy-name { font-size: 27px; font-weight: 700; }
@@ -3399,7 +3410,7 @@ body {
 #why .wy-right { font-size: 36px; font-weight: 700; color: var(--deck-accent); white-space: nowrap; }
 #why .wy-track { height: 22px; border-radius: var(--radius-pill); background: var(--deck-bg); overflow: hidden; }
 #why .wy-fill { display: block; height: 100%; border-radius: inherit; background: var(--deck-danger); transform: scaleX(var(--w)); }
-#why .wy-how { font-size: 21px; color: var(--deck-fg-2); }
+#why .wy-how { font-size: 20px; line-height: 1.25; color: var(--deck-fg-2); }
 
 </style>
 <style>
@@ -3408,7 +3419,7 @@ body {
 #reconcile .rc-head span:last-child { text-align: right; color: var(--deck-accent); }
 #reconcile .rc-zero { color: var(--deck-success); }
 #reconcile .rc-zero b { font-size: 34px; }
-#reconcile .rc-row { display: grid; grid-template-columns: 130px 1fr 220px 1fr 130px; gap: 18px; align-items: center; height: 64px; }
+#reconcile .rc-row { display: grid; grid-template-columns: 130px 1fr 240px 1fr 330px; gap: 18px; align-items: center; height: 64px; }
 #reconcile .rc-bar { display: flex; height: 36px; }
 #reconcile .rc-bar i { display: block; width: 100%; height: 100%; transform: scaleX(var(--w)); }
 #reconcile .rc-raw { border-radius: 10px 4px 4px 10px; background: var(--deck-line-strong); }
@@ -3419,6 +3430,10 @@ body {
 #reconcile .rc-l { text-align: right; color: var(--deck-fg-3); }
 #reconcile .rc-foot { display: flex; gap: 18px; align-items: center; margin-top: 18px; font-size: 24px; color: var(--deck-fg-2); }
 #reconcile .rc-foot .dz-pill { font-family: var(--font-code); font-size: 22px; }
+
+#reconcile .rc-row.is-dedup .rc-ok { background: var(--dz-violet); }
+#reconcile .rc-row.is-dedup .rc-core { background: var(--dz-grad-dot-violet); }
+#reconcile .rc-dd { margin-left: 14px; padding: 4px 12px; border-radius: var(--radius-pill); background: var(--dz-lilac); font-family: var(--font-sans); font-style: normal; font-size: 18px; color: var(--dz-violet); }
 
 </style>
 <style>
@@ -3444,23 +3459,9 @@ body {
 #mart .mt-n2 { top: 330px; }
 #mart .mt-n2 b { color: var(--dz-violet); }
 
-</style>
-<style>
-#grain .gr { display: grid; grid-template-columns: 900px 1fr; gap: 80px; align-items: center; }
-#grain .gr-viz { width: 900px; height: 560px; overflow: visible; }
-#grain .gr-order { fill: var(--deck-accent); }
-#grain .gr-item { fill: var(--dz-mist); stroke: var(--deck-line-strong); stroke-width: 2; }
-#grain .gr-bad { fill: var(--deck-danger); }
-#grain .gr-t { font-family: var(--font-sans); font-size: 26px; font-weight: 700; fill: var(--deck-fg-2); }
-#grain .gr-t.is-on { fill: var(--dz-on-brand); }
-#grain .gr-big { font-family: var(--font-sans); font-size: 88px; font-weight: 700; fill: var(--dz-on-brand); }
-#grain .gr-bars { position: relative; display: grid; gap: 44px; }
-#grain .gr-bar { display: grid; gap: 10px; }
-#grain .gr-bar b { font-size: 104px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
-#grain .gr-lbl { font-size: 24px; font-weight: 700; color: var(--deck-fg-2); }
-#grain .gr-muted { color: var(--deck-fg-3); }
-#grain .dz-bar { height: 32px; }
-#grain .gr-c { right: 0; bottom: -120px; }
+#mart .mt-key { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 100px; }
+#mart .mt-t span { max-width: 560px; }
+#mart .mt-t1 { top: -46px; }
 
 </style>
 <style>
@@ -3475,31 +3476,10 @@ body {
 
 </style>
 <style>
-#ready .rd { display: grid; grid-template-rows: 1fr auto; gap: 56px; }
-#ready .rd-slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; }
-#ready .rd-slot { position: relative; display: grid; place-content: center; justify-items: center; gap: 6px; border-radius: 34px; background: var(--dz-mist); text-align: center; }
-#ready .rd-slot > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-#ready .rd-slot b { font-size: 96px; font-weight: 700; line-height: 1; color: var(--deck-line-strong); }
-#ready .rd-slot span { font-size: 22px; color: var(--deck-fg-3); }
-#ready .rd-slot.is-inject { background: var(--dz-grad-ink); color: var(--dz-on-brand); padding: 24px; }
-#ready .rd-slot.is-inject b { font-size: 44px; color: var(--dz-on-brand); }
-#ready .rd-slot.is-inject span { color: var(--dz-on-brand); opacity: 0.85; }
-#ready .rd-why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding-top: 28px; border-top: 2px solid var(--deck-line); }
-#ready .rd-why .dz-stat b { font-size: 80px; color: var(--deck-accent); }
-
-</style>
-<style>
-#plans .pl { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
-#plans .pl-col { position: relative; display: grid; grid-template-rows: auto 1fr; gap: 28px; }
-#plans .pl-head { display: flex; justify-content: space-between; align-items: center; font-size: 30px; }
-#plans .pl-head .dz-pill { font-size: 24px; padding: 10px 22px; }
-#plans .pl-col > svg { width: 100%; height: 560px; overflow: visible; }
-#plans .pl-node rect { fill: var(--dz-mist); }
-#plans .pl-node.is-join rect { fill: color-mix(in oklab, var(--deck-danger) 10%, var(--deck-bg)); stroke: var(--deck-danger); stroke-width: 3; }
-#plans .pl-node.is-mart rect { fill: color-mix(in oklab, var(--deck-accent) 10%, var(--deck-bg)); stroke: var(--deck-accent); stroke-width: 3; }
-#plans .pl-node text { font-family: var(--font-code); font-size: 23px; fill: var(--deck-fg); }
-#plans .pl-edge { fill: none; stroke: var(--deck-line-strong); stroke-width: 3; }
-#plans .pl-c { left: 40px; top: 400px; }
+#final .fn-strata { left: 50%; top: 40px; width: 640px; height: 640px; margin-left: -320px; }
+#final .fn-wm { position: absolute; left: var(--gutter); top: 80px; color: var(--deck-fg); }
+#final .fn-title { position: absolute; left: 0; right: 0; top: 690px; text-align: center; font-size: 120px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; color: var(--deck-fg); }
+#final .fn-sub { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font-size: 32px; color: var(--deck-fg-2); }
 
 </style>
 <style>
@@ -3546,10 +3526,49 @@ body {
 
 </style>
 <style>
-#final .fn-strata { left: 50%; top: 40px; width: 640px; height: 640px; margin-left: -320px; }
-#final .fn-wm { position: absolute; left: var(--gutter); top: 80px; color: var(--deck-fg); }
-#final .fn-title { position: absolute; left: 0; right: 0; top: 690px; text-align: center; font-size: 120px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; color: var(--deck-fg); }
-#final .fn-sub { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font-size: 32px; color: var(--deck-fg-2); }
+#grain .gr { display: grid; grid-template-columns: 900px 1fr; gap: 80px; align-items: center; }
+#grain .gr-viz { width: 900px; height: 560px; overflow: visible; }
+#grain .gr-order { fill: var(--deck-accent); }
+#grain .gr-item { fill: var(--dz-mist); stroke: var(--deck-line-strong); stroke-width: 2; }
+#grain .gr-bad { fill: var(--deck-danger); }
+#grain .gr-t { font-family: var(--font-sans); font-size: 26px; font-weight: 700; fill: var(--deck-fg-2); }
+#grain .gr-t.is-on { fill: var(--dz-on-brand); }
+#grain .gr-big { font-family: var(--font-sans); font-size: 88px; font-weight: 700; fill: var(--dz-on-brand); }
+#grain .gr-bars { position: relative; display: grid; gap: 44px; }
+#grain .gr-bar { display: grid; gap: 10px; }
+#grain .gr-bar b { font-size: 104px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+#grain .gr-lbl { font-size: 24px; font-weight: 700; color: var(--deck-fg-2); }
+#grain .gr-muted { color: var(--deck-fg-3); }
+#grain .dz-bar { height: 32px; }
+#grain .gr-c { right: 0; bottom: -120px; }
+
+</style>
+<style>
+#plans .pl { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+#plans .pl-col { position: relative; display: grid; grid-template-rows: auto 1fr; gap: 28px; }
+#plans .pl-head { display: flex; justify-content: space-between; align-items: center; font-size: 30px; }
+#plans .pl-head .dz-pill { font-size: 24px; padding: 10px 22px; }
+#plans .pl-col > svg { width: 100%; height: 560px; overflow: visible; }
+#plans .pl-node rect { fill: var(--dz-mist); }
+#plans .pl-node.is-join rect { fill: color-mix(in oklab, var(--deck-danger) 10%, var(--deck-bg)); stroke: var(--deck-danger); stroke-width: 3; }
+#plans .pl-node.is-mart rect { fill: color-mix(in oklab, var(--deck-accent) 10%, var(--deck-bg)); stroke: var(--deck-accent); stroke-width: 3; }
+#plans .pl-node text { font-family: var(--font-code); font-size: 23px; fill: var(--deck-fg); }
+#plans .pl-edge { fill: none; stroke: var(--deck-line-strong); stroke-width: 3; }
+#plans .pl-c { left: 40px; top: 400px; }
+
+</style>
+<style>
+#ready .rd { display: grid; grid-template-rows: 1fr auto; gap: 56px; }
+#ready .rd-slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; }
+#ready .rd-slot { position: relative; display: grid; place-content: center; justify-items: center; gap: 6px; border-radius: 34px; background: var(--dz-mist); text-align: center; }
+#ready .rd-slot > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#ready .rd-slot b { font-size: 96px; font-weight: 700; line-height: 1; color: var(--deck-line-strong); }
+#ready .rd-slot span { font-size: 22px; color: var(--deck-fg-3); }
+#ready .rd-slot.is-inject { background: var(--dz-grad-ink); color: var(--dz-on-brand); padding: 24px; }
+#ready .rd-slot.is-inject b { font-size: 44px; color: var(--dz-on-brand); }
+#ready .rd-slot.is-inject span { color: var(--dz-on-brand); opacity: 0.85; }
+#ready .rd-why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding-top: 28px; border-top: 2px solid var(--deck-line); }
+#ready .rd-why .dz-stat b { font-size: 80px; color: var(--deck-accent); }
 
 </style>
 </head>
@@ -3564,7 +3583,8 @@ body {
     <div class="cv-wm" style="--wm-h:176px;--wm-d:0.25s"><svg class="wm" viewBox="0 0 251.5 49" role="img" aria-label="datum"><path class="wm-l" style="--i:0" d="M35.8413334103258 29.57884991869222Q35.0112079933091 35.12106383731738 32.49034644751131 39.26551786442742Q29.969484901713518 43.409971891537474 26.069177738991783 45.70498594576874Q22.168870576270052 48.0 17.237033132221537 48.0Q12.134287294937682 48.0 8.246188406795952 45.692777671188736Q4.3580895186542215 43.385555342377465 2.1790447593271107 39.22279076611859Q0.0 35.06002618985972 0.0 29.57884991869222Q0.0 24.03663600006706 2.1790447593271107 19.886079698388187Q4.3580895186542215 15.735523396709315 8.246188406795952 13.42830106789805Q12.134287294937682 11.121078739086784 17.237033132221537 11.121078739086784Q22.168870576270052 11.121078739086784 26.069177738991783 13.397782244169218Q29.969484901713518 15.674485749251652 32.52086527124014 19.80673150178169Q35.072245640766766 23.938977254311734 35.8413334103258 29.57884991869222Z M12.59798565332151 29.57884991869222Q12.59798565332151 32.17908946463531 13.666159385600047 34.17504735968588Q14.734333117878583 36.171005254736436 16.632628541731474 37.31852718362147Q18.530923965584364 38.4660491125065 20.99687621658977 38.4660491125065Q23.523866115052837 38.4660491125065 25.78228142364054 37.31852718362147Q28.040696732228245 36.171005254736436 29.768080037403443 34.17504735968588Q31.495463342578642 32.17908946463531 32.33780075961769 29.57884991869222Q31.495463342578642 26.978610372749134 29.768080037403443 24.964341928549743Q28.040696732228245 22.950073484350348 25.78228142364054 21.802551555465318Q23.523866115052837 20.655029626580287 20.99687621658977 20.655029626580287Q18.530923965584364 20.655029626580287 16.632628541731474 21.802551555465318Q14.734333117878583 22.950073484350348 13.666159385600047 24.964341928549743Q12.59798565332151 26.978610372749134 12.59798565332151 29.57884991869222Z M33.155691823957945 46.99898854240205 31.556515891805706 33.912515437301735 33.69281865105458 29.676508664447546 31.580932440965707 24.280808942551815 34.51072461716423 0.0H47.45051215518702L43.86151785697654 28.614474461161333L46.071062812820735 46.99898854240205Z"/><path class="wm-l" style="--i:1" d="M85.77012903069578 29.57884991869222Q84.94000361367907 35.12106383731738 82.41914206788128 39.26551786442742Q79.8982805220835 43.409971891537474 75.99797335936177 45.70498594576874Q72.09766619664002 48.0 67.16582875259151 48.0Q62.06308291530765 48.0 58.17498402716592 45.692777671188736Q54.28688513902419 43.385555342377465 52.10784037969708 39.22279076611859Q49.928795620369975 35.06002618985972 49.928795620369975 29.57884991869222Q49.928795620369975 24.03663600006706 52.10784037969708 19.886079698388187Q54.28688513902419 15.735523396709315 58.17498402716592 13.42830106789805Q62.06308291530765 11.121078739086784 67.16582875259151 11.121078739086784Q72.09766619664002 11.121078739086784 75.99797335936177 13.397782244169218Q79.8982805220835 15.674485749251652 82.44966089161012 19.80673150178169Q85.00104126113675 23.938977254311734 85.77012903069578 29.57884991869222Z M62.52678127369148 29.57884991869222Q62.52678127369148 32.17908946463531 63.59495500597002 34.17504735968588Q64.66312873824856 36.171005254736436 66.56142416210145 37.31852718362147Q68.45971958595433 38.4660491125065 70.92567183695974 38.4660491125065Q73.45266173542281 38.4660491125065 75.71107704401052 37.31852718362147Q77.96949235259822 36.171005254736436 79.69687565777342 34.17504735968588Q81.42425896294861 32.17908946463531 82.26659637998767 29.57884991869222Q81.42425896294861 26.978610372749134 79.69687565777342 24.964341928549743Q77.96949235259822 22.950073484350348 75.71107704401052 21.802551555465318Q73.45266173542281 20.655029626580287 70.92567183695974 20.655029626580287Q68.45971958595433 20.655029626580287 66.56142416210145 21.802551555465318Q64.66312873824856 22.950073484350348 63.59495500597002 24.964341928549743Q62.52678127369148 26.978610372749134 62.52678127369148 29.57884991869222Z M82.85254885451961 46.99898854240205 81.25337292236736 34.43743026437602 82.95021505115963 29.57884991869222 81.25337292236736 24.78130722046609 82.85254885451961 12.12209019668473H95.79233639254241L93.59499598583587 29.542228820394563L95.79233639254241 46.99898854240205Z"/><path class="wm-l" style="--i:2" d="M98.09968911183591 21.338648297752254V15.906372182867063L105.1922756678321 13.062056555940309L110.57571123351259 2.7589284882713727H117.66818602623829V12.12209019668473H132.32948557229315V21.338648297752254H117.66818602623829V31.64199244107747Q117.66818602623829 35.38972783780914 119.18193383986932 36.90957420056664Q120.69568165350034 38.429420563324136 124.76079493488858 38.429420563324136Q127.29996702983522 38.429420563324136 129.28369429765166 37.996047305666956Q131.26742156546814 37.562674048009775 132.9398620468698 36.8302073767484V46.181060223638305Q131.05991442658922 46.86468634569497 128.08738397575482 47.43234317284748Q125.11485352492042 48.0 121.91648675884653 48.0Q116.15456115220482 48.0 112.45570355910135 46.21160140002124Q108.7568459659979 44.42320280004247 106.974560816915 41.11497646451795Q105.1922756678321 37.80675012899344 105.1922756678321 33.33881966810034V21.338648297752254Z"/><path class="wm-l" style="--i:3" d="M152.37437715260717 47.96337890170234Q147.5035773560163 47.96337890170234 144.04885172553176 45.95524253561057Q140.59412609504722 43.947106169518804 138.76910267132843 40.26653677291007Q136.94407924760966 36.58596737630134 136.94407924760966 31.629705932208125V12.12209019668473H149.41998960601583V29.823015410292278Q149.41998960601583 33.69286335636278 151.30607675528873 35.75596489888218Q153.19216390456162 37.81906644140159 156.69577106411674 37.81906644140159Q159.32041970833512 37.81906644140159 161.1088481118527 36.775305532840704Q162.89727651537024 35.73154462427983 163.85558322731345 33.71117018006926Q164.81388993925665 31.690795735858686 164.81388993925665 28.895238698404953L168.65921702378137 30.897254162716145Q167.98781035263175 36.42725608131896 165.66228120011402 40.24210904742302Q163.33675204759626 44.056962013527084 159.91253778995582 46.01017045761471Q156.4883235323154 47.96337890170234 152.37437715260717 47.96337890170234Z M167.0844799934432 46.99898854240205 164.81388993925665 33.04584343083437V12.12209019668473H177.28980029766285V34.962397247643196L179.5603903518494 46.99898854240205Z"/><path class="wm-l" style="--i:4" d="M182.56361844764544 12.12209019668473H195.03952880605164L197.3345354093982 26.075235308252413V46.99898854240205H184.858625050992V24.183098040603596Z M209.358981762097 11.121078739086784Q214.15653191120782 11.121078739086784 217.5258033450747 13.129215105178552Q220.8950747789416 15.137351471270321 222.66516282977153 18.80571259329905Q224.43525088060144 22.474073715327773 224.43525088060144 27.491372806878655V46.99898854240205H211.95934052219528V29.322479877954507Q211.95934052219528 25.391594284426347 210.18312411870005 23.328492741906942Q208.40690771520485 21.265391199387537 205.0375878505874 21.265391199387537Q202.6570897961997 21.265391199387537 200.91749449100215 22.35798148082608Q199.1778991858046 23.450571762264623 198.25621729760138 25.45873793189519Q197.3345354093982 27.466904101525756 197.3345354093982 30.22584004068183L193.46479177571348 28.223824576370635Q194.19723609432077 22.63278501031016 196.44951932480086 18.8301403187861Q198.70180255528092 15.027495627262041 202.04666489087248 13.074287183174413Q205.39152722646406 11.121078739086784 209.358981762097 11.121078739086784Z M236.39865958584258 11.121078739086784Q241.1962097349534 11.121078739086784 244.59599999254914 13.129215105178552Q247.99579025014484 15.137351471270321 249.76587830097478 18.80571259329905Q251.53596635180472 22.474073715327773 251.53596635180472 27.491372806878655V46.99898854240205H239.06005599339852V29.322479877954507Q239.06005599339852 25.391594284426347 237.28383958990332 23.328492741906942Q235.50762318640813 21.265391199387537 232.1383033217907 21.265391199387537Q229.75780526740294 21.265391199387537 228.0182099622054 22.35798148082608Q226.27861465700784 23.450571762264623 225.35693276880465 25.45873793189519Q224.43525088060144 27.466904101525756 224.43525088060144 30.22584004068183L220.56550724691675 28.223824576370635Q221.29795156552404 22.63278501031016 223.53192424685528 18.8301403187861Q225.76589692818652 15.027495627262041 229.1107592637781 13.074287183174413Q232.45562159936966 11.121078739086784 236.39865958584258 11.121078739086784Z"/></svg></div>
   </div>
   <h1 class="cv-title a" style="--d:1.1s">Модель данных Capibara: <em>от корзины до выкупа</em></h1>
-  <p class="cv-event f" style="--d:1.6s">Хакатон RWB, кейс «Модель маркетплейса»</p>
+  <p class="cv-team a" style="--d:1.45s"><span class="cv-team-mark">RWB</span>Команда RWB</p>
+  <p class="cv-event f" style="--d:1.8s">Хакатон, кейс «Модель маркетплейса»</p>
 </section>
 
 <section class="slide" id="sources" data-title="Источники">
@@ -3615,7 +3635,7 @@ body {
 </section>
 
 <section class="slide" id="gaps" data-title="Пропуски">
-  <h2 class="title a">Дыры, которые <em>тихо съедают цифры</em></h2>
+  <h2 class="title a">Пропуски <em>и потери</em></h2>
   <div class="body is-tall gp">
     <svg class="gp-chart" viewBox="0 0 1680 520" aria-hidden="true">
       <path class="c-axis" d="M0 440 H1680"/>
@@ -3624,18 +3644,18 @@ body {
       <circle class="c-mark is-bad dr" pathLength="1" style="--d:1.5s" cx="162" cy="410" r="44"/>
     </svg>
     <div class="dz-callout is-bad gp-c1 pop" style="--d:1.8s"><b>0 заказов</b>ноябрь 2016 выпадет из отчёта</div>
-    <div class="dz-callout is-bad gp-c2 pop" style="--d:2s"><b>20 заказов</b>хвост 2018, 19 из них отмены</div>
+    
     <div class="gp-stats">
       <div class="dz-stat a" style="--d:2s"><b class="num count" data-num="no_cat" data-value="610" data-digits="0" data-unit="">610</b><span>товаров без категории</span></div>
-      <div class="dz-stat a" style="--d:2.1s"><b class="num count" data-num="no_items" data-value="775" data-digits="0" data-unit="">775</b><span>заказов без позиций</span></div>
-      <div class="dz-stat a" style="--d:2.2s"><b class="num count" data-num="shipped_nodate" data-value="1107" data-digits="0" data-unit="">1 107</b><span>shipped без даты вручения</span></div>
-      <div class="dz-stat a" style="--d:2.3s"><b>73 <i class="gp-ne">≠</i> 71</b><span>категорий и переводов</span></div>
+      <div class="dz-stat a" style="--d:2.1s"><b class="num count" data-num="no_items" data-value="775" data-digits="0" data-unit="">775</b><span>заказов без позиций: unavailable и canceled</span></div>
+      <div class="dz-stat is-bad a" style="--d:2.2s"><b class="num count" data-num="lost_rev" data-value="170726.63" data-digits="2" data-unit="">170 726,63</b><span>R$ выручки на товарах без категории</span></div>
+      <div class="dz-stat a" style="--d:2.3s"><b>73 <i class="gp-ne">≠</i> 71</b><span>категорий в товарах и в переводах</span></div>
     </div>
   </div>
 </section>
 
 <section class="slide" id="chrono" data-title="Хронология">
-  <h2 class="title a">Время в данных <em>идёт назад</em></h2>
+  <h2 class="title a">Хронология <em>и грязь</em></h2>
   <div class="body is-tall ch">
     <div class="ch-chart">
       <svg viewBox="0 0 1100 490" aria-hidden="true">
@@ -3649,19 +3669,21 @@ body {
       <div class="dz-callout is-bad ch-c pop" style="--d:1.6s"><b class="num count" data-num="neg_ship" data-value="1359" data-digits="0" data-unit="">1 359</b>отгружены<br>раньше оплаты</div>
     </div>
     <div class="ch-side">
-      <div class="dz-stat is-bad a" style="--d:1.4s"><b>5 127</b><span>отзывов раньше вручения</span></div>
-      <div class="dz-stat is-bad a" style="--d:1.55s"><b>166</b><span>отгружены раньше оформления</span></div>
-      <div class="dz-stat is-bad a" style="--d:1.7s"><b>23</b><span>вручены раньше передачи</span></div>
-      <div class="ch-city a" style="--d:1.9s"><span class="dz-pill">auriflama/sp</span><span class="dz-pill">rio de janeiro \ rio de janeiro</span><span class="dz-pill">04482255</span></div>
-      <div class="dz-stat a" style="--d:2s"><b class="num count" data-num="cities" data-value="611" data-digits="0" data-unit="">611</b><span>написаний городов продавцов</span></div>
+      <div class="dz-stat is-bad a" style="--d:1.4s"><b>23</b><span>вручены раньше отгрузки</span></div>
+      <div class="dz-stat is-bad a" style="--d:1.55s"><b>6</b><span>отменённых с датой вручения</span></div>
+      <div class="dz-stat is-bad a" style="--d:1.7s"><b>1 139</b><span>заказов: платежи не бьются с позициями</span></div>
+      <div class="ch-city a" style="--d:1.9s"><span class="dz-pill">auriflama/sp</span><span class="dz-pill">rio de janeiro \ rio de janeiro</span><span class="dz-pill is-bad">04482255</span></div>
+      <div class="dz-stat a" style="--d:2s"><b class="num count" data-num="cities" data-value="611" data-digits="0" data-unit="">611</b><span>написаний городов, индекс вместо города</span></div>
     </div>
   </div>
+
+  <p class="ch-key dz-key a" style="--d:2.3s"><span class="ico " data-icon="shield"></span><span><b>Вывод:</b> источникам доверять нельзя. Проверки живут в модели, а не в голове аналитика.</span></p>
 </section>
 
-<section class="slide" id="rules" data-title="Правила переноса">
-  <h2 class="title a">Одна строка raw <em>на пути в core</em></h2>
+<section class="slide" id="rules" data-title="Как решили">
+  <h2 class="title a">Как решили: <em>правила переноса</em></h2>
   <div class="body is-tall rl">
-    <div class="rl-tags"><span class="dz-pill is-lilac f" style="--d:0.2s">raw: всё text</span><span class="dz-pill is-brand f" style="--d:1.4s">core: типы, NULL, ключи, CHECK</span></div>
+    <div class="rl-tags"><span class="dz-pill is-lilac f" style="--d:0.2s">raw: всё text</span><span class="dz-pill is-brand f" style="--d:1.4s">core: типы, NULL, PK, FK, CHECK</span></div>
     <div class="rl-grid"><div class="rl-col" style="--d:0.30s">
         <span class="rl-name f">purchase_ts</span>
         <span class="rl-raw a">'2017-10-02 10:56:33'</span>
@@ -3670,105 +3692,109 @@ body {
       </div><div class="rl-col" style="--d:0.42s">
         <span class="rl-name f">approved_at</span>
         <span class="rl-raw a">''</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:0.92s"></i><span class="rl-rule pop" style="--d:1.22s">NULLIF(trim)</span></span>
-        <span class="rl-core a" style="--d:1.52s">NULL<small>нет данных</small></span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:0.92s"></i><span class="rl-rule pop" style="--d:1.22s">NULLIF(trim(x), '')</span></span>
+        <span class="rl-core a" style="--d:1.52s">NULL<small>данных нет</small></span>
       </div><div class="rl-col" style="--d:0.54s">
         <span class="rl-name f">price</span>
         <span class="rl-raw a">'29.99'</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:1.04s"></i><span class="rl-rule pop" style="--d:1.34s">::numeric(10,2)</span></span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:1.04s"></i><span class="rl-rule pop" style="--d:1.34s">::numeric, CHECK ≥ 0</span></span>
         <span class="rl-core a" style="--d:1.64s">29.99<small>numeric</small></span>
       </div><div class="rl-col" style="--d:0.66s">
-        <span class="rl-name f">seller_city</span>
-        <span class="rl-raw a">' Auriflama/SP '</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:1.16s"></i><span class="rl-rule pop" style="--d:1.46s">trim, lower</span></span>
-        <span class="rl-core a" style="--d:1.76s">auriflama/sp<small>text</small></span>
+        <span class="rl-name f">order_status</span>
+        <span class="rl-raw a">'delivered'</span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:1.16s"></i><span class="rl-rule pop" style="--d:1.46s">CHECK из списка</span></span>
+        <span class="rl-core a" style="--d:1.76s">delivered<small>статус есть</small></span>
       </div><div class="rl-col" style="--d:0.78s">
         <span class="rl-name f">seller_id</span>
         <span class="rl-raw a">'3504c0cb…'</span>
-        <span class="rl-pipe"><i class="rl-line" style="--d:1.28s"></i><span class="rl-rule pop" style="--d:1.58s">REFERENCES</span></span>
-        <span class="rl-core a" style="--d:1.88s">3504c0cb…<small>FK есть</small></span>
+        <span class="rl-pipe"><i class="rl-line" style="--d:1.28s"></i><span class="rl-rule pop" style="--d:1.58s">REFERENCES sellers</span></span>
+        <span class="rl-core a" style="--d:1.88s">3504c0cb…<small>FK найден</small></span>
       </div><div class="rl-col" style="--d:0.90s">
         <span class="rl-name f">score</span>
         <span class="rl-raw a">'7'</span>
         <span class="rl-pipe"><i class="rl-line" style="--d:1.40s"></i><span class="rl-rule pop" style="--d:1.70s">CHECK 1–5</span></span>
         <span class="rl-core is-bad a" style="--d:2.00s">отказ<small>сборка падает</small></span>
       </div></div>
-    <p class="rl-foot f" style="--d:2.4s"><span class="ico is-sm" data-icon="refresh"></span> <b class="dz-code">build_core.sql</b> пересобирает всё с нуля: DROP SCHEMA и одна транзакция</p>
+    <p class="rl-foot f" style="--d:2.4s"><span class="ico is-sm" data-icon="refresh"></span> Один скрипт <b class="dz-code">build_core.sql</b>, DROP SCHEMA и BEGIN … COMMIT: наполовину собранной модели не бывает</p>
   </div>
 </section>
 
 <section class="slide" id="layers" data-title="Три слоя">
-  <h2 class="title a">Логотип это <em>и есть архитектура</em></h2>
+  <h2 class="title a">Три слоя, <em>как в нашем знаке</em></h2>
   <div class="body is-tall ly">
     <svg class="strata ly-strata" viewBox="0 0 1000 1000" aria-hidden="true"></svg>
-    <div class="ly-tag ly-mart a" style="--d:0.9s"><span class="ly-dot"></span><b>mart</b><span>2 витрины, один SELECT без join</span></div>
-    <div class="ly-tag ly-core a" style="--d:0.75s"><span class="ly-dot"></span><b>core</b><span>8 таблиц: типы, ключи, FK, CHECK</span></div>
-    <div class="ly-tag ly-raw a" style="--d:0.6s"><span class="ly-dot"></span><b>raw</b><span>8 таблиц как приехало, только чтение</span></div>
-    <div class="ly-tag ly-cube a" style="--d:2.4s"><span class="ly-dot"></span><b>одна цифра</b><span>для всех аналитиков</span></div>
+    <div class="ly-tag ly-mart a" style="--d:0.9s"><span class="ly-dot"></span><b>mart</b><span>витрины под задачу: исполнение заказа</span></div>
+    <div class="ly-tag ly-core a" style="--d:0.75s"><span class="ly-dot"></span><b>core</b><span>модель: типы, ключи, связи, дедупликация</span></div>
+    <div class="ly-tag ly-raw a" style="--d:0.6s"><span class="ly-dot"></span><b>raw</b><span>как приехало, только читаем</span></div>
+    <div class="ly-tag ly-cube a" style="--d:2.4s"><span class="ly-dot"></span><b>ответы</b><span>считаются из core</span></div>
     <div class="ly-files f" style="--d:2.6s"><span class="dz-pill">build_core.sql</span><span class="ico is-sm" data-icon="arrow-right"></span><span class="dz-pill">build_mart.sql</span><span class="ico is-sm" data-icon="arrow-right"></span><span class="dz-pill">build_dashboard.py</span></div>
   </div>
 </section>
 
 <section class="slide" id="schema" data-title="Схема core">
-  <h2 class="title a">Выручка идёт <em>по одной тропе</em></h2>
+  <h2 class="title a">Схема core: <em>ключ это решение</em></h2>
   <div class="body is-tall er">
-    <svg class="dz-svg" viewBox="0 0 1680 640" aria-hidden="true">
-      <path class="dz-wire dr" pathLength="1" style="--d:0.90s" d="M420 65 H630"/><path class="dz-wire dr" pathLength="1" style="--d:0.96s" d="M1050 65 H1260"/><path class="dz-wire dr" pathLength="1" style="--d:1.02s" d="M840 130 V250"/><path class="dz-wire dr" pathLength="1" style="--d:1.08s" d="M630 315 H420"/><path class="dz-wire dr" pathLength="1" style="--d:1.14s" d="M840 380 V500"/><path class="dz-wire dr" pathLength="1" style="--d:1.20s" d="M630 565 H420"/><path class="dz-wire dr" pathLength="1" style="--d:1.26s" d="M1050 100 C1160 100 1160 315 1260 315"/>
-      <path class="er-path dr" pathLength="1" style="--d:1.6s;--t:1.4s" d="M840 65 V565 H210"/>
-      <g class="er-box s" style="--d:0.30s"><rect x="0" y="0" width="420" height="130" rx="26"/><text x="32" y="58" class="er-name">customers</text><text x="32" y="98" class="er-pk">customer_unique_id</text></g><g class="er-box is-hot s" style="--d:0.37s"><rect x="630" y="0" width="420" height="130" rx="26"/><text x="662" y="58" class="er-name">orders</text><text x="662" y="98" class="er-pk">order_id</text></g><g class="er-box s" style="--d:0.44s"><rect x="1260" y="0" width="420" height="130" rx="26"/><text x="1292" y="58" class="er-name">order_reviews</text><text x="1292" y="98" class="er-pk">review_id + order_id</text></g><g class="er-box s" style="--d:0.51s"><rect x="0" y="250" width="420" height="130" rx="26"/><text x="32" y="308" class="er-name">sellers</text><text x="32" y="348" class="er-pk">seller_id</text></g><g class="er-box is-hot s" style="--d:0.58s"><rect x="630" y="250" width="420" height="130" rx="26"/><text x="662" y="308" class="er-name">order_items</text><text x="662" y="348" class="er-pk">order_id + item_no</text></g><g class="er-box s" style="--d:0.65s"><rect x="1260" y="250" width="420" height="130" rx="26"/><text x="1292" y="308" class="er-name">order_payments</text><text x="1292" y="348" class="er-pk">order_id + payment_no</text></g><g class="er-box is-hot s" style="--d:0.72s"><rect x="0" y="500" width="420" height="130" rx="26"/><text x="32" y="558" class="er-name">product_categories</text><text x="32" y="598" class="er-pk">category_name</text></g><g class="er-box is-hot s" style="--d:0.79s"><rect x="630" y="500" width="420" height="130" rx="26"/><text x="662" y="558" class="er-name">products</text><text x="662" y="598" class="er-pk">product_id</text></g>
+    <svg class="dz-svg" viewBox="0 0 1680 660" aria-hidden="true">
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:0.90s" d="M420 80 H630"/><path class="dz-wire is-accent dr" pathLength="1" style="--d:0.96s" d="M1050 80 H1260"/><path class="dz-wire is-accent dr" pathLength="1" style="--d:1.02s" d="M840 160 V250"/><path class="dz-wire is-accent dr" pathLength="1" style="--d:1.08s" d="M630 330 H420"/><path class="dz-wire is-accent dr" pathLength="1" style="--d:1.14s" d="M840 410 V500"/><path class="dz-wire is-accent dr" pathLength="1" style="--d:1.20s" d="M630 580 H420"/><path class="dz-wire is-accent dr" pathLength="1" style="--d:1.26s" d="M1050 120 C1160 120 1160 330 1260 330"/>
+      <g class="er-box is-hot s" style="--d:0.30s"><rect x="0" y="0" width="420" height="160" rx="26"/><text x="32" y="52" class="er-name">customers</text><text x="32" y="92" class="er-pk">PK customer_unique_id</text><text x="32" y="130" class="er-note">человек, а не учётка заказа</text></g><g class="er-box s" style="--d:0.37s"><rect x="630" y="0" width="420" height="160" rx="26"/><text x="662" y="52" class="er-name">orders</text><text x="662" y="92" class="er-pk">PK order_id</text><text x="662" y="130" class="er-note">CHECK по статусам, гео снимком</text></g><g class="er-box is-hot s" style="--d:0.44s"><rect x="1260" y="0" width="420" height="160" rx="26"/><text x="1292" y="52" class="er-name">order_reviews</text><text x="1292" y="92" class="er-pk">PK review_id + order_id</text><text x="1292" y="130" class="er-note">один отзыв на нескольких заказах</text></g><g class="er-box s" style="--d:0.51s"><rect x="0" y="250" width="420" height="160" rx="26"/><text x="32" y="302" class="er-name">sellers</text><text x="32" y="342" class="er-pk">PK seller_id</text><text x="32" y="380" class="er-note">город и штат как в источнике</text></g><g class="er-box is-hot s" style="--d:0.58s"><rect x="630" y="250" width="420" height="160" rx="26"/><text x="662" y="302" class="er-name">order_items</text><text x="662" y="342" class="er-pk">PK order_id + item_no</text><text x="662" y="380" class="er-note">номер позиции стал частью ключа</text></g><g class="er-box s" style="--d:0.65s"><rect x="1260" y="250" width="420" height="160" rx="26"/><text x="1292" y="302" class="er-name">order_payments</text><text x="1292" y="342" class="er-pk">PK order_id + payment_no</text><text x="1292" y="380" class="er-note">несколько платежей легально</text></g><g class="er-box s" style="--d:0.72s"><rect x="0" y="500" width="420" height="160" rx="26"/><text x="32" y="552" class="er-name">product_categories</text><text x="32" y="592" class="er-pk">PK category_name</text><text x="32" y="630" class="er-note">из товаров, перевод опционален</text></g><g class="er-box s" style="--d:0.79s"><rect x="630" y="500" width="420" height="160" rx="26"/><text x="662" y="552" class="er-name">products</text><text x="662" y="592" class="er-pk">PK product_id</text><text x="662" y="630" class="er-note">категория: nullable FK</text></g>
+      <rect class="er-pulse" style="--d:1.80s" x="0" y="0" width="420" height="160" rx="26"/><rect class="er-pulse" style="--d:2.05s" x="1260" y="0" width="420" height="160" rx="26"/><rect class="er-pulse" style="--d:2.30s" x="630" y="250" width="420" height="160" rx="26"/>
+      <circle class="er-dot pop" style="--d:1.30s" cx="630" cy="80" r="9"/><circle class="er-dot pop" style="--d:1.35s" cx="1260" cy="80" r="9"/><circle class="er-dot pop" style="--d:1.40s" cx="840" cy="250" r="9"/><circle class="er-dot pop" style="--d:1.45s" cx="420" cy="330" r="9"/><circle class="er-dot pop" style="--d:1.50s" cx="840" cy="500" r="9"/><circle class="er-dot pop" style="--d:1.55s" cx="420" cy="580" r="9"/><circle class="er-dot pop" style="--d:1.60s" cx="1260" cy="330" r="9"/>
     </svg>
-    <div class="er-runner-box"><span class="runner only-motion" style="--d:2.6s;--t:2.6s;--loop:infinite"></span><svg viewBox="0 0 1680 640"><path d="M840 65 V565 H210"/></svg></div>
-    <p class="er-cap f" style="--d:2.4s">orders <span class="dz-code">is_revenue</span>, order_items, products, «(без категории)»: ни одна строка не теряется</p>
+    <div class="er-chips">
+      <span class="dz-pill a" style="--d:2s"><span class="ico is-sm" data-icon="wallet"></span>деньги numeric</span>
+      <span class="dz-pill a" style="--d:2.1s"><span class="ico is-sm" data-icon="clock"></span>даты timestamp</span>
+      <span class="dz-pill is-brand a" style="--d:2.2s"><span class="ico is-sm" data-icon="shield"></span>дубль или провисшая связь не запишется</span>
+    </div>
   </div>
 </section>
 
-<section class="slide" id="why" data-title="Почему так">
-  <h2 class="title a">Цена каждого <em>неверного решения</em></h2>
+<section class="slide" id="why" data-title="Почему именно так">
+  <h2 class="title a">Почему <em>именно так</em></h2>
   <div class="body is-tall wy">
-    <div class="wy-head f" style="--d:0.2s"><span></span><span>наивно</span><span></span><span>в модели</span><span>сколько потеряли бы</span><span>что спасло</span></div>
+    <div class="wy-head f" style="--d:0.2s"><span></span><span>наивно</span><span></span><span>в модели</span><span>доля ошибки</span><span>решение</span></div>
     <div class="wy-row a" style="--d:0.30s">
-      <span class="wy-name">Покупатели</span>
+      <span class="wy-name">Покупатель</span>
       <span class="wy-wrong">99 441</span>
       <span class="wy-arrow"><span class="ico is-sm" data-icon="arrow-right"></span></span>
       <span class="wy-right">96 096</span>
       <span class="wy-track"><i class="wy-fill c-hbar" style="--w:0.035;--d:0.70s"></i></span>
-      <span class="wy-how">ключ customer_unique_id</span>
+      <span class="wy-how">customer_unique_id, повторных 3.12% вместо 0</span>
     </div><div class="wy-row a" style="--d:0.45s">
-      <span class="wy-name">Вернулись</span>
-      <span class="wy-wrong">0%</span>
+      <span class="wy-name">География</span>
+      <span class="wy-wrong">адрес сейчас</span>
       <span class="wy-arrow"><span class="ico is-sm" data-icon="arrow-right"></span></span>
-      <span class="wy-right">3.12%</span>
-      <span class="wy-track"><i class="wy-fill c-hbar" style="--w:1.0;--d:0.85s"></i></span>
-      <span class="wy-how">иначе повторных нет вовсе</span>
+      <span class="wy-right">адрес в заказе</span>
+      <span class="wy-track"><i class="wy-fill c-hbar" style="--w:0.012;--d:0.85s"></i></span>
+      <span class="wy-how">снимок: у 250 человек адрес менялся</span>
     </div><div class="wy-row a" style="--d:0.60s">
       <span class="wy-name">Категории</span>
       <span class="wy-wrong">71</span>
       <span class="wy-arrow"><span class="ico is-sm" data-icon="arrow-right"></span></span>
       <span class="wy-right">74</span>
       <span class="wy-track"><i class="wy-fill c-hbar" style="--w:0.04;--d:1.00s"></i></span>
-      <span class="wy-how">справочник из товаров</span>
+      <span class="wy-how">справочник из товаров, перевод опционален</span>
     </div><div class="wy-row a" style="--d:0.75s">
-      <span class="wy-name">Выручка по категориям</span>
+      <span class="wy-name">Без категории</span>
       <span class="wy-wrong">13 050 771.48</span>
       <span class="wy-arrow"><span class="ico is-sm" data-icon="arrow-right"></span></span>
       <span class="wy-right">13 221 498.11</span>
       <span class="wy-track"><i class="wy-fill c-hbar" style="--w:0.013;--d:1.15s"></i></span>
-      <span class="wy-how">строка «(без категории)»</span>
+      <span class="wy-how">отдельная строка, сумма сходится</span>
     </div><div class="wy-row a" style="--d:0.90s">
       <span class="wy-name">Заказы в отчётах</span>
       <span class="wy-wrong">98 666</span>
       <span class="wy-arrow"><span class="ico is-sm" data-icon="arrow-right"></span></span>
       <span class="wy-right">99 441</span>
       <span class="wy-track"><i class="wy-fill c-hbar" style="--w:0.012;--d:1.30s"></i></span>
-      <span class="wy-how">LEFT JOIN к позициям</span>
+      <span class="wy-how">LEFT JOIN, где пары может не быть</span>
     </div>
   </div>
 </section>
 
-<section class="slide" id="reconcile" data-title="Сверка">
-  <h2 class="title a">raw и core <em>сходятся до строки</em></h2>
+<section class="slide" id="reconcile" data-title="Ничего не потеряли">
+  <h2 class="title a">Ничего <em>не потеряли</em></h2>
   <div class="body is-tall rc">
-    <div class="rc-head f" style="--d:0.2s"><span>raw</span><span class="rc-zero">расхождений: <b>0</b></span><span>core</span></div>
+    <div class="rc-head f" style="--d:0.2s"><span>raw</span><span class="rc-zero">потерь: <b>0</b></span><span>core</span></div>
     <div class="rc-row" style="--d:0.30s">
       <span class="rc-v rc-l f">99 441</span>
       <span class="rc-bar"><i class="c-hbar is-rtl rc-raw" style="--w:0.883"></i></span>
@@ -3794,30 +3820,30 @@ body {
       <span class="rc-bar"><i class="c-hbar rc-core" style="--w:0.881"></i></span>
       <span class="rc-v f">99 224</span>
     </div><div class="rc-row" style="--d:0.78s">
-      <span class="rc-v rc-l f">96 096</span>
-      <span class="rc-bar"><i class="c-hbar is-rtl rc-raw" style="--w:0.853"></i></span>
-      <span class="rc-name">люди<i class="rc-ok pop" style="--d:1.68s"><span class="ico is-sm" data-icon="check"></span></i></span>
-      <span class="rc-bar"><i class="c-hbar rc-core" style="--w:0.853"></i></span>
-      <span class="rc-v f">96 096</span>
-    </div><div class="rc-row" style="--d:0.90s">
       <span class="rc-v rc-l f">32 951</span>
       <span class="rc-bar"><i class="c-hbar is-rtl rc-raw" style="--w:0.293"></i></span>
-      <span class="rc-name">товары<i class="rc-ok pop" style="--d:1.80s"><span class="ico is-sm" data-icon="check"></span></i></span>
+      <span class="rc-name">товары<i class="rc-ok pop" style="--d:1.68s"><span class="ico is-sm" data-icon="check"></span></i></span>
       <span class="rc-bar"><i class="c-hbar rc-core" style="--w:0.293"></i></span>
       <span class="rc-v f">32 951</span>
-    </div><div class="rc-row" style="--d:1.02s">
+    </div><div class="rc-row" style="--d:0.90s">
       <span class="rc-v rc-l f">3 095</span>
       <span class="rc-bar"><i class="c-hbar is-rtl rc-raw" style="--w:0.030"></i></span>
-      <span class="rc-name">продавцы<i class="rc-ok pop" style="--d:1.92s"><span class="ico is-sm" data-icon="check"></span></i></span>
+      <span class="rc-name">продавцы<i class="rc-ok pop" style="--d:1.80s"><span class="ico is-sm" data-icon="check"></span></i></span>
       <span class="rc-bar"><i class="c-hbar rc-core" style="--w:0.030"></i></span>
       <span class="rc-v f">3 095</span>
+    </div><div class="rc-row is-dedup" style="--d:1.02s">
+      <span class="rc-v rc-l f">99 441</span>
+      <span class="rc-bar"><i class="c-hbar is-rtl rc-raw" style="--w:0.883"></i></span>
+      <span class="rc-name">покупатели<i class="rc-ok pop" style="--d:1.92s"><span class="ico is-sm" data-icon="check"></span></i></span>
+      <span class="rc-bar"><i class="c-hbar rc-core" style="--w:0.853"></i></span>
+      <span class="rc-v f">96 096<em class="rc-dd">дедупликация</em></span>
     </div>
-    <p class="rc-foot f" style="--d:2.2s"><span class="dz-pill is-bad">RAISE EXCEPTION</span> любое расхождение валит сборку, а не молчит в отчёте</p>
+    <p class="rc-foot f" style="--d:2.2s"><span class="dz-pill is-bad">RAISE EXCEPTION</span> витрины: строки, пары заказ и продавец, деньги. Расхождение валит сборку</p>
   </div>
 </section>
 
 <section class="slide" id="mart" data-title="Витрины">
-  <h2 class="title a">Две витрины, <em>два честных уровня</em></h2>
+  <h2 class="title a">Витрины: <em>один SELECT без join</em></h2>
   <div class="body is-tall mt">
     <svg class="mt-viz" viewBox="0 0 1680 520" aria-hidden="true">
       <g class="s" style="--d:0.3s"><rect class="mt-order" x="0" y="150" width="380" height="220" rx="32"/></g>
@@ -3829,37 +3855,13 @@ body {
       <g class="s" style="--d:1.5s"><rect class="mt-row is-v" x="680" y="428" width="560" height="52" rx="14"/></g>
     </svg>
     <div class="mt-order-txt a" style="--d:0.5s"><b>1 заказ</b><span class="mt-sellers"><i>П1</i><i>П2</i><i>П3</i></span><span>3 продавца</span></div>
-    <div class="mt-t mt-t1 a" style="--d:1.2s"><code class="dz-code">order_fulfillment</code><span>этапы в днях, on_time, суммы</span></div>
-    <div class="mt-t mt-t2 a" style="--d:1.4s"><code class="dz-code">seller_shipment</code><span>срок пары, shipped_on_time</span></div>
+    <div class="mt-t mt-t1 a" style="--d:1.2s"><code class="dz-code">order_fulfillment</code><span>этапы в днях, on_time, суммы, последний отзыв. Сломанная хронология в NULL</span></div>
+    <div class="mt-t mt-t2 a" style="--d:1.4s"><code class="dz-code">seller_shipment</code><span>срок отгрузки пары и флаг «успел ли»</span></div>
     <div class="mt-n mt-n1 a" style="--d:1.6s"><b class="num count" data-num="fulfil_rows" data-value="99441" data-digits="0" data-unit="">99 441</b><span>1 строка = 1 заказ</span></div>
     <div class="mt-n mt-n2 a" style="--d:1.8s"><b class="num count" data-num="shipment_rows" data-value="100010" data-digits="0" data-unit="">100 010</b><span>1 строка = заказ × продавец</span></div>
   </div>
-</section>
 
-<section class="slide" id="grain" data-title="Грануляция">
-  <h2 class="title a">Один заказ, <em>четыре строки</em></h2>
-  <div class="body is-tall gr">
-    <svg class="gr-viz" viewBox="0 0 900 560" aria-hidden="true">
-      <rect class="gr-order s" style="--d:0.3s" x="0" y="230" width="200" height="100" rx="26"/>
-      <text x="100" y="292" text-anchor="middle" class="gr-t is-on">заказ</text>
-      <path class="dz-wire dr" pathLength="1" style="--d:0.55s" d="M200 280 C270 280 270 110 340 110"/>
-      <path class="dz-wire dr" pathLength="1" style="--d:0.6s" d="M200 280 C270 280 270 450 340 450"/>
-      <rect class="gr-item s" style="--d:0.75s" x="340" y="70" width="180" height="80" rx="20"/>
-      <rect class="gr-item s" style="--d:0.8s" x="340" y="410" width="180" height="80" rx="20"/>
-      <text x="430" y="120" text-anchor="middle" class="gr-t">2 товара</text>
-      <text x="430" y="460" text-anchor="middle" class="gr-t">2 платежа</text>
-      <path class="trace is-danger dr" pathLength="1" style="--d:1s" d="M520 110 C600 110 600 200 680 200"/>
-      <path class="trace is-danger dr" pathLength="1" style="--d:1.05s" d="M520 110 C600 110 600 360 680 360"/>
-      <path class="trace is-danger dr" pathLength="1" style="--d:1.1s" d="M520 450 C600 450 600 200 680 200"/>
-      <path class="trace is-danger dr" pathLength="1" style="--d:1.15s" d="M520 450 C600 450 600 360 680 360"/>
-      <g class="pop" style="--d:1.5s"><rect class="gr-bad" x="680" y="150" width="220" height="260" rx="30"/><text x="790" y="285" text-anchor="middle" class="gr-big">×2</text><text x="790" y="340" text-anchor="middle" class="gr-t is-on">сумма удвоена</text></g>
-    </svg>
-    <div class="gr-bars">
-      <div class="gr-bar a" style="--d:0.6s"><span class="gr-lbl">средний чек по заказам</span><b class="num count" data-num="avg_order" data-value="159.88" data-digits="2" data-unit="">159,88</b><i class="dz-bar" style="--w:1;--d:0.9s"></i></div>
-      <div class="gr-bar a" style="--d:0.9s"><span class="gr-lbl">среднее по строкам</span><b class="num count gr-muted" data-num="avg_row" data-value="139.97" data-digits="2" data-unit="">139,97</b><i class="dz-bar is-muted" style="--w:0.875;--d:1.2s"></i></div>
-      <div class="dz-callout is-bad gr-c pop" style="--d:1.8s"><b>−12.5%</b>и оба числа выглядят правдоподобно</div>
-    </div>
-  </div>
+  <p class="mt-key dz-key a" style="--d:2.1s"><span class="ico " data-icon="alert"></span><span><b class="dz-code">is_single_seller</b>: дата отгрузки в источнике одна на заказ, поэтому рейтинг продавца честен только для заказов с одним продавцом.</span></p>
 </section>
 
 <section class="slide" id="block-a" data-title="Блок А">
@@ -3873,45 +3875,26 @@ body {
       <path class="c-axis" d="M0 380 H1680"/>
       <text class="c-lbl is-strong" x="0.0" y="420" text-anchor="start">сен 2016</text><text class="c-lbl is-strong" x="292.2" y="420" text-anchor="middle">янв 2017</text><text class="c-lbl is-strong" x="1168.7" y="420" text-anchor="middle">янв 2018</text>
       <circle class="c-dot is-bad pop" style="--d:1.4s" cx="146.1" cy="380.0" r="12"/>
-      <text class="c-lbl is-bad" x="168" y="340">ноябрь 2016 = 0, но строка есть</text>
+      <text class="c-lbl is-bad" x="168" y="340">generate_series: ноябрь 2016 = 0, строка есть</text>
     </svg>
     <div class="ba-kpis">
-      <div class="dz-stat a" style="--d:1.6s"><b>226 987.93</b><span>топ-продавец, Guariba SP</span></div>
-      <div class="dz-stat a" style="--d:1.75s"><b>159.88</b><span>средний чек</span></div>
-      <div class="dz-stat a" style="--d:1.9s"><b>96 096 <small>3.12%</small></b><span>покупателей, вернулись</span></div>
-      <div class="dz-stat a" style="--d:2.05s"><b>74</b><span>категории, сумма сходится</span></div>
+      <div class="dz-stat a" style="--d:1.6s"><b>226 987.93</b><span>топ-продавец из Гуарибы: от позиций, а не от заказов</span></div>
+      <div class="dz-stat a" style="--d:1.75s"><b>159.88</b><span>средний чек: заказ, потом среднее</span></div>
+      <div class="dz-stat a" style="--d:1.9s"><b>96 096 <small>3.12%</small></b><span>покупателей по customer_unique_id</span></div>
+      <div class="dz-stat a" style="--d:2.05s"><b>74</b><span>категории с «(без категории)»</span></div>
     </div>
   </div>
 </section>
 
-<section class="slide" id="ready" data-title="Блок Б">
-  <h2 class="title a">Блок Б: <em>места уже готовы</em></h2>
-  <div class="body is-tall rd">
-    <div class="rd-slots"><div class="rd-slot s" style="--d:0.30s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.50s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>6</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.42s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.62s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>7</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.54s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.74s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>8</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.66s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.86s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>9</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.78s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.98s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>10</b><span>вопрос</span></div><div class="rd-slot is-inject s" style="--d:0.95s"><span class="ico is-lg" data-icon="zap"></span><b>вброс</b><span>упрётся в типы, FK и CHECK</span></div></div>
-    <div class="rd-why">
-      <div class="dz-stat a" style="--d:1.3s"><b>0</b><span>изменений схемы под новый вопрос</span></div>
-      <div class="dz-stat a" style="--d:1.45s"><b>1</b><span>новый SELECT на вопрос</span></div>
-      <div class="dz-stat a" style="--d:1.6s"><b>2</b><span>витрины уже хранят этапы и флаги</span></div>
-    </div>
-  </div>
+<section class="slide dz-light" id="final" data-title="Финал" data-bare>
+  <div class="dz-band"></div>
+  <svg class="strata fn-strata" viewBox="0 0 1000 1000" aria-hidden="true"></svg>
+  <div class="fn-wm" style="--wm-h:96px;--wm-d:0.2s"><svg class="wm" viewBox="0 0 251.5 49" role="img" aria-label="datum"><path class="wm-l" style="--i:0" d="M35.8413334103258 29.57884991869222Q35.0112079933091 35.12106383731738 32.49034644751131 39.26551786442742Q29.969484901713518 43.409971891537474 26.069177738991783 45.70498594576874Q22.168870576270052 48.0 17.237033132221537 48.0Q12.134287294937682 48.0 8.246188406795952 45.692777671188736Q4.3580895186542215 43.385555342377465 2.1790447593271107 39.22279076611859Q0.0 35.06002618985972 0.0 29.57884991869222Q0.0 24.03663600006706 2.1790447593271107 19.886079698388187Q4.3580895186542215 15.735523396709315 8.246188406795952 13.42830106789805Q12.134287294937682 11.121078739086784 17.237033132221537 11.121078739086784Q22.168870576270052 11.121078739086784 26.069177738991783 13.397782244169218Q29.969484901713518 15.674485749251652 32.52086527124014 19.80673150178169Q35.072245640766766 23.938977254311734 35.8413334103258 29.57884991869222Z M12.59798565332151 29.57884991869222Q12.59798565332151 32.17908946463531 13.666159385600047 34.17504735968588Q14.734333117878583 36.171005254736436 16.632628541731474 37.31852718362147Q18.530923965584364 38.4660491125065 20.99687621658977 38.4660491125065Q23.523866115052837 38.4660491125065 25.78228142364054 37.31852718362147Q28.040696732228245 36.171005254736436 29.768080037403443 34.17504735968588Q31.495463342578642 32.17908946463531 32.33780075961769 29.57884991869222Q31.495463342578642 26.978610372749134 29.768080037403443 24.964341928549743Q28.040696732228245 22.950073484350348 25.78228142364054 21.802551555465318Q23.523866115052837 20.655029626580287 20.99687621658977 20.655029626580287Q18.530923965584364 20.655029626580287 16.632628541731474 21.802551555465318Q14.734333117878583 22.950073484350348 13.666159385600047 24.964341928549743Q12.59798565332151 26.978610372749134 12.59798565332151 29.57884991869222Z M33.155691823957945 46.99898854240205 31.556515891805706 33.912515437301735 33.69281865105458 29.676508664447546 31.580932440965707 24.280808942551815 34.51072461716423 0.0H47.45051215518702L43.86151785697654 28.614474461161333L46.071062812820735 46.99898854240205Z"/><path class="wm-l" style="--i:1" d="M85.77012903069578 29.57884991869222Q84.94000361367907 35.12106383731738 82.41914206788128 39.26551786442742Q79.8982805220835 43.409971891537474 75.99797335936177 45.70498594576874Q72.09766619664002 48.0 67.16582875259151 48.0Q62.06308291530765 48.0 58.17498402716592 45.692777671188736Q54.28688513902419 43.385555342377465 52.10784037969708 39.22279076611859Q49.928795620369975 35.06002618985972 49.928795620369975 29.57884991869222Q49.928795620369975 24.03663600006706 52.10784037969708 19.886079698388187Q54.28688513902419 15.735523396709315 58.17498402716592 13.42830106789805Q62.06308291530765 11.121078739086784 67.16582875259151 11.121078739086784Q72.09766619664002 11.121078739086784 75.99797335936177 13.397782244169218Q79.8982805220835 15.674485749251652 82.44966089161012 19.80673150178169Q85.00104126113675 23.938977254311734 85.77012903069578 29.57884991869222Z M62.52678127369148 29.57884991869222Q62.52678127369148 32.17908946463531 63.59495500597002 34.17504735968588Q64.66312873824856 36.171005254736436 66.56142416210145 37.31852718362147Q68.45971958595433 38.4660491125065 70.92567183695974 38.4660491125065Q73.45266173542281 38.4660491125065 75.71107704401052 37.31852718362147Q77.96949235259822 36.171005254736436 79.69687565777342 34.17504735968588Q81.42425896294861 32.17908946463531 82.26659637998767 29.57884991869222Q81.42425896294861 26.978610372749134 79.69687565777342 24.964341928549743Q77.96949235259822 22.950073484350348 75.71107704401052 21.802551555465318Q73.45266173542281 20.655029626580287 70.92567183695974 20.655029626580287Q68.45971958595433 20.655029626580287 66.56142416210145 21.802551555465318Q64.66312873824856 22.950073484350348 63.59495500597002 24.964341928549743Q62.52678127369148 26.978610372749134 62.52678127369148 29.57884991869222Z M82.85254885451961 46.99898854240205 81.25337292236736 34.43743026437602 82.95021505115963 29.57884991869222 81.25337292236736 24.78130722046609 82.85254885451961 12.12209019668473H95.79233639254241L93.59499598583587 29.542228820394563L95.79233639254241 46.99898854240205Z"/><path class="wm-l" style="--i:2" d="M98.09968911183591 21.338648297752254V15.906372182867063L105.1922756678321 13.062056555940309L110.57571123351259 2.7589284882713727H117.66818602623829V12.12209019668473H132.32948557229315V21.338648297752254H117.66818602623829V31.64199244107747Q117.66818602623829 35.38972783780914 119.18193383986932 36.90957420056664Q120.69568165350034 38.429420563324136 124.76079493488858 38.429420563324136Q127.29996702983522 38.429420563324136 129.28369429765166 37.996047305666956Q131.26742156546814 37.562674048009775 132.9398620468698 36.8302073767484V46.181060223638305Q131.05991442658922 46.86468634569497 128.08738397575482 47.43234317284748Q125.11485352492042 48.0 121.91648675884653 48.0Q116.15456115220482 48.0 112.45570355910135 46.21160140002124Q108.7568459659979 44.42320280004247 106.974560816915 41.11497646451795Q105.1922756678321 37.80675012899344 105.1922756678321 33.33881966810034V21.338648297752254Z"/><path class="wm-l" style="--i:3" d="M152.37437715260717 47.96337890170234Q147.5035773560163 47.96337890170234 144.04885172553176 45.95524253561057Q140.59412609504722 43.947106169518804 138.76910267132843 40.26653677291007Q136.94407924760966 36.58596737630134 136.94407924760966 31.629705932208125V12.12209019668473H149.41998960601583V29.823015410292278Q149.41998960601583 33.69286335636278 151.30607675528873 35.75596489888218Q153.19216390456162 37.81906644140159 156.69577106411674 37.81906644140159Q159.32041970833512 37.81906644140159 161.1088481118527 36.775305532840704Q162.89727651537024 35.73154462427983 163.85558322731345 33.71117018006926Q164.81388993925665 31.690795735858686 164.81388993925665 28.895238698404953L168.65921702378137 30.897254162716145Q167.98781035263175 36.42725608131896 165.66228120011402 40.24210904742302Q163.33675204759626 44.056962013527084 159.91253778995582 46.01017045761471Q156.4883235323154 47.96337890170234 152.37437715260717 47.96337890170234Z M167.0844799934432 46.99898854240205 164.81388993925665 33.04584343083437V12.12209019668473H177.28980029766285V34.962397247643196L179.5603903518494 46.99898854240205Z"/><path class="wm-l" style="--i:4" d="M182.56361844764544 12.12209019668473H195.03952880605164L197.3345354093982 26.075235308252413V46.99898854240205H184.858625050992V24.183098040603596Z M209.358981762097 11.121078739086784Q214.15653191120782 11.121078739086784 217.5258033450747 13.129215105178552Q220.8950747789416 15.137351471270321 222.66516282977153 18.80571259329905Q224.43525088060144 22.474073715327773 224.43525088060144 27.491372806878655V46.99898854240205H211.95934052219528V29.322479877954507Q211.95934052219528 25.391594284426347 210.18312411870005 23.328492741906942Q208.40690771520485 21.265391199387537 205.0375878505874 21.265391199387537Q202.6570897961997 21.265391199387537 200.91749449100215 22.35798148082608Q199.1778991858046 23.450571762264623 198.25621729760138 25.45873793189519Q197.3345354093982 27.466904101525756 197.3345354093982 30.22584004068183L193.46479177571348 28.223824576370635Q194.19723609432077 22.63278501031016 196.44951932480086 18.8301403187861Q198.70180255528092 15.027495627262041 202.04666489087248 13.074287183174413Q205.39152722646406 11.121078739086784 209.358981762097 11.121078739086784Z M236.39865958584258 11.121078739086784Q241.1962097349534 11.121078739086784 244.59599999254914 13.129215105178552Q247.99579025014484 15.137351471270321 249.76587830097478 18.80571259329905Q251.53596635180472 22.474073715327773 251.53596635180472 27.491372806878655V46.99898854240205H239.06005599339852V29.322479877954507Q239.06005599339852 25.391594284426347 237.28383958990332 23.328492741906942Q235.50762318640813 21.265391199387537 232.1383033217907 21.265391199387537Q229.75780526740294 21.265391199387537 228.0182099622054 22.35798148082608Q226.27861465700784 23.450571762264623 225.35693276880465 25.45873793189519Q224.43525088060144 27.466904101525756 224.43525088060144 30.22584004068183L220.56550724691675 28.223824576370635Q221.29795156552404 22.63278501031016 223.53192424685528 18.8301403187861Q225.76589692818652 15.027495627262041 229.1107592637781 13.074287183174413Q232.45562159936966 11.121078739086784 236.39865958584258 11.121078739086784Z"/></svg></div>
+  <h2 class="fn-title a" style="--d:1.2s">Готовы к вашим <em>вопросам</em></h2>
+  <p class="fn-sub f" style="--d:1.6s">Одна модель, одна цифра для всех</p>
 </section>
 
-<section class="slide" id="plans" data-title="План запроса">
-  <h2 class="title a">Чем выше слой, <em>тем короче план</em></h2>
-  <div class="body is-tall pl">
-    <div class="pl-col">
-      <div class="pl-head a" style="--d:0.2s"><span>Топ продавцов из <b>core</b></span><span class="dz-pill is-bad">2 join</span></div>
-      <svg viewBox="0 0 760 560" aria-hidden="true"><g class="pl-node  s" style="--d:0.40s"><rect x="0" y="0" width="740" height="56" rx="16"/><text x="24" y="36">Limit 10</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.54s" d="M24 56 V108 H0"/><g class="pl-node  s" style="--d:0.54s"><rect x="0" y="80" width="740" height="56" rx="16"/><text x="24" y="116">Sort: top-N по выручке</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.68s" d="M24 136 V188 H46"/><g class="pl-node  s" style="--d:0.68s"><rect x="46" y="160" width="694" height="56" rx="16"/><text x="70" y="196">GroupAggregate: 2 970 продавцов</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.82s" d="M70 216 V268 H92"/><g class="pl-node is-join  s" style="--d:0.82s"><rect x="92" y="240" width="648" height="56" rx="16"/><text x="116" y="276">Hash Join: seller_id</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.96s" d="M116 296 V348 H138"/><g class="pl-node is-join  s" style="--d:0.96s"><rect x="138" y="320" width="602" height="56" rx="16"/><text x="162" y="356">Hash Join: order_id</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.10s" d="M162 376 V428 H184"/><g class="pl-node  s" style="--d:1.10s"><rect x="184" y="400" width="556" height="56" rx="16"/><text x="208" y="436">Seq Scan items: 112 650</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.24s" d="M208 456 V508 H184"/><g class="pl-node  s" style="--d:1.24s"><rect x="184" y="480" width="556" height="56" rx="16"/><text x="208" y="516">Seq Scan orders: delivered</text></g></svg>
-    </div>
-    <div class="pl-col">
-      <div class="pl-head a" style="--d:0.4s"><span>OTD по месяцам из <b>mart</b></span><span class="dz-pill is-ok">0 join</span></div>
-      <svg viewBox="0 0 760 560" aria-hidden="true"><g class="pl-node is-mart s" style="--d:0.80s"><rect x="0" y="0" width="740" height="56" rx="16"/><text x="24" y="36">GroupAggregate: 23 месяца</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.94s" d="M24 56 V108 H0"/><g class="pl-node is-mart s" style="--d:0.94s"><rect x="0" y="80" width="740" height="56" rx="16"/><text x="24" y="116">Sort: месяц</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.08s" d="M24 136 V188 H46"/><g class="pl-node is-mart s" style="--d:1.08s"><rect x="46" y="160" width="694" height="56" rx="16"/><text x="70" y="196">Seq Scan order_fulfillment</text></g></svg>
-      <div class="dz-callout is-accent pl-c pop" style="--d:1.6s"><b>1 проход</b>on_time и дни уже лежат в витрине</div>
-    </div>
-  </div>
-</section>
-
-<section class="slide" id="dashboard" data-title="Дашборд">
+<section class="slide" id="dashboard" data-title="Дашборд" data-kind="appendix">
   <h2 class="title a">Дашборд <em>исполнения заказа</em></h2>
   <div class="body is-tall db">
     <div class="db-left">
@@ -3944,7 +3927,7 @@ body {
   </div>
 </section>
 
-<section class="slide" id="agent" data-title="AI-агент">
+<section class="slide" id="agent" data-title="AI-агент" data-kind="appendix">
   <h2 class="title a">Агент считает <em>тем же SQL</em></h2>
   <div class="body is-tall ag">
     <svg class="ag-wires" viewBox="0 0 1680 680" aria-hidden="true">
@@ -3968,12 +3951,57 @@ body {
   </div>
 </section>
 
-<section class="slide dz-light" id="final" data-title="Финал" data-bare>
-  <div class="dz-band"></div>
-  <svg class="strata fn-strata" viewBox="0 0 1000 1000" aria-hidden="true"></svg>
-  <div class="fn-wm" style="--wm-h:96px;--wm-d:0.2s"><svg class="wm" viewBox="0 0 251.5 49" role="img" aria-label="datum"><path class="wm-l" style="--i:0" d="M35.8413334103258 29.57884991869222Q35.0112079933091 35.12106383731738 32.49034644751131 39.26551786442742Q29.969484901713518 43.409971891537474 26.069177738991783 45.70498594576874Q22.168870576270052 48.0 17.237033132221537 48.0Q12.134287294937682 48.0 8.246188406795952 45.692777671188736Q4.3580895186542215 43.385555342377465 2.1790447593271107 39.22279076611859Q0.0 35.06002618985972 0.0 29.57884991869222Q0.0 24.03663600006706 2.1790447593271107 19.886079698388187Q4.3580895186542215 15.735523396709315 8.246188406795952 13.42830106789805Q12.134287294937682 11.121078739086784 17.237033132221537 11.121078739086784Q22.168870576270052 11.121078739086784 26.069177738991783 13.397782244169218Q29.969484901713518 15.674485749251652 32.52086527124014 19.80673150178169Q35.072245640766766 23.938977254311734 35.8413334103258 29.57884991869222Z M12.59798565332151 29.57884991869222Q12.59798565332151 32.17908946463531 13.666159385600047 34.17504735968588Q14.734333117878583 36.171005254736436 16.632628541731474 37.31852718362147Q18.530923965584364 38.4660491125065 20.99687621658977 38.4660491125065Q23.523866115052837 38.4660491125065 25.78228142364054 37.31852718362147Q28.040696732228245 36.171005254736436 29.768080037403443 34.17504735968588Q31.495463342578642 32.17908946463531 32.33780075961769 29.57884991869222Q31.495463342578642 26.978610372749134 29.768080037403443 24.964341928549743Q28.040696732228245 22.950073484350348 25.78228142364054 21.802551555465318Q23.523866115052837 20.655029626580287 20.99687621658977 20.655029626580287Q18.530923965584364 20.655029626580287 16.632628541731474 21.802551555465318Q14.734333117878583 22.950073484350348 13.666159385600047 24.964341928549743Q12.59798565332151 26.978610372749134 12.59798565332151 29.57884991869222Z M33.155691823957945 46.99898854240205 31.556515891805706 33.912515437301735 33.69281865105458 29.676508664447546 31.580932440965707 24.280808942551815 34.51072461716423 0.0H47.45051215518702L43.86151785697654 28.614474461161333L46.071062812820735 46.99898854240205Z"/><path class="wm-l" style="--i:1" d="M85.77012903069578 29.57884991869222Q84.94000361367907 35.12106383731738 82.41914206788128 39.26551786442742Q79.8982805220835 43.409971891537474 75.99797335936177 45.70498594576874Q72.09766619664002 48.0 67.16582875259151 48.0Q62.06308291530765 48.0 58.17498402716592 45.692777671188736Q54.28688513902419 43.385555342377465 52.10784037969708 39.22279076611859Q49.928795620369975 35.06002618985972 49.928795620369975 29.57884991869222Q49.928795620369975 24.03663600006706 52.10784037969708 19.886079698388187Q54.28688513902419 15.735523396709315 58.17498402716592 13.42830106789805Q62.06308291530765 11.121078739086784 67.16582875259151 11.121078739086784Q72.09766619664002 11.121078739086784 75.99797335936177 13.397782244169218Q79.8982805220835 15.674485749251652 82.44966089161012 19.80673150178169Q85.00104126113675 23.938977254311734 85.77012903069578 29.57884991869222Z M62.52678127369148 29.57884991869222Q62.52678127369148 32.17908946463531 63.59495500597002 34.17504735968588Q64.66312873824856 36.171005254736436 66.56142416210145 37.31852718362147Q68.45971958595433 38.4660491125065 70.92567183695974 38.4660491125065Q73.45266173542281 38.4660491125065 75.71107704401052 37.31852718362147Q77.96949235259822 36.171005254736436 79.69687565777342 34.17504735968588Q81.42425896294861 32.17908946463531 82.26659637998767 29.57884991869222Q81.42425896294861 26.978610372749134 79.69687565777342 24.964341928549743Q77.96949235259822 22.950073484350348 75.71107704401052 21.802551555465318Q73.45266173542281 20.655029626580287 70.92567183695974 20.655029626580287Q68.45971958595433 20.655029626580287 66.56142416210145 21.802551555465318Q64.66312873824856 22.950073484350348 63.59495500597002 24.964341928549743Q62.52678127369148 26.978610372749134 62.52678127369148 29.57884991869222Z M82.85254885451961 46.99898854240205 81.25337292236736 34.43743026437602 82.95021505115963 29.57884991869222 81.25337292236736 24.78130722046609 82.85254885451961 12.12209019668473H95.79233639254241L93.59499598583587 29.542228820394563L95.79233639254241 46.99898854240205Z"/><path class="wm-l" style="--i:2" d="M98.09968911183591 21.338648297752254V15.906372182867063L105.1922756678321 13.062056555940309L110.57571123351259 2.7589284882713727H117.66818602623829V12.12209019668473H132.32948557229315V21.338648297752254H117.66818602623829V31.64199244107747Q117.66818602623829 35.38972783780914 119.18193383986932 36.90957420056664Q120.69568165350034 38.429420563324136 124.76079493488858 38.429420563324136Q127.29996702983522 38.429420563324136 129.28369429765166 37.996047305666956Q131.26742156546814 37.562674048009775 132.9398620468698 36.8302073767484V46.181060223638305Q131.05991442658922 46.86468634569497 128.08738397575482 47.43234317284748Q125.11485352492042 48.0 121.91648675884653 48.0Q116.15456115220482 48.0 112.45570355910135 46.21160140002124Q108.7568459659979 44.42320280004247 106.974560816915 41.11497646451795Q105.1922756678321 37.80675012899344 105.1922756678321 33.33881966810034V21.338648297752254Z"/><path class="wm-l" style="--i:3" d="M152.37437715260717 47.96337890170234Q147.5035773560163 47.96337890170234 144.04885172553176 45.95524253561057Q140.59412609504722 43.947106169518804 138.76910267132843 40.26653677291007Q136.94407924760966 36.58596737630134 136.94407924760966 31.629705932208125V12.12209019668473H149.41998960601583V29.823015410292278Q149.41998960601583 33.69286335636278 151.30607675528873 35.75596489888218Q153.19216390456162 37.81906644140159 156.69577106411674 37.81906644140159Q159.32041970833512 37.81906644140159 161.1088481118527 36.775305532840704Q162.89727651537024 35.73154462427983 163.85558322731345 33.71117018006926Q164.81388993925665 31.690795735858686 164.81388993925665 28.895238698404953L168.65921702378137 30.897254162716145Q167.98781035263175 36.42725608131896 165.66228120011402 40.24210904742302Q163.33675204759626 44.056962013527084 159.91253778995582 46.01017045761471Q156.4883235323154 47.96337890170234 152.37437715260717 47.96337890170234Z M167.0844799934432 46.99898854240205 164.81388993925665 33.04584343083437V12.12209019668473H177.28980029766285V34.962397247643196L179.5603903518494 46.99898854240205Z"/><path class="wm-l" style="--i:4" d="M182.56361844764544 12.12209019668473H195.03952880605164L197.3345354093982 26.075235308252413V46.99898854240205H184.858625050992V24.183098040603596Z M209.358981762097 11.121078739086784Q214.15653191120782 11.121078739086784 217.5258033450747 13.129215105178552Q220.8950747789416 15.137351471270321 222.66516282977153 18.80571259329905Q224.43525088060144 22.474073715327773 224.43525088060144 27.491372806878655V46.99898854240205H211.95934052219528V29.322479877954507Q211.95934052219528 25.391594284426347 210.18312411870005 23.328492741906942Q208.40690771520485 21.265391199387537 205.0375878505874 21.265391199387537Q202.6570897961997 21.265391199387537 200.91749449100215 22.35798148082608Q199.1778991858046 23.450571762264623 198.25621729760138 25.45873793189519Q197.3345354093982 27.466904101525756 197.3345354093982 30.22584004068183L193.46479177571348 28.223824576370635Q194.19723609432077 22.63278501031016 196.44951932480086 18.8301403187861Q198.70180255528092 15.027495627262041 202.04666489087248 13.074287183174413Q205.39152722646406 11.121078739086784 209.358981762097 11.121078739086784Z M236.39865958584258 11.121078739086784Q241.1962097349534 11.121078739086784 244.59599999254914 13.129215105178552Q247.99579025014484 15.137351471270321 249.76587830097478 18.80571259329905Q251.53596635180472 22.474073715327773 251.53596635180472 27.491372806878655V46.99898854240205H239.06005599339852V29.322479877954507Q239.06005599339852 25.391594284426347 237.28383958990332 23.328492741906942Q235.50762318640813 21.265391199387537 232.1383033217907 21.265391199387537Q229.75780526740294 21.265391199387537 228.0182099622054 22.35798148082608Q226.27861465700784 23.450571762264623 225.35693276880465 25.45873793189519Q224.43525088060144 27.466904101525756 224.43525088060144 30.22584004068183L220.56550724691675 28.223824576370635Q221.29795156552404 22.63278501031016 223.53192424685528 18.8301403187861Q225.76589692818652 15.027495627262041 229.1107592637781 13.074287183174413Q232.45562159936966 11.121078739086784 236.39865958584258 11.121078739086784Z"/></svg></div>
-  <h2 class="fn-title a" style="--d:1.2s">Готовы к вашим <em>вопросам</em></h2>
-  <p class="fn-sub f" style="--d:1.6s">Одна модель, одна цифра для всех</p>
+<section class="slide" id="grain" data-title="Грануляция" data-kind="appendix">
+  <h2 class="title a">Один заказ, <em>четыре строки</em></h2>
+  <div class="body is-tall gr">
+    <svg class="gr-viz" viewBox="0 0 900 560" aria-hidden="true">
+      <rect class="gr-order s" style="--d:0.3s" x="0" y="230" width="200" height="100" rx="26"/>
+      <text x="100" y="292" text-anchor="middle" class="gr-t is-on">заказ</text>
+      <path class="dz-wire dr" pathLength="1" style="--d:0.55s" d="M200 280 C270 280 270 110 340 110"/>
+      <path class="dz-wire dr" pathLength="1" style="--d:0.6s" d="M200 280 C270 280 270 450 340 450"/>
+      <rect class="gr-item s" style="--d:0.75s" x="340" y="70" width="180" height="80" rx="20"/>
+      <rect class="gr-item s" style="--d:0.8s" x="340" y="410" width="180" height="80" rx="20"/>
+      <text x="430" y="120" text-anchor="middle" class="gr-t">2 товара</text>
+      <text x="430" y="460" text-anchor="middle" class="gr-t">2 платежа</text>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1s" d="M520 110 C600 110 600 200 680 200"/>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1.05s" d="M520 110 C600 110 600 360 680 360"/>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1.1s" d="M520 450 C600 450 600 200 680 200"/>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1.15s" d="M520 450 C600 450 600 360 680 360"/>
+      <g class="pop" style="--d:1.5s"><rect class="gr-bad" x="680" y="150" width="220" height="260" rx="30"/><text x="790" y="285" text-anchor="middle" class="gr-big">×2</text><text x="790" y="340" text-anchor="middle" class="gr-t is-on">сумма удвоена</text></g>
+    </svg>
+    <div class="gr-bars">
+      <div class="gr-bar a" style="--d:0.6s"><span class="gr-lbl">средний чек по заказам</span><b class="num count" data-num="avg_order" data-value="159.88" data-digits="2" data-unit="">159,88</b><i class="dz-bar" style="--w:1;--d:0.9s"></i></div>
+      <div class="gr-bar a" style="--d:0.9s"><span class="gr-lbl">среднее по строкам</span><b class="num count gr-muted" data-num="avg_row" data-value="139.97" data-digits="2" data-unit="">139,97</b><i class="dz-bar is-muted" style="--w:0.875;--d:1.2s"></i></div>
+      <div class="dz-callout is-bad gr-c pop" style="--d:1.8s"><b>−12.5%</b>и оба числа выглядят правдоподобно</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="plans" data-title="План запроса" data-kind="appendix">
+  <h2 class="title a">Чем выше слой, <em>тем короче план</em></h2>
+  <div class="body is-tall pl">
+    <div class="pl-col">
+      <div class="pl-head a" style="--d:0.2s"><span>Топ продавцов из <b>core</b></span><span class="dz-pill is-bad">2 join</span></div>
+      <svg viewBox="0 0 760 560" aria-hidden="true"><g class="pl-node  s" style="--d:0.40s"><rect x="0" y="0" width="740" height="56" rx="16"/><text x="24" y="36">Limit 10</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.54s" d="M24 56 V108 H0"/><g class="pl-node  s" style="--d:0.54s"><rect x="0" y="80" width="740" height="56" rx="16"/><text x="24" y="116">Sort: top-N по выручке</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.68s" d="M24 136 V188 H46"/><g class="pl-node  s" style="--d:0.68s"><rect x="46" y="160" width="694" height="56" rx="16"/><text x="70" y="196">GroupAggregate: 2 970 продавцов</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.82s" d="M70 216 V268 H92"/><g class="pl-node is-join  s" style="--d:0.82s"><rect x="92" y="240" width="648" height="56" rx="16"/><text x="116" y="276">Hash Join: seller_id</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.96s" d="M116 296 V348 H138"/><g class="pl-node is-join  s" style="--d:0.96s"><rect x="138" y="320" width="602" height="56" rx="16"/><text x="162" y="356">Hash Join: order_id</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.10s" d="M162 376 V428 H184"/><g class="pl-node  s" style="--d:1.10s"><rect x="184" y="400" width="556" height="56" rx="16"/><text x="208" y="436">Seq Scan items: 112 650</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.24s" d="M208 456 V508 H184"/><g class="pl-node  s" style="--d:1.24s"><rect x="184" y="480" width="556" height="56" rx="16"/><text x="208" y="516">Seq Scan orders: delivered</text></g></svg>
+    </div>
+    <div class="pl-col">
+      <div class="pl-head a" style="--d:0.4s"><span>OTD по месяцам из <b>mart</b></span><span class="dz-pill is-ok">0 join</span></div>
+      <svg viewBox="0 0 760 560" aria-hidden="true"><g class="pl-node is-mart s" style="--d:0.80s"><rect x="0" y="0" width="740" height="56" rx="16"/><text x="24" y="36">GroupAggregate: 23 месяца</text></g><path class="pl-edge dr" pathLength="1" style="--d:0.94s" d="M24 56 V108 H0"/><g class="pl-node is-mart s" style="--d:0.94s"><rect x="0" y="80" width="740" height="56" rx="16"/><text x="24" y="116">Sort: месяц</text></g><path class="pl-edge dr" pathLength="1" style="--d:1.08s" d="M24 136 V188 H46"/><g class="pl-node is-mart s" style="--d:1.08s"><rect x="46" y="160" width="694" height="56" rx="16"/><text x="70" y="196">Seq Scan order_fulfillment</text></g></svg>
+      <div class="dz-callout is-accent pl-c pop" style="--d:1.6s"><b>1 проход</b>on_time и дни уже лежат в витрине</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="ready" data-title="Блок Б" data-kind="appendix">
+  <h2 class="title a">Блок Б: <em>места уже готовы</em></h2>
+  <div class="body is-tall rd">
+    <div class="rd-slots"><div class="rd-slot s" style="--d:0.30s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.50s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>6</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.42s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.62s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>7</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.54s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.74s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>8</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.66s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.86s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>9</b><span>вопрос</span></div><div class="rd-slot s" style="--d:0.78s"><svg viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true"><rect class="dz-flow" style="--d:0.98s" x="2" y="2" width="296" height="296" rx="34"/></svg><b>10</b><span>вопрос</span></div><div class="rd-slot is-inject s" style="--d:0.95s"><span class="ico is-lg" data-icon="zap"></span><b>вброс</b><span>упрётся в типы, FK и CHECK</span></div></div>
+    <div class="rd-why">
+      <div class="dz-stat a" style="--d:1.3s"><b>0</b><span>изменений схемы под новый вопрос</span></div>
+      <div class="dz-stat a" style="--d:1.45s"><b>1</b><span>новый SELECT на вопрос</span></div>
+      <div class="dz-stat a" style="--d:1.6s"><b>2</b><span>витрины уже хранят этапы и флаги</span></div>
+    </div>
+  </div>
 </section>
 </main>
 <div class="blackout" data-blackout></div>
@@ -5922,7 +5950,7 @@ footer .hint { margin-left: auto; color: var(--ink-3); font-size: 14px; }
 
 </script>
 <script>
-deckNotes("cover", {"time": 20, "say": ["Datum. Пятьсот пятьдесят тысяч сырых строк собираются в три слоя, и наверху остаётся одно данное: одна цифра для всех аналитиков."]})
+deckNotes("cover", {"time": 26, "say": ["Привет, мы команда RWB. Capibara, маркетплейс из Сан-Паулу: два года работы, почти сто тысяч заказов и восемь выгрузок, которые никто не приводил в порядок. Каждый отчёт аналитики собирают заново и каждый раз получают разные цифры. Мы построили модель, на которую можно опереться. Расскажем, что нашли в данных, как построили модель и почему каждое решение именно такое."]})
 
 </script>
 <script>
@@ -5930,27 +5958,27 @@ deckScene("cover", { init(el) { deckStrata(el.querySelector(".cv-strata"), { see
 
 </script>
 <script>
-deckNotes("sources", {"time": 35, "say": ["Каждая клетка это тысяча строк. Восемь выгрузок, и всё приехало текстом: даты, суммы, оценки."]})
+deckNotes("sources", {"time": 28, "say": ["Восемь таблиц, около 550 тысяч строк. Заказы с хронологией, позиции, платежи, отзывы, товары, продавцы, покупатели и справочник переводов. Важно: каждая колонка приехала текстом, даже даты и деньги. Это нормально для raw-слоя: грузим как есть, чтобы загрузка не падала на мусоре. А вот типизация и чистка уже наша работа. Прежде чем проектировать схему, мы прошлись скриптами по каждой колонке. Вот что нашли."]})
 
 </script>
 <script>
-deckNotes("identity", {"time": 45, "say": ["У одного человека бывает до семнадцати анкет: одна на каждый заказ. Поэтому покупателей не 99, а 96 тысяч.", "review_id повторяется, а order_item_id это номер строки."]})
+deckNotes("identity", {"time": 26, "say": ["Первое: в данных врут идентификаторы. У покупателя два id. customer_id это учётка одного заказа, их 99 441, на каждый заказ новая. Человек это customer_unique_id, их 96 096. Если считать по customer_id, повторных покупок не будет вовсе. Второе: review_id неуникален, 789 отзывов висят сразу на нескольких заказах. Третье: order_item_id вообще не идентификатор, это порядковый номер позиции внутри заказа."]})
 
 </script>
 <script>
-deckNotes("gaps", {"time": 45, "say": ["Заказы по месяцам. В ноябре 2016 пусто: без календаря месяц просто исчезнет из отчёта.", "Внизу остальные дыры: товары без категории, заказы без позиций, shipped без даты."]})
+deckNotes("gaps", {"time": 30, "say": ["Дальше дыры. 610 товаров без категории, и на них 170 тысяч выручки: выбросишь, и сумма по категориям не сойдётся с общей. В товарах 73 категории, в файле переводов 71: соберёшь справочник из переводов, и две категории молча исчезнут из отчётов. 775 заказов вообще без позиций, почти все unavailable и canceled. И в ноябре 2016 ни одного заказа: если строить отчёт только от фактов, месяц молча пропадёт."]})
 
 </script>
 <script>
-deckNotes("chrono", {"time": 45, "say": ["Сколько дней проходит от оплаты до отгрузки. Красное слева от нуля: тысяча триста заказов отгружены раньше, чем подтвердили оплату.", "Источникам верить нельзя, модель проверяет на входе."]})
+deckNotes("chrono", {"time": 26, "say": ["И просто грязь. 1 359 заказов отгружены раньше подтверждения оплаты, 23 вручены раньше отгрузки, у шести отменённых стоит дата вручения. Города продавцов записаны 611 способами, один вместо города вписал почтовый индекс. Платежи не бьются с суммой позиций в тысяче с лишним заказов. Вывод простой: источникам доверять нельзя, проверки должны жить в модели, а не в голове аналитика."]})
 
 </script>
 <script>
-deckNotes("rules", {"time": 45, "say": ["Одна грязная строка проходит через шесть правил. Текст становится типом, пустая строка становится NULL, город чистится, ключ проверяется.", "А оценка семь не пройдёт: сборка упадёт и покажет, где грязь."]})
+deckNotes("rules", {"time": 33, "say": ["Наши правила переноса. Типы приводим жёстко: если в дате мусор, сборка падает, и это хорошо, мы видим грязь, а не прячем её в отчёте. Пустые строки превращаем в NULL. На каждой таблице первичный ключ, между таблицами внешние ключи, плюс CHECK: статус только из списка, оценка 1–5, цена не отрицательная. База сама не даёт записать мусор. И всё это собирается одним скриптом с нуля, в одной транзакции: наполовину собранной модели не бывает."]})
 
 </script>
 <script>
-deckNotes("layers", {"time": 35, "say": ["Наш логотип это три слоя модели. raw снизу как приехало, core модель, mart витрины. Наверху одно данное: одна цифра для всех."]})
+deckNotes("layers", {"time": 18, "say": ["Архитектура классическая, три слоя. raw не трогаем вообще, только читаем. core это наша модель: типы, ключи, связи, дедупликация; именно отсюда считаются ответы. mart это витрины под конкретную задачу, у нас это исполнение заказа. Каждый слой пересобирается из предыдущего одним скриптом."]})
 
 </script>
 <script>
@@ -5958,7 +5986,7 @@ deckScene("layers", { init(el) { deckStrata(el.querySelector(".ly-strata"), { se
 
 </script>
 <script>
-deckNotes("schema", {"time": 40, "say": ["Восемь таблиц, и путь выручки: заказ со статусом, позиции, товары, категории. Категория пустая у шестисот товаров, поэтому есть строка «без категории»."]})
+deckNotes("schema", {"time": 19, "say": ["Восемь таблиц. Ключевые решения видны по первичным ключам: покупатель по customer_unique_id, позиции по паре заказ плюс номер, отзывы по паре review_id плюс order_id, потому что один отзыв бывает на нескольких заказах. Деньги numeric, даты timestamp. Любой дубль или провисшая связь не запишется."]})
 
 </script>
 <script>
@@ -5966,31 +5994,27 @@ deckScene("schema", { init(el) { deckKit.followPath(el.querySelector(".er-runner
 
 </script>
 <script>
-deckNotes("why", {"time": 45, "say": ["Пять решений и цена ошибки в каждом. Самое громкое: с customer_id повторных покупателей просто ноль."]})
+deckNotes("why", {"time": 39, "say": ["Самые спорные решения с аргументами. Человек равен customer_unique_id: иначе 99 441 «покупатель» и ноль повторных, а у нас 96 096 и 3,12%, сходится с контролем организаторов. География хранится снимком в заказе: если брать из справочника, старые заказы получат новый адрес человека и исторические отчёты по регионам поедут. Справочник категорий собран из товаров, а не из файла переводов, перевод просто опционален. Товары без категории не выбрасываем, а показываем отдельной строкой. И везде, где пары может не быть, LEFT JOIN: 775 заказов без позиций остаются в отчётах."]})
 
 </script>
 <script>
-deckNotes("reconcile", {"time": 35, "say": ["Слева raw, справа core. Все семь счётчиков совпадают, и сверка встроена в сборку: расхождение её роняет."]})
+deckNotes("reconcile", {"time": 26, "say": ["Как мы убедились, что ничего не потеряли: сверка. Счётчики raw против core совпадают по всем таблицам, вот они на слайде. В витринах проверяются число строк, пары заказ-продавец и сумма денег, и при расхождении скрипт падает с ошибкой, а не молчит. 96 096 против 99 441 в customers это не потеря, а дедупликация, в ней смысл таблицы."]})
 
 </script>
 <script>
-deckNotes("mart", {"time": 40, "say": ["Заказ с тремя продавцами. В витрине заказов он одна строка, в витрине отгрузок три. Уровень зашит в витрину, перепутать нельзя."]})
+deckNotes("mart", {"time": 36, "say": ["Две витрины. order_fulfillment: одна строка, один заказ, все 99 441. Этапы в днях, флаг on_time, суммы, последний отзыв. Этапы с нарушенной хронологией становятся NULL, чтобы не портить медианы. seller_shipment: строка на пару заказ-продавец, срок отгрузки и флаг «успел ли». Тонкость: дата отгрузки в источнике одна на весь заказ, поэтому рейтинг продавца честно считается только по заказам с одним продавцом, для этого флаг is_single_seller. Зачем всё это: вопрос про исполнение заказа становится одним SELECT без join, ошибиться уровнем просто негде."]})
 
 </script>
 <script>
-deckNotes("grain", {"time": 40, "say": ["Почему уровень решает. Два товара и два платежа после соединения дают четыре строки, сумма удваивается.", "Средний чек по заказам 159.88, по строкам 139.97."]})
+deckNotes("block-a", {"time": 30, "say": ["Ответы. Все пять контрольных цифр сошлись: 24 месяца с итогом 13 221 498.11; топ-продавец из Гуарибы с 226 987.93; средний чек 159.88; 96 096 покупателей и 3,12% повторных; 74 категории. В каждом вопросе своя ловушка, и у нас на неё приём: календарь через generate_series, выручка продавца от позиций, чек в две ступени. Выручка везде определена одинаково: сумма цен по доставленным заказам. Поэтому цифры сходятся между отчётами."]})
 
 </script>
 <script>
-deckNotes("block-a", {"time": 45, "say": ["Блок А. Выручка по месяцам из core, тринадцать миллионов двести двадцать тысяч, ровно как в контроле. Ноябрь 2016 в отчёте есть, с нулём.", "И остальные четыре ответа тоже сошлись."]})
+deckNotes("final", {"time": 10, "say": ["Готовы к вашим вопросам."]})
 
 </script>
 <script>
-deckNotes("ready", {"time": 30, "say": ["Пять вопросов блока Б и вброс появятся позже. Схему под них менять не придётся: новый вопрос это новый SELECT."]})
-
-</script>
-<script>
-deckNotes("plans", {"time": 35, "say": ["EXPLAIN ANALYZE. Топ продавцов из core: семь узлов и два соединения. OTD из витрины: три узла и ноль соединений."]})
+deckScene("final", { init(el) { deckStrata(el.querySelector(".fn-strata"), { seed: 11, mode: "stack", delay: 0.1 }) } })
 
 </script>
 <script>
@@ -6002,11 +6026,15 @@ deckNotes("agent", {"time": 45, "say": ["Чат-агент. Вопрос при�
 
 </script>
 <script>
-deckNotes("final", {"time": 10, "say": ["Готовы к вашим вопросам."]})
+deckNotes("grain", {"time": 40, "say": ["Почему уровень решает. Два товара и два платежа после соединения дают четыре строки, сумма удваивается.", "Средний чек по заказам 159.88, по строкам 139.97."]})
 
 </script>
 <script>
-deckScene("final", { init(el) { deckStrata(el.querySelector(".fn-strata"), { seed: 11, mode: "stack", delay: 0.1 }) } })
+deckNotes("plans", {"time": 35, "say": ["EXPLAIN ANALYZE. Топ продавцов из core: семь узлов и два соединения. OTD из витрины: три узла и ноль соединений."]})
+
+</script>
+<script>
+deckNotes("ready", {"time": 30, "say": ["Пять вопросов блока Б и вброс появятся позже. Схему под них менять не придётся: новый вопрос это новый SELECT."]})
 
 </script>
 <script>

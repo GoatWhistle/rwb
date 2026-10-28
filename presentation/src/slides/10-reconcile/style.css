@@ -3,7 +3,7 @@
 #reconcile .rc-head span:last-child { text-align: right; color: var(--deck-accent); }
 #reconcile .rc-zero { color: var(--deck-success); }
 #reconcile .rc-zero b { font-size: 34px; }
-#reconcile .rc-row { display: grid; grid-template-columns: 130px 1fr 220px 1fr 130px; gap: 18px; align-items: center; height: 64px; }
+#reconcile .rc-row { display: grid; grid-template-columns: 130px 1fr 240px 1fr 330px; gap: 18px; align-items: center; height: 64px; }
 #reconcile .rc-bar { display: flex; height: 36px; }
 #reconcile .rc-bar i { display: block; width: 100%; height: 100%; transform: scaleX(var(--w)); }
 #reconcile .rc-raw { border-radius: 10px 4px 4px 10px; background: var(--deck-line-strong); }
@@ -14,3 +14,7 @@
 #reconcile .rc-l { text-align: right; color: var(--deck-fg-3); }
 #reconcile .rc-foot { display: flex; gap: 18px; align-items: center; margin-top: 18px; font-size: 24px; color: var(--deck-fg-2); }
 #reconcile .rc-foot .dz-pill { font-family: var(--font-code); font-size: 22px; }
+
+#reconcile .rc-row.is-dedup .rc-ok { background: var(--dz-violet); }
+#reconcile .rc-row.is-dedup .rc-core { background: var(--dz-grad-dot-violet); }
+#reconcile .rc-dd { margin-left: 14px; padding: 4px 12px; border-radius: var(--radius-pill); background: var(--dz-lilac); font-family: var(--font-sans); font-style: normal; font-size: 18px; color: var(--dz-violet); }
