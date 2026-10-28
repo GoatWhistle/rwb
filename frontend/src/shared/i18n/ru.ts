@@ -111,7 +111,6 @@ export const ru = {
   welcome: "Что разберём в данных?",
   welcomeLead: "Что разберём в",
   welcomeAccent: "данных",
-  suggestionsLabel: "Например",
   suggestion1: "Выручка по месяцам за 2017 год",
   suggestion2: "В каких штатах доставка опаздывает чаще?",
   suggestion3: "Сколько покупателей вернулись за вторым заказом?",

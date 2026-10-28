@@ -109,7 +109,6 @@ export function ChatPanel({
               <h3 aria-label={ru.welcome}>
                 {ru.welcomeLead} <em className="accent-word">{ru.welcomeAccent}</em>?
               </h3>
-              <p className="suggestions-label">{ru.suggestionsLabel}</p>
               <ul className="suggestion-list">
                 {suggestions.map((text, i) => (
                   <li key={text} style={{ "--i": i } as CSSProperties}>
