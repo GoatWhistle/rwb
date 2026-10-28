@@ -211,3 +211,16 @@
 .chart-hit:focus-visible {
   outline: none;
 }
+.chart-hit {
+  cursor: default;
+}
+.chart-tooltip-row > span:not(.chart-swatch) {
+  min-width: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chart-tooltip-row > strong {
+  margin-left: 12px;
+}

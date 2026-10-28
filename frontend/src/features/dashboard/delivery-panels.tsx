@@ -50,6 +50,8 @@ export function DeliveryTrend({
         x="month"
         y={field}
         label={ru.deliveryTrend}
+        seriesLabel={field === "otd" ? "Вовремя" : "Срок доставки"}
+        legend={false}
         formatValue={field === "otd" ? (n) => percent(n) : (n) => `${number(n, 1)} дн.`}
         formatTick={field === "otd" ? (n) => percent(n, 0) : (n) => number(n, 0)}
         formatLabel={month}

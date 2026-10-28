@@ -78,11 +78,11 @@ function Legend({
   prior,
   hidden,
 }: {
-  series: string
+  series?: string | undefined
   prior?: string | undefined
   hidden: boolean
 }) {
-  if (hidden) return null
+  if (hidden || !series) return null
   return (
     <ul className="chart-legend" aria-hidden="true">
       <li>
@@ -108,7 +108,7 @@ function Tooltip({
 }: {
   left: string
   head: string
-  series: string
+  series?: string | undefined
   value: string
   prior?: string | undefined
   priorValue: string | null
@@ -118,7 +118,7 @@ function Tooltip({
       <span className="chart-tooltip-head">{head}</span>
       <span className="chart-tooltip-row">
         <span className="chart-swatch" style={swatch(SERIES)} />
-        <span>{series}</span>
+        <span>{series ?? ru.value}</span>
         <strong>{value}</strong>
       </span>
       {priorValue !== null && (
@@ -338,7 +338,6 @@ export function Chart({
   max: fixedMax,
 }: ChartProps) {
   const tick = formatTick ?? formatValue
-  const series = seriesLabel ?? label
   const container = useRef<HTMLDivElement>(null)
   const chartWidth = useWidth(container)
   const [active, setActive] = useState<number | null>(null)
@@ -375,7 +374,7 @@ export function Chart({
   const hasPrior = priorMeasured.length > 1
   return (
     <div className="chart-wrap" ref={container}>
-      <Legend hidden={!legend} series={series} prior={hasPrior ? compareLabel : undefined} />
+      <Legend hidden={!legend} series={seriesLabel} prior={hasPrior ? compareLabel : undefined} />
       {/* biome-ignore lint/a11y/useSemanticElements: SVG groups contain chart geometry. */}
       <svg
         viewBox={`0 0 ${width} ${height}`}
@@ -472,7 +471,7 @@ export function Chart({
           key={active}
           left={`clamp(8px, calc(${(px(active ?? 0) / width) * 100}% + 12px), calc(100% - 200px))`}
           head={formatLabel(row[x])}
-          series={series}
+          series={seriesLabel}
           value={formatValue(value)}
           prior={compareLabel}
           priorValue={priorValue === null ? null : formatValue(priorValue)}

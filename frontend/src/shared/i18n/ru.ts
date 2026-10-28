@@ -1,4 +1,5 @@
 export const ru = {
+  value: "Значение",
   product: "Datum",
   openNav: "Раскрыть навбар",
   closeNav: "Свернуть навбар",
