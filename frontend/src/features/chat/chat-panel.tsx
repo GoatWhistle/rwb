@@ -1,4 +1,4 @@
-import { CircleHelp, MessageSquare, Plus, X } from "lucide-react"
+import { CircleHelp, Plus, Sparkles, X } from "lucide-react"
 import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import type { DashboardContext } from "@/shared/api/metrics"
@@ -76,12 +76,11 @@ export function ChatPanel({
         }}
       >
         <div className="chat-heading">
-          <div className="chat-title">
-            <MessageSquare size={18} />
-            <div>
-              <h2>{ru.chat}</h2>
-              <p>{ru.chatDescription}</p>
-            </div>
+          <div className={`chat-title ${chat.pending ? "is-thinking" : ""}`}>
+            <span className="assistant-avatar">
+              <Sparkles size={17} strokeWidth={2} />
+            </span>
+            <h2>{ru.chat}</h2>
           </div>
           <div className="chat-heading-actions">
             <IconButton
