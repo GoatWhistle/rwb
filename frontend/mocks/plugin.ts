@@ -4,6 +4,7 @@ import dcReports from "../../backend/catalog/delivery_customers.json" with { typ
 import overviewSales from "../../backend/catalog/overview_sales.json" with { type: "json" }
 import reports from "../../backend/catalog/reports.json" with { type: "json" }
 import { scenarioFor } from "./chat"
+import { constructorHandler } from "./constructor"
 import type { MockFilters, Row } from "./data"
 import {
   avgCheckFor,
@@ -241,8 +242,7 @@ export function mockApi(): Plugin {
         await wait(120 + Math.floor(Math.random() * 250))
         const route = routes[`${req.method} ${req.url.split("?")[0]}`]
         try {
-          if (route) return await route(req, res)
-          return send(res, 404, { detail: "mock: endpoint not found" })
+          return await (route ?? constructorHandler)(req, res)
         } catch {
           if (!res.destroyed && !res.writableEnded) res.destroy()
           return undefined
