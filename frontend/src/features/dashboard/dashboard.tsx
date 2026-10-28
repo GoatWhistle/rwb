@@ -6,6 +6,7 @@ import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState } from "@/shared/ui/controls"
 import { ConstructorIcon } from "../constructor/constructor-icon"
 import { ConstructorPage } from "../constructor/constructor-page"
+import { PriceHistory, StatePayments } from "./block-b-panels"
 import { CustomerProfile } from "./customer-profile"
 import {
   CustomerMap,
@@ -79,6 +80,8 @@ export function Dashboard({
   const heatmap = useMetric("os.heatmap", filters, overview || salesTab)
   const payments = useMetric("os.payments_monthly", filters, overview || salesTab)
   const installments = useMetric("os.installments", filters, salesTab)
+  const priceHistory = useMetric("bb.price_history", filters, salesTab)
+  const statePayments = useMetric("bb.payments_states", filters, salesTab)
   const statesRevenue = useMetric("os.states_revenue", filters, overview)
   const statusMix = useMetric("os.status_mix", filters, overview)
   const customersTab = tab === "customers"
@@ -200,6 +203,8 @@ export function Dashboard({
             heatmap,
             payments,
             installments,
+            priceHistory,
+            statePayments,
             statesRevenue,
             statusMix,
             deliveryDays,
@@ -238,6 +243,8 @@ function TabCards({
     | "heatmap"
     | "payments"
     | "installments"
+    | "priceHistory"
+    | "statePayments"
     | "statesRevenue"
     | "statusMix"
     | "deliveryDays"
@@ -301,6 +308,12 @@ function TabCards({
           </div>
           <div className="dg-6">
             <Sellers rows={rowsOf(q.sellers.data)} query={q.sellers} index={10} />
+          </div>
+          <div className="dg-6">
+            <PriceHistory rows={rowsOf(q.priceHistory.data)} query={q.priceHistory} index={11} />
+          </div>
+          <div className="dg-6">
+            <StatePayments rows={rowsOf(q.statePayments.data)} query={q.statePayments} index={12} />
           </div>
         </div>
       )}
