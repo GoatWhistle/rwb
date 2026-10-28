@@ -263,9 +263,18 @@ const STATUS_LABEL: Record<string, string> = {
   processing: "В обработке",
   created: "Создан",
   approved: "Одобрен",
+  other: "Прочие",
 }
 
 const DONUT_C = 2 * Math.PI * 78
+
+function groupStatuses(rows: Row[], total: number): Row[] {
+  const big = rows.filter((r) => total > 0 && (numeric(r.orders) ?? 0) / total >= 0.005)
+  const rest = rows.filter((r) => !big.includes(r))
+  if (rest.length === 0) return big
+  const orders = rest.reduce((sum, r) => sum + (numeric(r.orders) ?? 0), 0)
+  return [...big, { status: "other", orders }]
+}
 
 function donutSegments(rows: Row[], total: number) {
   let offset = 0
@@ -296,6 +305,8 @@ export function StatusBar({
   index?: number
 }) {
   const total = rows.reduce((s, r) => s + (numeric(r.orders) ?? 0), 0)
+  const grouped = groupStatuses(rows, total)
+  const delivered = numeric(rows.find((r) => r.status === "delivered")?.orders) ?? 0
   return (
     <Card
       title="Статусы заказов"
@@ -309,7 +320,7 @@ export function StatusBar({
       <div className="vx-donut-wrap">
         <VizTip>
           <svg className="vx-donut" viewBox="0 0 200 200" role="img" aria-label="Статусы заказов">
-            {donutSegments(rows, total).map((seg, i) => (
+            {donutSegments(grouped, total).map((seg, i) => (
               <circle
                 key={seg.key}
                 className={`vx-donut-seg vx-s${Math.min(i, 5)}`}
@@ -325,16 +336,16 @@ export function StatusBar({
                 ])}
               />
             ))}
-            <text x="100" y="96" textAnchor="middle" className="vx-donut-total">
-              {number(total)}
+            <text x="100" y="98" textAnchor="middle" className="vx-donut-total">
+              {percent(total ? delivered / total : 0, 0)}
             </text>
-            <text x="100" y="118" textAnchor="middle" className="vx-donut-caption">
-              заказов
+            <text x="100" y="122" textAnchor="middle" className="vx-donut-caption">
+              доставлено
             </text>
           </svg>
         </VizTip>
         <ul className="vx-donut-legend">
-          {rows.map((r, i) => (
+          {grouped.map((r, i) => (
             <li key={String(r.status)}>
               <i className={`vx-s${Math.min(i, 5)}`} />
               <span>{STATUS_LABEL[String(r.status)] ?? String(r.status)}</span>

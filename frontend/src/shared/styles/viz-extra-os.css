@@ -346,3 +346,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.vx-donut-legend li {
+  grid-template-columns: 10px minmax(0, 1fr) auto auto;
+  column-gap: 14px;
+}
+.vx-donut-legend {
+  font-size: 14px;
+  gap: 12px;
+}
+.vx-donut-legend small {
+  min-width: 52px;
+}
