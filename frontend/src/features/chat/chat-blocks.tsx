@@ -208,7 +208,11 @@ export function TableBlock(props: BlockProps) {
 
 export function isReviewTable(table: DataTable) {
   const names = new Set(table.columns.map((col) => col.name))
-  return names.has("review_id") && names.has("score") && names.has("original_text")
+  return (
+    names.has("review_id") &&
+    names.has("score") &&
+    (names.has("original_text") || names.has("message"))
+  )
 }
 
 export function ReviewCards({ table }: { table: DataTable }) {
@@ -227,7 +231,7 @@ export function ReviewCards({ table }: { table: DataTable }) {
                 <Star key={n} size={12} className={n <= score ? "is-on" : ""} />
               ))}
             </div>
-            <p>{cell(row.original_text)}</p>
+            <p>{cell(row.original_text ?? row.message)}</p>
             {Boolean(row.customer_state) && <cite>{cell(row.customer_state)}</cite>}
           </blockquote>
         )

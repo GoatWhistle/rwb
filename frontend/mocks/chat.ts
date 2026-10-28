@@ -8,6 +8,7 @@ interface Tool {
   metricId?: string
   rows: Row[]
   chart?: { type: "line" | "bar"; title: string; x: string; y: string[] }
+  result?: Record<string, unknown>
 }
 export interface Scenario {
   tools: Tool[]
@@ -107,8 +108,84 @@ function generic(message: string): Scenario {
   }
 }
 
+function complaints(): Scenario {
+  return {
+    tools: [
+      {
+        name: "search_reviews",
+        arguments: { query: "жалобы покупателей", top_k: 3 },
+        sql: "SELECT review_id, order_id, original_text, score FROM ai.review_embeddings ORDER BY distance LIMIT 3",
+        rows: [
+          {
+            review_id: "r1",
+            order_id: "o1",
+            score: 1,
+            original_text: "Produto não chegou até hoje.",
+            customer_state: "RJ",
+          },
+          {
+            review_id: "r2",
+            order_id: "o2",
+            score: 2,
+            original_text: "Veio com defeito e sem resposta do vendedor.",
+            customer_state: "BA",
+          },
+          {
+            review_id: "r3",
+            order_id: "o3",
+            score: 1,
+            original_text: "Entrega atrasou duas semanas.",
+            customer_state: "MA",
+          },
+        ],
+      },
+    ],
+    text: "Чаще всего в найденных отзывах жалуются на **недоставку**, **брак** и **задержки**.\n\n> Produto não chegou até hoje.\n\nПеревод: «Товар до сих пор не пришёл». Это примеры, а не частота жалоб.",
+    details: "search_reviews, top_k=3.",
+  }
+}
+
+function orderLookup(): Scenario {
+  const table = (rows: Row[]) => ({
+    columns: Object.keys(rows[0] ?? {}).map((name) => ({ name })),
+    rows,
+  })
+  return {
+    tools: [
+      {
+        name: "get_order",
+        arguments: { order_id: "5f79b5b0931d63f1a42989eb65b9da6e" },
+        sql: "",
+        rows: [],
+        result: {
+          found: true,
+          order_id: "5f79b5b0931d63f1a42989eb65b9da6e",
+          order: {
+            order_id: "5f79b5b0931d63f1a42989eb65b9da6e",
+            status: "delivered",
+            purchased_at: "2017-11-14T16:08:26",
+            approved_at: "2017-11-14T16:35:32",
+            shipped_at: "2017-11-17T15:32:08",
+            delivered_at: "2017-11-28T15:41:30",
+            estimated_delivery_date: "2017-12-04",
+          },
+          items: table([
+            { category_name: "cama_mesa_banho", price: "89.90", freight_value: "15.10" },
+          ]),
+          payments: table([{ payment_type: "credit_card", installments: 3, amount: "105.00" }]),
+          totals: table([{ order_total: "105.00", paid: "105.00" }]),
+        },
+      },
+    ],
+    text: "Заказ **доставлен** 28 ноября 2017 — на 6 дней раньше обещанной даты. Оплачен картой в 3 платежа, сумма совпадает с позициями.",
+    details: "get_order без фильтров дашборда.",
+  }
+}
+
 export function scenarioFor(message: string): Scenario {
   const text = message.toLowerCase()
+  if (text.includes("жалу") || text.includes("отзыв")) return complaints()
+  if (text.includes("заказ")) return orderLookup()
   if (text.includes("платеж") || text.includes("платёж")) return paymentsVsRevenue()
   if (text.includes("доставк") || text.includes("опозд") || text.includes("срок"))
     return deliveryProblems()
