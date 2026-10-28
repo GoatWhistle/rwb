@@ -84,13 +84,15 @@ export function ChatPanel({
             <h2>{ru.chat}</h2>
           </div>
           <div className="chat-heading-actions">
-            <IconButton
-              label={ru.newChat}
-              onClick={chat.reset}
-              disabled={chat.pending || voice.busy}
-            >
-              <Plus size={18} />
-            </IconButton>
+            {chat.messages.length > 0 && (
+              <IconButton
+                label={ru.newChat}
+                onClick={chat.reset}
+                disabled={chat.pending || voice.busy}
+              >
+                <Plus size={18} />
+              </IconButton>
+            )}
             <IconButton label={ru.closeChat} onClick={close}>
               <X size={18} />
             </IconButton>
