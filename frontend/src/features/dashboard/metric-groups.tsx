@@ -22,7 +22,10 @@ export function getMetricGroups(
   avg: MetricResult | undefined,
   customers: MetricResult | undefined,
   kpi: MetricResult | undefined,
+  series?: MetricResult | undefined,
 ) {
+  const trend = series?.table.rows ?? []
+  const line = (key: string) => trend.map((r) => numeric(r[key]))
   const rows = monthly?.table.rows ?? []
   const revenue = total(rows, "revenue", 100)
   const orderCount = total(rows, "orders_cnt")
@@ -52,6 +55,7 @@ export function getMetricGroups(
       note: ru.includesFreight,
       format: (n) => <Money value={n} compact />,
       metricId: "block_a.3",
+      spark: line("avg_check"),
     },
     {
       key: "repeat",
@@ -60,6 +64,7 @@ export function getMetricGroups(
       note: ru.repeatNote,
       format: (n) => percent(n, 2),
       metricId: "block_a.4",
+      spark: line("repeat_pct"),
     },
   ]
   const deliveryMetrics: MetricSpec[] = [
@@ -69,6 +74,7 @@ export function getMetricGroups(
       value: rowNumber(kpi, "delivered"),
       note: ru.deliveredOnly,
       metricId: "dashboard.kpi.delivered",
+      spark: line("delivered"),
     },
     {
       key: "otd",
@@ -77,6 +83,7 @@ export function getMetricGroups(
       note: ru.forPeriod,
       format: percent,
       metricId: "dashboard.kpi.otd",
+      spark: line("otd"),
     },
     {
       key: "median",
@@ -85,6 +92,7 @@ export function getMetricGroups(
       note: ru.medianLabel,
       format: (n) => `${number(n, 1)} ${ru.days}`,
       metricId: "dashboard.kpi.median_days",
+      spark: line("median_days"),
     },
     {
       key: "score",
@@ -93,6 +101,7 @@ export function getMetricGroups(
       note: ru.ofFive,
       format: (n) => number(n, 2),
       metricId: "dashboard.kpi.avg_score",
+      spark: line("avg_score"),
     },
   ]
   const customerMetrics: MetricSpec[] = [
@@ -102,6 +111,7 @@ export function getMetricGroups(
       value: rowNumber(customers, "customers_total"),
       note: ru.uniqueCustomers,
       metricId: "block_a.4",
+      spark: line("customers"),
     },
     {
       key: "returned",
@@ -109,6 +119,7 @@ export function getMetricGroups(
       value: rowNumber(customers, "returned"),
       note: ru.repeatNote,
       metricId: "block_a.4",
+      spark: line("returned"),
     },
     salesMetrics[3] as MetricSpec,
     {
@@ -118,6 +129,7 @@ export function getMetricGroups(
       note: ru.includesFreight,
       format: (n) => <Money value={n} compact />,
       metricId: "block_a.3",
+      spark: line("avg_check"),
     },
   ]
   return { salesMetrics, deliveryMetrics, customerMetrics, returnedPct }

@@ -10,6 +10,7 @@ import { FiltersBar } from "./filters"
 import { MetricCard } from "./metric-card"
 import { getMetricGroups } from "./metric-groups"
 import { Categories, SalesTrend, Sellers } from "./sales-panels"
+import { AvgCheckTrend, Heatmap, Installments, PaymentsMix, StatusBar, TileMap } from "./viz-extra"
 
 const rowsOf = (result: MetricResult | undefined) => result?.table.rows ?? []
 
@@ -52,6 +53,12 @@ export function Dashboard({
   const states = useMetric("dashboard.states", filters, !salesTab)
   const lateness = useMetric("dashboard.lateness", filters, delivery)
   const sellerDelivery = useMetric("dashboard.sellers", filters, delivery)
+  const kpiMonthly = useMetric("os.kpi_monthly", filters)
+  const heatmap = useMetric("os.heatmap", filters, overview || salesTab)
+  const payments = useMetric("os.payments_monthly", filters, overview || salesTab)
+  const installments = useMetric("os.installments", filters, salesTab)
+  const statesRevenue = useMetric("os.states_revenue", filters, overview)
+  const statusMix = useMetric("os.status_mix", filters, overview)
   const kpiQueries = {
     overview: [monthly, avg, kpi],
     sales: [monthly, avg, customers],
@@ -65,6 +72,7 @@ export function Dashboard({
     avg.data,
     customers.data,
     kpi.data,
+    kpiMonthly.data,
   )
   const result = delivery ? kpi.data : (monthly.data ?? customers.data)
   const overviewMetrics = [
@@ -135,6 +143,12 @@ export function Dashboard({
             deliveryMonthly,
             lateness,
             sellerDelivery,
+            kpiMonthly,
+            heatmap,
+            payments,
+            installments,
+            statesRevenue,
+            statusMix,
           }}
         />
         {tab === "customers" && (
@@ -158,7 +172,13 @@ function TabCards({
     | "states"
     | "deliveryMonthly"
     | "lateness"
-    | "sellerDelivery",
+    | "sellerDelivery"
+    | "kpiMonthly"
+    | "heatmap"
+    | "payments"
+    | "installments"
+    | "statesRevenue"
+    | "statusMix",
     Query
   >
 }) {
@@ -168,9 +188,34 @@ function TabCards({
         <SalesTrend result={q.monthly.data} query={q.monthly} index={4} />
       )}
       {tab === "overview" && (
-        <div className="detail-grid">
-          <Geography rows={rowsOf(q.states.data)} query={q.states} index={5} limit={5} />
-          <Categories rows={rowsOf(q.categories.data)} query={q.categories} index={6} limit={5} />
+        <>
+          <div className="vx-grid-3">
+            <TileMap rows={rowsOf(q.statesRevenue.data)} query={q.statesRevenue} index={5} />
+            <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={6} />
+            <div className="panel-stack">
+              <StatusBar rows={rowsOf(q.statusMix.data)} query={q.statusMix} index={7} />
+              <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={8} />
+            </div>
+          </div>
+          <div className="detail-grid">
+            <Geography rows={rowsOf(q.states.data)} query={q.states} index={9} limit={5} />
+            <Categories
+              rows={rowsOf(q.categories.data)}
+              query={q.categories}
+              index={10}
+              limit={5}
+            />
+          </div>
+        </>
+      )}
+      {tab === "sales" && (
+        <div className="vx-grid-3">
+          <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={5} />
+          <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={6} />
+          <div className="panel-stack">
+            <AvgCheckTrend rows={rowsOf(q.kpiMonthly.data)} query={q.kpiMonthly} index={7} />
+            <Installments rows={rowsOf(q.installments.data)} query={q.installments} index={8} />
+          </div>
         </div>
       )}
       {tab === "sales" && (
