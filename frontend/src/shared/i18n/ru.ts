@@ -22,6 +22,7 @@ export const ru = {
   filters: "Фильтры",
   state: "Штат покупателя",
   allStates: "Все штаты",
+  stateSearch: "Найти штат",
   refresh: "Обновить данные",
   revenue: "Выручка",
   orders: "Заказы",

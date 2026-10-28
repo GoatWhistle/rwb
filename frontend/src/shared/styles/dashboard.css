@@ -198,103 +198,6 @@
     transition: none;
   }
 }
-.filters-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin: -2px 0 0;
-}
-.preset-group {
-  display: flex;
-  gap: 3px;
-}
-.preset-group .button {
-  color: var(--muted);
-  font-size: 10px;
-  padding: 5px 10px;
-  min-height: 32px;
-}
-.preset-group .selected {
-  background: white;
-  color: var(--text);
-  border-color: var(--line);
-  box-shadow: 0 1px 2px #1d1d1b03;
-}
-.filter-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.filter-popover {
-  position: relative;
-}
-.filter-popover summary {
-  list-style: none;
-  min-height: 34px;
-  border: 1px solid var(--line);
-  background: white;
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  font-size: 10px;
-  cursor: pointer;
-}
-.filter-popover summary::-webkit-details-marker {
-  display: none;
-}
-.filter-popover summary svg {
-  color: var(--muted);
-}
-.filter-popover form {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  width: 270px;
-  background: white;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  z-index: 25;
-  padding: 18px;
-  display: grid;
-  gap: 14px;
-  box-shadow: 0 12px 32px #1d1d1b12;
-}
-.filter-popover :where(form) strong {
-  font-size: 12px;
-}
-.filter-popover label {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-}
-.filter-popover input {
-  border: 1px solid var(--line);
-  padding: 9px;
-  border-radius: 6px;
-  background: white;
-}
-.state-filter {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--line);
-  background: white;
-  padding: 6px 10px;
-  min-height: 34px;
-  border-radius: 7px;
-  color: var(--muted);
-}
-.state-filter :is(input, select) {
-  width: 90px;
-  font-size: 10px;
-  border: 0;
-  background: transparent;
-}
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -669,11 +572,6 @@
 }
 .dashboard-tabs .button {
   font-size: 14px;
-}
-.dashboard .preset-group .button,
-.dashboard .filter-popover summary,
-.dashboard .state-filter :is(input, select) {
-  font-size: 13px;
 }
 .dashboard .metric-grid {
   gap: 24px;
