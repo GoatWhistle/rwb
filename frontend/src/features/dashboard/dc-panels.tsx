@@ -4,7 +4,8 @@ import { ru } from "@/shared/i18n/ru"
 import { DataTable } from "@/shared/ui/data-table"
 import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
-import { DeliveryTileMap, Histogram, ScoreBars, StackedBars } from "./dc-viz"
+import { DeliveryTileMap, ScoreBars, StackedBars } from "./dc-viz"
+import { FillHistogram, FillStackedBars } from "./delivery-top-viz"
 import { stateName } from "./states"
 
 const t = ru.dc
@@ -30,7 +31,7 @@ export function DeliveryDays({ rows, query, index }: Props) {
       index={index}
       actions={tools(rows, "delivery-days")}
     >
-      <Histogram rows={rows} x="days" y="orders" tailLabel="60+" />
+      <FillHistogram rows={rows} x="days" y="orders" tailLabel="60+" />
     </Card>
   )
 }
@@ -46,7 +47,7 @@ export function DeliveryStages({ rows, query, index }: Props) {
       index={index}
       actions={tools(rows, "delivery-stages")}
     >
-      <StackedBars
+      <FillStackedBars
         rows={rows}
         x="month"
         format={days}
@@ -66,6 +67,7 @@ export function OnTimeMap({ rows, query, index }: Props) {
     <Card
       title={t.mapTitle}
       accent="карта"
+      className="dtop-map"
       description={t.mapNote}
       hint={t.mapHint}
       query={query}

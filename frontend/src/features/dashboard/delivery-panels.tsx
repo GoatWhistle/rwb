@@ -8,6 +8,7 @@ import { Button, EmptyState } from "@/shared/ui/controls"
 import { HBars } from "./bars"
 import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
+import { ScoreColumns } from "./delivery-top-viz"
 import { stateName } from "./states"
 import "@/shared/styles/viz-extra-dc.css"
 
@@ -111,19 +112,12 @@ export function Lateness({
     <Card
       title={ru.lateness}
       accent="оценку"
-      description="Средняя оценка отзыва по сроку доставки, из 5"
+      description="Средняя оценка отзыва по сроку вручения относительно обещанного"
       hint={ru.tips.lateness}
       query={query}
       index={index}
     >
-      <HBars
-        rows={rows}
-        label={(row) => String(row.bucket)}
-        value="avg_score"
-        order="none"
-        max={5}
-        format={(n) => number(n, 2)}
-      />
+      <ScoreColumns rows={rows} />
     </Card>
   )
 }
