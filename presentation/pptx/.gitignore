@@ -1,0 +1,6 @@
+node_modules/
+out/deck-raw.pptx
+out/deck-anim.pptx
+out/*.tmp
+out/shots/
+out/sheet*.png
