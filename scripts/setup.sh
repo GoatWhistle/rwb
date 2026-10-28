@@ -112,14 +112,15 @@ done
 echo
 [ "$READY" = "1" ] || die "база не ответила за две минуты" \
   "Посмотрите логи:  $DC logs postgres
-Если порт 5432 занят другим постгресом, поменяйте проброс в docker-compose.yml
-на \"5433:5432\" и запустите:  bash setup.sh --reset"
+Если порт 5432 занят другим постгресом, запустите на другом порту:
+PG_PORT=5433 bash scripts/setup.sh --reset"
 ok "база принимает подключения"
 
 # --- 5. Загрузка ----------------------------------------------------
 step "Загружаю сырые данные в схему raw"
 
-PORT=$(awk -F'"' '/- "[0-9]+:5432"/ {split($2,a,":"); print a[1]; exit}' docker-compose.yml)
+# порт хоста: переменная PG_PORT, иначе цифры из docker-compose.yml, иначе 5432
+PORT="${PG_PORT:-$(awk -F'"' '/- "[0-9]+:5432"/ {split($2,a,":"); print a[1]; exit}' docker-compose.yml)}"
 PORT=${PORT:-5432}
 
 $PY scripts/load_raw.py --port "$PORT" || die "загрузка не прошла" \
@@ -135,11 +136,26 @@ SELECT s.schema_name AS shema, count(t.table_name) AS tablic
 FROM information_schema.schemata s
 LEFT JOIN information_schema.tables t ON t.table_schema = s.schema_name
 WHERE s.schema_name IN ('raw','core','mart')
-GROUP BY 1 ORDER BY 1;"
+GROUP BY 1 ORDER BY 1;" \
+  || die "схемы raw, core, mart не нашлись" \
+         "Запустите с нуля:  bash scripts/setup.sh --reset"
 
-$DC exec -T postgres psql -U hack -d marketplace -c "
-SELECT 'raw.orders' t, count(*) FROM raw.orders
-UNION ALL SELECT 'raw.order_items', count(*) FROM raw.order_items;"
+# сверяем сумму строк по всем восьми таблицам с эталоном
+TOTAL=$($DC exec -T postgres psql -U hack -d marketplace -tA -c "
+SELECT (SELECT count(*) FROM raw.orders)
+     + (SELECT count(*) FROM raw.order_items)
+     + (SELECT count(*) FROM raw.order_payments)
+     + (SELECT count(*) FROM raw.order_reviews)
+     + (SELECT count(*) FROM raw.products)
+     + (SELECT count(*) FROM raw.sellers)
+     + (SELECT count(*) FROM raw.customers)
+     + (SELECT count(*) FROM raw.product_category_translation);" \
+  2>/dev/null | tr -d '[:space:]')
+
+[ "$TOTAL" = "550759" ] || die "в raw загружено ${TOTAL:-0} строк вместо 550 759" \
+  "Данные загрузились не полностью. Запустите с нуля:
+bash scripts/setup.sh --reset"
+ok "в raw все 550 759 строк"
 
 echo
 echo "====================================================================="
