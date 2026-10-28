@@ -1,0 +1,105 @@
+[
+  {
+    "id": "os.kpi_monthly",
+    "title": "Помесячные ряды для KPI",
+    "sql": "WITH first_buy AS (\n  SELECT customer_unique_id, min(purchased_at) AS first_at FROM core.orders GROUP BY 1\n),\nchk AS (\n  SELECT order_id, sum(price + freight_value) AS total, sum(price) AS revenue FROM core.order_items GROUP BY 1\n),\nrv AS (\n  SELECT DISTINCT ON (order_id) order_id, score FROM core.order_reviews ORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST\n)\nSELECT to_char(date_trunc('month', o.purchased_at), 'YYYY-MM') AS month,\n       count(*) AS orders_cnt,\n       coalesce(sum(c.revenue) FILTER (WHERE o.status = 'delivered'), 0) AS revenue,\n       round(avg(c.total) FILTER (WHERE o.status = 'delivered'), 2) AS avg_check,\n       count(DISTINCT o.customer_unique_id) AS customers,\n       count(DISTINCT o.customer_unique_id) FILTER (WHERE o.purchased_at > f.first_at) AS returned,\n       round(100.0 * count(DISTINCT o.customer_unique_id) FILTER (WHERE o.purchased_at > f.first_at) / nullif(count(DISTINCT o.customer_unique_id), 0), 2) AS repeat_pct,\n       count(*) FILTER (WHERE o.status = 'delivered' AND o.delivered_at IS NOT NULL) AS delivered,\n       round(avg((o.delivered_at::date <= o.estimated_delivery_date)::int) FILTER (WHERE o.status = 'delivered' AND o.delivered_at IS NOT NULL), 4) AS otd,\n       round((percentile_cont(.5) WITHIN GROUP (ORDER BY extract(epoch FROM o.delivered_at - o.purchased_at) / 86400) FILTER (WHERE o.status = 'delivered' AND o.delivered_at IS NOT NULL))::numeric, 1) AS median_days,\n       round(avg(r.score), 2) AS avg_score\nFROM core.orders o\nJOIN first_buy f USING (customer_unique_id)\nLEFT JOIN chk c USING (order_id)\nLEFT JOIN rv r USING (order_id)\nWHERE o.purchased_at >= '2017-01-01' AND o.purchased_at < '2018-09-01'\nGROUP BY 1\nORDER BY 1",
+    "grain": "месяц оформления",
+    "units": "BRL; доли 0–1 (otd), проценты 0–100 (repeat_pct); дни; шт.",
+    "definitions": {
+      "avg_check": "Среднее sum(price + freight_value) по доставленным заказам месяца",
+      "repeat_pct": "Доля покупателей месяца, у которых был более ранний заказ",
+      "otd": "Доля доставленных не позже estimated_delivery_date",
+      "revenue": "sum(price) доставленных заказов"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы.",
+      "Повторность считается внутри выбранного среза заказов."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/overview_sales.json"
+  },
+  {
+    "id": "os.heatmap",
+    "title": "Заказы и выручка по дню недели и часу",
+    "sql": "SELECT extract(isodow FROM o.purchased_at)::int AS dow,\n       extract(hour FROM o.purchased_at)::int AS hour,\n       count(DISTINCT o.order_id) AS orders,\n       coalesce(sum(i.price) FILTER (WHERE o.status = 'delivered'), 0) AS revenue\nFROM core.orders o\nLEFT JOIN core.order_items i USING (order_id)\nGROUP BY 1, 2\nORDER BY 1, 2",
+    "grain": "день недели × час",
+    "units": "шт.; BRL",
+    "definitions": {
+      "dow": "ISO-день недели: 1 — понедельник",
+      "hour": "Час оформления по времени источника",
+      "revenue": "sum(price) доставленных заказов"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/overview_sales.json"
+  },
+  {
+    "id": "os.payments_monthly",
+    "title": "Структура оплат по месяцам",
+    "sql": "SELECT to_char(date_trunc('month', o.purchased_at), 'YYYY-MM') AS month,\n       coalesce(round(sum(p.amount) FILTER (WHERE p.payment_type = 'credit_card'), 2), 0) AS credit_card,\n       coalesce(round(sum(p.amount) FILTER (WHERE p.payment_type = 'boleto'), 2), 0) AS boleto,\n       coalesce(round(sum(p.amount) FILTER (WHERE p.payment_type = 'voucher'), 2), 0) AS voucher,\n       coalesce(round(sum(p.amount) FILTER (WHERE p.payment_type = 'debit_card'), 2), 0) AS debit_card\nFROM core.orders o\nJOIN core.order_payments p USING (order_id)\nWHERE o.purchased_at >= '2017-01-01' AND o.purchased_at < '2018-09-01'\nGROUP BY 1\nORDER BY 1",
+    "grain": "месяц оформления",
+    "units": "BRL",
+    "definitions": {
+      "amount": "sum(order_payments.amount) по типу оплаты, все статусы"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/overview_sales.json"
+  },
+  {
+    "id": "os.installments",
+    "title": "Распределение рассрочки по картам",
+    "sql": "SELECT greatest(least(p.installments, 10), 1) AS installments,\n       count(DISTINCT p.order_id) AS orders,\n       round(sum(p.amount), 2) AS amount\nFROM core.order_payments p\nJOIN core.orders o USING (order_id)\nWHERE p.payment_type = 'credit_card'\nGROUP BY 1\nORDER BY 1",
+    "grain": "число платежей",
+    "units": "шт.; BRL",
+    "definitions": {
+      "installments": "Частей рассрочки; 10 = 10 и более, 0 приравнен к 1"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/overview_sales.json"
+  },
+  {
+    "id": "os.states_revenue",
+    "title": "Выручка и заказы по штатам",
+    "sql": "SELECT o.customer_state AS state,\n       count(DISTINCT o.order_id) AS orders,\n       coalesce(sum(i.price) FILTER (WHERE o.status = 'delivered'), 0) AS revenue\nFROM core.orders o\nLEFT JOIN core.order_items i USING (order_id)\nGROUP BY 1\nORDER BY revenue DESC",
+    "grain": "штат покупателя",
+    "units": "шт.; BRL",
+    "definitions": {
+      "revenue": "sum(price) доставленных заказов",
+      "state": "customer_state на момент заказа"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/overview_sales.json"
+  },
+  {
+    "id": "os.status_mix",
+    "title": "Заказы по статусам",
+    "sql": "SELECT o.status, count(*) AS orders\nFROM core.orders o\nGROUP BY 1\nORDER BY 2 DESC",
+    "grain": "статус заказа",
+    "units": "шт.",
+    "definitions": {
+      "status": "Текущий статус заказа в снимке"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Фильтры start_date/end_date/states применяются к заказам; при фильтре категории/продавца берутся целые заказы."
+    ],
+    "default_end_date": null,
+    "source": "backend/catalog/overview_sales.json"
+  }
+]

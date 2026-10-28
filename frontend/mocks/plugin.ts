@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http"
 import type { Plugin } from "vite"
+import overviewSales from "../../backend/catalog/overview_sales.json" with { type: "json" }
 import reports from "../../backend/catalog/reports.json" with { type: "json" }
 import { scenarioFor } from "./chat"
 import type { MockFilters, Row } from "./data"
@@ -18,6 +19,14 @@ import {
   sellersFor,
   statesFor,
 } from "./data"
+import {
+  heatmapFor,
+  installmentsFor,
+  kpiMonthlyFor,
+  paymentsMonthlyFor,
+  statesRevenueFor,
+  statusMixFor,
+} from "./overview-sales"
 
 const METRICS_VERSION = "mock0c4f1e7a9b2d"
 const DATA_VERSION = "olist-2018-10-17-mock"
@@ -28,7 +37,7 @@ interface Report {
   units: string
   limitations: string[]
 }
-const catalog = reports as unknown as Report[]
+const catalog = [...reports, ...overviewSales] as unknown as Report[]
 const builders: Record<string, (filters: MockFilters) => Row[]> = {
   "block_a.1": monthlyFor,
   "block_a.2": sellersFor,
@@ -41,6 +50,12 @@ const builders: Record<string, (filters: MockFilters) => Row[]> = {
   "dashboard.states": statesFor,
   "dashboard.lateness": latenessFor,
   "dashboard.sellers": sellerDeliveryFor,
+  "os.kpi_monthly": kpiMonthlyFor,
+  "os.heatmap": heatmapFor,
+  "os.payments_monthly": paymentsMonthlyFor,
+  "os.installments": installmentsFor,
+  "os.states_revenue": statesRevenueFor,
+  "os.status_mix": statusMixFor,
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -125,7 +140,11 @@ async function streamChat(req: IncomingMessage, res: ServerResponse) {
   const sources: Record<string, unknown>[] = []
   for (const tool of scenario.tools) {
     const callId = hexId(random)
-    emit("tool_started", { call_id: callId, name: tool.name, arguments: tool.arguments })
+    emit("tool_started", {
+      call_id: callId,
+      name: tool.name,
+      arguments: tool.arguments,
+    })
     await wait(500 + Math.floor(random() * 500))
     const tableId = `table_${callId}`
     const result = table(tool.rows)
@@ -145,7 +164,12 @@ async function streamChat(req: IncomingMessage, res: ServerResponse) {
       name: tool.name,
       ok: true,
       elapsed_ms: 180 + Math.floor(random() * 600),
-      result: { table: result, table_id: tableId, sql: tool.sql, sources: [source] },
+      result: {
+        table: result,
+        table_id: tableId,
+        sql: tool.sql,
+        sources: [source],
+      },
     })
     if (tool.chart) emit("chart", { ...tool.chart, table_id: tableId })
   }
@@ -168,7 +192,13 @@ const routes: Record<string, Handler> = {
       database: "ok",
       data_version: DATA_VERSION,
       metrics_version: METRICS_VERSION,
-      review_index: [{ model: "mock", indexed_at: "2026-10-28T09:00:00Z", review_count: 99224 }],
+      review_index: [
+        {
+          model: "mock",
+          indexed_at: "2026-10-28T09:00:00Z",
+          review_count: 99224,
+        },
+      ],
     }),
   "GET /api/metrics": (_req, res) =>
     send(res, 200, {
@@ -186,7 +216,9 @@ const routes: Record<string, Handler> = {
     const result = queryMetric(String(body.metric_id ?? ""), (body.filters ?? {}) as MockFilters)
     return result
       ? send(res, 200, result)
-      : send(res, 422, { detail: `Неизвестный metric_id: ${String(body.metric_id)}` })
+      : send(res, 422, {
+          detail: `Неизвестный metric_id: ${String(body.metric_id)}`,
+        })
   },
   "POST /api/chat/stream": streamChat,
 }
