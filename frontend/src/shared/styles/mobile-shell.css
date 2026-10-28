@@ -404,3 +404,17 @@
     animation-duration: 1ms;
   }
 }
+@media (max-width: 640px) {
+  .app-shell .dash-toolbar .popover-trigger .popover-chevron {
+    display: none;
+  }
+  .app-shell .dash-toolbar .popover-trigger {
+    gap: 6px;
+    padding: 0 10px;
+  }
+  .app-shell .dash-toolbar .popover-trigger span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
