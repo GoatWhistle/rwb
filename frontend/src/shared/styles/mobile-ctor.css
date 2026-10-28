@@ -14,7 +14,7 @@
   animation-fill-mode: backwards;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .ctor {
     --ctor-gutter: 16px;
     grid-template-columns: minmax(0, 1fr);
@@ -126,6 +126,8 @@
     left: 8px;
     z-index: 60;
     min-width: 0;
+    max-width: 480px;
+    margin-inline: auto;
     padding: 8px;
     border-radius: 24px;
     box-shadow:
@@ -358,10 +360,12 @@
     right: 0;
     bottom: 0;
     left: 0;
-    width: 100%;
+    width: auto;
+    max-width: 720px;
+    margin-inline: auto;
     height: min(88dvh, calc(100dvh - 48px - env(safe-area-inset-top, 0px)));
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    border-width: 1px 0 0;
+    border-width: 1px 1px 0;
     border-radius: 24px 24px 0 0;
     box-shadow: 0 -24px 64px -24px rgba(29, 29, 27, 0.35);
     transform: translateY(100%);
@@ -450,6 +454,12 @@
     height: 44px;
     border-radius: 14.67px;
     font-size: 14px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+  .ctor-layer .ctor-library .library-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
