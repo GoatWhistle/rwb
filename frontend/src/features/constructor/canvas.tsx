@@ -1,4 +1,4 @@
-import { GripVertical, LayoutGrid, MoreHorizontal, Plus, RefreshCw, X } from "lucide-react"
+import { GripVertical, MoreHorizontal, Plus, RefreshCw, X } from "lucide-react"
 import type { CSSProperties, KeyboardEvent, PointerEvent } from "react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import type { Filters } from "@/shared/api/metrics"
@@ -6,6 +6,7 @@ import type { DashboardItem, WidgetSize, WidgetSpec } from "@/shared/api/widget-
 import { useRefreshWidget } from "@/shared/api/widgets"
 import { ru } from "@/shared/i18n/ru"
 import { Button, IconButton } from "@/shared/ui/controls"
+import { CtorEmpty } from "./empty-state"
 import { WidgetView } from "./widget-view"
 
 const SIZES: WidgetSize[] = ["s", "m", "l", "xl"]
@@ -114,17 +115,17 @@ export function Canvas({
 
   if (!shown.length)
     return (
-      <div className="canvas-empty">
-        <span className="canvas-empty-icon" aria-hidden="true">
-          <LayoutGrid size={22} />
-        </span>
-        <h3>{ru.ctorCanvasEmpty}</h3>
-        <p>{ru.ctorCanvasEmptyHint}</p>
-        <Button className="primary" onClick={onOpenLibrary}>
-          <Plus size={15} />
-          {ru.ctorOpenLibrary}
-        </Button>
-      </div>
+      <CtorEmpty
+        lead={ru.ctorCanvasLead}
+        accent={ru.ctorCanvasAccent}
+        hint={ru.ctorCanvasEmptyHint}
+        action={
+          <Button className="primary" onClick={onOpenLibrary}>
+            <Plus size={15} />
+            {ru.ctorOpenLibrary}
+          </Button>
+        }
+      />
     )
 
   return (

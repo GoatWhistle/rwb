@@ -17,6 +17,7 @@ export function ChatPanel({
   contextName,
   initialText,
   requestId,
+  closeRequest = 0,
   onClearContext,
   onClose,
 }: {
@@ -25,6 +26,7 @@ export function ChatPanel({
   contextName: string
   initialText: string
   requestId: number
+  closeRequest?: number
   onClearContext: () => void
   onClose: () => void
 }) {
@@ -55,6 +57,12 @@ export function ChatPanel({
   useEffect(() => {
     if (active) setClosing(false)
   }, [active])
+  const lastClose = useRef(closeRequest)
+  useEffect(() => {
+    if (closeRequest === lastClose.current) return
+    lastClose.current = closeRequest
+    if (active) setClosing(true)
+  }, [closeRequest, active])
   const suggestions = [ru.suggestion1, ru.suggestion2, ru.suggestion3]
   const send = (text = input) => {
     if (!text.trim() || chat.pending || voice.busy) return
