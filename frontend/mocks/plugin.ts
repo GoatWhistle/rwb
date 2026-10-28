@@ -205,8 +205,12 @@ export function mockApi(): Plugin {
         if (!enabled || !req.url?.startsWith("/api/")) return next()
         await wait(120 + Math.floor(Math.random() * 250))
         const route = routes[`${req.method} ${req.url.split("?")[0]}`]
-        if (route) return route(req, res)
-        return send(res, 404, { detail: "mock: endpoint not found" })
+        try {
+          if (route) return await route(req, res)
+          return send(res, 404, { detail: "mock: endpoint not found" })
+        } catch {
+          if (!res.destroyed && !res.writableEnded) res.destroy()
+        }
       })
     },
   }
