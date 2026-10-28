@@ -5,12 +5,15 @@ import { month, number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
 import { Button, EmptyState } from "@/shared/ui/controls"
+import { tipAttrs, VizTip } from "@/shared/ui/viz-tip"
 import { HBars } from "./bars"
 import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import { ScoreColumns } from "./delivery-top-viz"
 import { stateName } from "./states"
 import "@/shared/styles/viz-extra-dc.css"
+import "@/shared/styles/viz-palette.css"
+import "@/shared/styles/fill-heat-geo.css"
 
 const TARGET = 0.9
 
@@ -75,28 +78,96 @@ export function Geography({
   index?: number
   limit?: number
 }) {
+  const items = rows
+    .map((row) => ({ row, n: numeric(row.otd) }))
+    .filter((item): item is { row: Row; n: number } => item.n !== null)
+    .sort((a, b) => a.n - b.n)
+    .slice(0, limit)
   return (
     <Card
       title={ru.geography}
       accent="опаздывает"
-      description={`${limit} худших штатов по доле доставок вовремя, шкала 70–100 %`}
+      description={`${items.length || limit} штатов с наименьшей долей доставок вовремя`}
       query={query}
       index={index}
     >
-      <HBars
-        rows={rows}
-        label={(row) => stateName(row.state)}
-        sublabel={(row) => String(row.state)}
-        value="otd"
-        order="asc"
-        limit={limit}
-        min={0.7}
-        max={1}
-        target={TARGET}
-        targetLabel="цель 90 %"
-        format={(n) => percent(n)}
-      />
+      {items.length ? <GeoBars items={items} /> : <EmptyState />}
     </Card>
+  )
+}
+
+const GEO_MIN = 0.7
+const GEO_TICKS = [0.7, 0.8, 0.9, 1]
+const geoAt = (n: number) => Math.min(100, Math.max(0, ((n - GEO_MIN) / (1 - GEO_MIN)) * 100))
+
+function geoTip(row: Row, n: number) {
+  const days = numeric(row.median_days)
+  const promised = numeric(row.median_promised)
+  return tipAttrs(`${stateName(row.state)}, ${String(row.state)}`, [
+    {
+      label: "Вовремя",
+      value: percent(n),
+      color: n < TARGET ? "var(--viz-negative)" : "var(--viz-1)",
+    },
+    { label: "Доставлено", value: number(numeric(row.delivered) ?? 0) },
+    ...(days === null ? [] : [{ label: "Медианный срок", value: `${number(days, 1)} дн.` }]),
+    ...(promised === null ? [] : [{ label: "Обещано", value: `${number(promised, 0)} дн.` }]),
+  ])
+}
+
+function GeoBars({ items }: { items: { row: Row; n: number }[] }) {
+  return (
+    <VizTip className="hg-geo-host">
+      <div
+        className="hg-geo"
+        style={
+          {
+            "--rows": items.length,
+            "--target": `${geoAt(TARGET)}%`,
+          } as CSSProperties
+        }
+      >
+        <div className="hg-geo-grid" aria-hidden="true">
+          {GEO_TICKS.map((t) => (
+            <i
+              key={t}
+              className={t === TARGET ? "is-target" : ""}
+              style={{ left: `${geoAt(t)}%` }}
+            />
+          ))}
+        </div>
+        {items.map(({ row, n }, i) => (
+          <div
+            key={String(row.state)}
+            className={`hg-geo-row${n < TARGET ? " below" : ""}`}
+            style={
+              { "--i": i, "--w": `${Math.max(geoAt(n), 1)}%`, gridRow: i + 1 } as CSSProperties
+            }
+            {...geoTip(row, n)}
+          >
+            <span className="hg-geo-name">
+              <span>{stateName(row.state)}</span>
+              <small>{String(row.state)}</small>
+            </span>
+            <span className="hg-geo-track">
+              <span className="hg-geo-fill" />
+            </span>
+            <strong className="hg-geo-value">{percent(n)}</strong>
+          </div>
+        ))}
+        <div className="hg-geo-axis" aria-hidden="true">
+          {GEO_TICKS.map((t) => (
+            <span
+              key={t}
+              className={t === TARGET ? "is-target" : ""}
+              style={{ left: `${geoAt(t)}%` }}
+            >
+              {t === TARGET ? `цель ${percent(t, 0)}` : percent(t, 0)}
+            </span>
+          ))}
+        </div>
+      </div>
+    </VizTip>
   )
 }
 export function Lateness({
