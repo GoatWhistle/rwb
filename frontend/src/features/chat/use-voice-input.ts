@@ -121,5 +121,22 @@ export function useVoiceInput(active: boolean, onText: (text: string) => void) {
     const timer = window.setInterval(() => setSeconds((value) => value + 1), 1000)
     return () => window.clearInterval(timer)
   }, [phase])
-  return { phase, error, seconds, levels, supported, start, stop, cancel, busy: phase !== "idle" }
+  useEffect(() => {
+    if (!error) return
+    const timer = window.setTimeout(() => setError(""), 6000)
+    return () => window.clearTimeout(timer)
+  }, [error])
+  const dismiss = useCallback(() => setError(""), [])
+  return {
+    phase,
+    error,
+    dismiss,
+    seconds,
+    levels,
+    supported,
+    start,
+    stop,
+    cancel,
+    busy: phase !== "idle",
+  }
 }

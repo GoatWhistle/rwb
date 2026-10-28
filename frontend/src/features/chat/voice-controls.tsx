@@ -1,4 +1,4 @@
-import { ArrowUp, LoaderCircle, Mic, Square, X } from "lucide-react"
+import { ArrowUp, LoaderCircle, Mic, MicOff, Square, X } from "lucide-react"
 import { ru } from "@/shared/i18n/ru"
 import { IconButton } from "@/shared/ui/controls"
 import type { useVoiceInput } from "./use-voice-input"
@@ -38,8 +38,17 @@ export function VoiceButton({ voice, disabled }: { voice: VoiceInput; disabled: 
 export function VoiceStatus({ voice }: { voice: VoiceInput }) {
   if (!voice.error) return null
   return (
-    <div className="voice-status voice-error">
-      <span role="alert">{voice.error}</span>
+    <div className="voice-error" role="alert">
+      <MicOff size={16} aria-hidden="true" />
+      <span>{voice.error}</span>
+      <button
+        type="button"
+        className="context-chip-close"
+        aria-label={ru.voiceCancel}
+        onClick={voice.dismiss}
+      >
+        <X size={14} />
+      </button>
     </div>
   )
 }

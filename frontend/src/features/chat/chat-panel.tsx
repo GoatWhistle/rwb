@@ -1,4 +1,4 @@
-import { CircleHelp, Plus, X } from "lucide-react"
+import { BarChart3, Plus, X } from "lucide-react"
 import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import type { DashboardContext } from "@/shared/api/metrics"
@@ -7,6 +7,7 @@ import { IconButton } from "@/shared/ui/controls"
 import { AssistantIcon } from "./assistant-icon"
 import { ChatComposer } from "./chat-composer"
 import { Message } from "./message"
+import { ThinkingStatus } from "./thinking-status"
 import { useChat } from "./use-chat"
 import { useVoiceInput } from "./use-voice-input"
 
@@ -130,23 +131,25 @@ export function ChatPanel({
                   streaming={chat.pending && i === chat.messages.length - 1}
                 />
               ))}
-              {chat.pending && (
-                <div className="chat-status chat-thinking" role="status">
-                  <span className="thinking-dot" />
-                  <span className="shimmer-text">{chat.working ? ru.running : ru.thinking}</span>
-                </div>
-              )}
+              {chat.pending && <ThinkingStatus working={chat.working} />}
             </div>
           )}
         </div>
         <div className="chat-composer-area">
           {contextName && (
             <div className="context-chip">
-              <CircleHelp size={13} />
-              <span>{contextName}</span>
-              <IconButton label={ru.removeContext} onClick={onClearContext}>
-                <X size={12} />
-              </IconButton>
+              <BarChart3 size={14} aria-hidden="true" />
+              <span className="context-chip-label">{ru.contextAbout}</span>
+              <span className="context-chip-name">{contextName}</span>
+              <button
+                type="button"
+                className="context-chip-close"
+                aria-label={ru.removeContext}
+                title={ru.removeContext}
+                onClick={onClearContext}
+              >
+                <X size={14} />
+              </button>
             </div>
           )}
           <ChatComposer
