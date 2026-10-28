@@ -1,4 +1,4 @@
-import { CalendarDays, Check, ChevronDown, RotateCcw, SlidersHorizontal } from "lucide-react"
+import { CalendarDays, Check, ChevronDown, MapPin, RotateCcw } from "lucide-react"
 import { useId, useState } from "react"
 import type { Filters } from "@/shared/api/metrics"
 import { useMetric } from "@/shared/api/metrics"
@@ -49,16 +49,18 @@ export function FiltersBar({
       : picked.length === 1
         ? picked[0]
         : `${ru.state}: ${picked.length}`
+  const periodActive =
+    value.start_date !== initialFilters.start_date || value.end_date !== initialFilters.end_date
+  const statesActive = (value.states?.length ?? 0) > 0
   return (
     <div className="filters-bar">
       <div className="filter-actions">
         <Popover
           label={ru.period}
-          className="filter-popover"
+          className={`filter-popover selector ${periodActive ? "is-active" : ""}`}
           trigger={
             <>
-              <small className="selector-label">{ru.periodShort}</small>
-              <CalendarDays size={14} />
+              <CalendarDays size={16} />
               <span>{selected?.label ?? label}</span>
               <ChevronDown size={14} className="popover-chevron" />
             </>
@@ -104,11 +106,10 @@ export function FiltersBar({
         </Popover>
         <Popover
           label={ru.state}
-          className="state-filter"
+          className={`state-filter selector ${statesActive ? "is-active" : ""}`}
           trigger={
             <>
-              <small className="selector-label">{ru.statesShort}</small>
-              <SlidersHorizontal size={14} />
+              <MapPin size={16} />
               <span>{stateLabel}</span>
               <ChevronDown size={14} className="popover-chevron" />
             </>
