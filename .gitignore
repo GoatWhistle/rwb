@@ -2,6 +2,10 @@
 #   bash scripts/download_data.sh
 data/*.csv
 
+# Эталонное решение — команды не должны его видеть,
+# в раздаточный репозиторий не коммитим
+solution/
+
 # Мусор macOS
 .DS_Store
 
