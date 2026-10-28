@@ -1,11 +1,11 @@
-import { ChevronDown, Download, FileText } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import type { ReactNode } from "react"
 
 import Markdown from "react-markdown"
-import { cell, downloadCsv, numeric } from "@/shared/format"
+import { cell } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
-import { IconButton } from "@/shared/ui/controls"
-import { DataTable } from "@/shared/ui/data-table"
+import { TableBlock } from "./chat-blocks"
+import { CodeBlock } from "./code-block"
 import type { ChatMessage } from "./use-chat"
 
 function Disclosure({
@@ -27,19 +27,57 @@ function Disclosure({
     </details>
   )
 }
+function period(filters: Record<string, unknown>) {
+  const from = typeof filters.start_date === "string" ? filters.start_date : ""
+  const to = typeof filters.end_date === "string" ? filters.end_date : ""
+  return from || to ? `${from || "…"} — ${to || "…"}` : ""
+}
+function filterText(filters: Record<string, unknown>) {
+  const parts = ["states", "categories", "seller_ids"]
+    .map((key) => filters[key])
+    .filter((value): value is unknown[] => Array.isArray(value) && value.length > 0)
+    .map((value) => value.join(", "))
+  return parts.join(" · ") || ru.chatNoFilters
+}
+function SqlMeta({ source }: { source: Record<string, unknown> }) {
+  const filters =
+    source.filters && typeof source.filters === "object"
+      ? (source.filters as Record<string, unknown>)
+      : {}
+  const items: [string, string][] = [
+    [ru.chatMetric, typeof source.metric_id === "string" ? source.metric_id : ""],
+    [ru.chatPeriod, period(filters)],
+    [ru.chatFilters, typeof filters.scope === "string" ? filters.scope : filterText(filters)],
+  ]
+  return (
+    <dl className="source-meta">
+      {items
+        .filter(([, value]) => value)
+        .map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+    </dl>
+  )
+}
 function Source({ source }: { source: Record<string, unknown> }) {
   if (source.type === "sql")
     return (
       <div className="source-item">
         <strong>{ru.sourceSql}</strong>
-        <pre>{cell(source.sql)}</pre>
-        {Boolean(source.definition) && <pre>{JSON.stringify(source.definition, null, 2)}</pre>}
+        <SqlMeta source={source} />
+        <CodeBlock code={cell(source.sql)} language="sql" />
+        {Boolean(source.definition) && (
+          <CodeBlock code={JSON.stringify(source.definition, null, 2)} language="json" />
+        )}
       </div>
     )
   return (
     <div className="source-item">
       <strong>{source.type === "review" ? ru.sourceReview : ru.sourceOrder}</strong>
-      <dl>
+      <dl className="source-meta">
         {[
           ["review_id", ru.reviewId],
           ["order_id", ru.orderId],
@@ -47,7 +85,9 @@ function Source({ source }: { source: Record<string, unknown> }) {
           key && source[key] ? (
             <div key={key}>
               <dt>{label}</dt>
-              <dd>{cell(source[key])}</dd>
+              <dd>
+                <code>{cell(source[key])}</code>
+              </dd>
             </div>
           ) : null,
         )}
@@ -59,7 +99,9 @@ export function MessageDetails({
   message,
   details,
   columnLabels,
+  question = "",
 }: {
+  question?: string
   message: ChatMessage
   details: string
   columnLabels: Record<string, string>
@@ -75,37 +117,14 @@ export function MessageDetails({
           </div>
         )}
         {tables.map(([id, table]) => (
-          <Disclosure
-            className="chat-table"
+          <TableBlock
             key={id}
-            summary={
-              <>
-                <FileText size={14} />
-                {ru.results}
-                <span>
-                  {table.rows.length} {ru.rows}
-                </span>
-              </>
-            }
-          >
-            <div className="chat-table-toolbar">
-              <IconButton
-                label={ru.export}
-                onClick={() => downloadCsv(table.rows, `datum-${id}.csv`)}
-              >
-                <Download size={15} />
-              </IconButton>
-            </div>
-            <DataTable
-              rows={table.rows}
-              columns={table.columns.map((col) => ({
-                key: col.name,
-                label: columnLabels[col.name] ?? col.name,
-                numeric: table.rows.some((row) => numeric(row[col.name]) !== null),
-              }))}
-            />
-            {table.truncated && <p className="footnote">{ru.truncated}</p>}
-          </Disclosure>
+            id={id}
+            table={table}
+            question={question}
+            sql=""
+            labels={columnLabels}
+          />
         ))}
         {message.sources.length > 0 && (
           <div className="evidence-sources">

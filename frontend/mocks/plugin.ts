@@ -152,6 +152,16 @@ async function streamChat(req: IncomingMessage, res: ServerResponse) {
     await wait(500 + Math.floor(random() * 500))
     const tableId = `table_${callId}`
     const result = table(tool.rows)
+    if (tool.result) {
+      emit("tool_finished", {
+        call_id: callId,
+        name: tool.name,
+        ok: true,
+        elapsed_ms: 140,
+        result: tool.result,
+      })
+      continue
+    }
     emit("table", { table_id: tableId, ...result })
     const source = {
       type: "sql",
