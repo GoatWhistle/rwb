@@ -1,0 +1,1496 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capibara: исполнение заказа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=PT+Serif:ital@1&display=swap">
+<style>
+/* Стилистика кейса: синий градиент, жирный гротеск + курсив с засечками синим,
+   серые скруглённые плашки с точками-маркерами, градиентные «облачка».
+   Цвет в графиках: синий — обычная серия, малиновый — проблема.
+   Пара синий/малиновый и малиновая шкала опоздания проверены валидатором палитры. */
+:root {
+  color-scheme: light;
+  --page:      #ffffff;
+  --panel:     #f3f3f6;   /* серые плашки, на них же рисуются графики */
+  --ink:       #16161a;
+  --ink-2:     #4b4b55;
+  --muted:     #8a8a96;
+  --blue:      #2f5bff;
+  --blue-text: #3a86e8;   /* курсивные слова-акценты */
+  --blue-wash: #e6eeff;
+  --violet:    #8b5cf6;
+  --lilac:     #efe8fd;
+  --pink:      #e0428a;
+  --pink-wash: #fce6f0;
+  --late-1:    #ec8ab4;   /* шкала опоздания: светлее — меньше дней */
+  --late-2:    #e0428a;
+  --late-3:    #b8286c;
+  --late-4:    #7d1748;
+  --good:      #0f7a3d;
+  --good-wash: #e3f4ea;
+  --grid:      #e1e1e8;
+  --axis:      #c4c4cf;
+  --grad:      linear-gradient(90deg, #2346ff 0%, #2f5bff 32%, #5b9dff 68%, #86e6ff 100%);
+  --bubble:    linear-gradient(90deg, #45a6ff 0%, #2f6bff 100%);
+  --sans:  Inter, "SF Pro Display", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "PT Serif", Georgia, "Times New Roman", serif;
+  --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --r-lg: 28px;
+  --r-md: 18px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.6 var(--sans); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+em.acc { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--blue-text); letter-spacing: 0; }
+
+/* навигация */
+nav.top { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.88);
+  backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid #ececf1; }
+nav.top .in { max-width: 1120px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; gap: 22px;
+  height: 52px; overflow-x: auto; scrollbar-width: none; }
+nav.top .in::-webkit-scrollbar { display: none; }
+nav.top .brand { font-weight: 700; font-size: 14px; white-space: nowrap; }
+nav.top .brand i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--grad); margin-right: 8px; vertical-align: 0; }
+nav.top a { color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; padding: 4px 0; border-bottom: 2px solid transparent; }
+nav.top a:hover { color: var(--blue); border-bottom-color: var(--blue); }
+nav.top a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 3px; }
+
+/* обложка */
+.cover { background: var(--grad); color: #fff; position: relative; overflow: hidden; }
+.cover .wrap { position: relative; padding-top: 72px; padding-bottom: 64px; min-height: 360px; display: flex; flex-direction: column; justify-content: flex-end; }
+.cover .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; opacity: .95; margin-bottom: 18px; }
+.cover h1 { font-size: clamp(32px, 5.2vw, 56px); line-height: 1.08; font-weight: 800; margin: 0; max-width: 16ch; letter-spacing: -.015em; text-wrap: balance; }
+.cover p { font-size: 18px; margin: 18px 0 0; max-width: 60ch; opacity: .92; font-weight: 500; }
+.cover .meta { font-size: 13.5px; opacity: .8; margin-top: 14px; font-weight: 500; }
+.pixels { position: absolute; right: 20px; top: 20px; width: min(46%, 480px); height: auto; opacity: .95; pointer-events: none; }
+@media (max-width: 760px) { .pixels { opacity: .35; width: 80%; } }
+
+/* общие блоки */
+section.block { scroll-margin-top: 72px; }
+h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.15; font-weight: 800; margin: 88px 0 10px; letter-spacing: -.015em; }
+h2 em.acc { font-size: 1.04em; }
+.lead { color: var(--ink-2); margin: 0 0 26px; max-width: 74ch; font-size: 17px; }
+h3 { font-size: 17px; font-weight: 700; margin: 0; }
+.panel { background: var(--panel); border-radius: var(--r-lg); padding: 26px 30px; min-width: 0; }
+.panel .note { font-size: 14px; color: var(--ink-2); margin: 6px 0 16px; line-height: 1.55; max-width: 74ch; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr)); gap: 18px; }
+.stack { display: flex; flex-direction: column; gap: 18px; }
+.dot { width: 18px; height: 18px; border-radius: 50%; flex: none; background: radial-gradient(circle at 35% 30%, #7fb6ff 0%, #2f5bff 70%); }
+.dot.v { background: radial-gradient(circle at 35% 30%, #c4a8ff 0%, #8b5cf6 70%); }
+.dot.p { background: radial-gradient(circle at 35% 30%, #f6a3c8 0%, #e0428a 70%); }
+.chipc { display: inline-block; font-family: var(--sans); font-size: .9em; font-weight: 500; color: #fff; background: linear-gradient(90deg, #45a6ff, #2f6bff);
+  border-radius: 4px; padding: 0 5px; line-height: 1.45; white-space: nowrap; }
+code { font-family: var(--mono); font-size: .86em; background: #e9e9ef; border-radius: 6px; padding: 1px 6px; }
+
+/* главное */
+.headline { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 18px; margin-top: 44px; align-items: stretch; }
+@media (max-width: 760px) { .headline { grid-template-columns: 1fr; } }
+.bignum { background: var(--panel); border-radius: var(--r-lg); padding: 28px 30px; display: flex; flex-direction: column; justify-content: center; }
+.bignum .l { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+.bignum .v { font-size: 76px; font-weight: 800; line-height: 1; letter-spacing: -.03em; margin: 8px 0 12px;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bignum .s { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.bubble { position: relative; background: var(--bubble); color: #fff; border-radius: var(--r-lg); padding: 26px 32px; margin-bottom: 18px;
+  display: grid; gap: 14px; align-content: center; }
+.bubble::after { content: ""; position: absolute; left: 64px; bottom: -16px; width: 64px; height: 30px; background: #44a3ff; border-radius: 0 0 32px 32px; }
+.bubble .pt { display: grid; grid-template-columns: 8px 1fr; gap: 14px; align-items: baseline; font-size: 16px; font-weight: 500; line-height: 1.5; }
+.bubble .pt i { width: 8px; height: 8px; border-radius: 50%; background: #fff; transform: translateY(-2px); }
+.bubble b { font-weight: 800; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 18px; }
+.kpi { background: var(--panel); border-radius: var(--r-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 2px; }
+.kpi .l { font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.kpi .v { font-size: 32px; font-weight: 800; line-height: 1.2; letter-spacing: -.02em; }
+.kpi .v small { font-size: 15px; font-weight: 600; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi .s { font-size: 12.5px; color: var(--muted); line-height: 1.45; margin-top: 4px; }
+.kpi.alert { background: var(--pink-wash); }
+.kpi.alert .v { color: var(--late-3); }
+.kpi .flag { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--late-3); margin-bottom: 2px; }
+
+/* путь заказа */
+.path { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); position: relative; margin: 8px 0 6px; }
+.path::before { content: ""; position: absolute; left: 12.5%; right: 12.5%; top: 13px; height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, #38c8ff, #2f5bff 55%, #8b5cf6); }
+.step { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 0 6px; }
+.step .ring { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 4px solid var(--violet); position: relative; z-index: 1; }
+.step:first-child .ring { border-color: #38c8ff; }
+.step:nth-child(2) .ring { border-color: #2f8dff; }
+.step:nth-child(3) .ring { border-color: #5a63f8; }
+.step .t { font-weight: 700; font-size: 15px; line-height: 1.3; }
+.step .c { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.gap { position: absolute; top: -26px; transform: translateX(-50%); font-size: 13px; font-weight: 700; color: var(--blue); background: var(--page);
+  border-radius: 999px; padding: 1px 10px; white-space: nowrap; box-shadow: 0 0 0 1px var(--blue-wash); }
+.pathbox { background: var(--panel); border-radius: var(--r-lg); padding: 52px 30px 28px; }
+.vs { margin-top: 30px; display: grid; gap: 10px; }
+.vs .row { display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; font-size: 14px; }
+.vs .row span { color: var(--ink-2); font-weight: 600; }
+.vs .bar { height: 14px; border-radius: 0 7px 7px 0; position: relative; }
+.vs .bar b { position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); font-size: 14px; white-space: nowrap; }
+.vs .note { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+@media (max-width: 640px) {
+  .path { grid-template-columns: 1fr; gap: 26px; }
+  .path::before { left: 13px; right: auto; top: 0; bottom: 0; width: 4px; height: auto; }
+  .step { flex-direction: row; text-align: left; align-items: center; }
+  .gap { position: static; transform: none; order: 3; }
+  .pathbox { padding-top: 28px; }
+}
+
+/* графики */
+.chart { position: relative; width: 100%; border-radius: 8px; }
+.chart:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart svg rect[tabindex]:focus { outline: none; }
+.chart text { font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums; font-family: var(--sans); }
+.chart text.lab { fill: var(--ink); font-weight: 700; }
+.chart text.lab2 { fill: var(--ink-2); font-weight: 500; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); margin: 0 0 12px; font-weight: 500; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend i { width: 16px; height: 3px; border-radius: 2px; display: inline-block; }
+.legend i.rect { width: 11px; height: 11px; border-radius: 3px; }
+.legend i.ramp { width: 30px; height: 11px; border-radius: 3px; }
+.tip { position: absolute; top: 0; left: 0; pointer-events: none; background: #fff; border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(22,22,26,.14), 0 0 0 1px rgba(22,22,26,.06);
+  padding: 9px 13px; font-size: 13px; line-height: 1.5; white-space: nowrap; z-index: 3; }
+.tip[hidden] { display: none; }
+.tip .h { color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+.tip .r { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.tip .r b { font-weight: 700; color: var(--ink); }
+.tip .r span { color: var(--ink-2); }
+.tip .k { width: 12px; height: 3px; border-radius: 2px; flex: none; }
+details.tv { margin-top: 16px; }
+details.tv summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--blue); width: max-content; }
+details.tv summary:hover { text-decoration: underline; }
+details.tv summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 3px; }
+details.tv .tbox { margin-top: 12px; max-height: 340px; }
+
+/* таблицы */
+table { border-collapse: collapse; width: 100%; background: #fff; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 12px; border-top: 1px solid #eeeef3; vertical-align: middle; }
+thead th { border-top: none; background: #fff; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; position: sticky; top: 0; z-index: 1; box-shadow: inset 0 -1px 0 #e6e6ee; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.mono { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+tbody tr:hover td { background: #fafaff; }
+.tbox { max-height: 456px; overflow: auto; border-radius: var(--r-md); background: #fff; }
+.tbox th, .tbox td { padding: 8px 12px; white-space: nowrap; }
+.mbar { display: flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.mbar .track { width: 64px; height: 8px; border-radius: 4px; background: #ececf2; flex: none; overflow: hidden; }
+.mbar .fill { height: 100%; border-radius: 0 4px 4px 0; background: var(--blue); }
+.mbar.bad .fill { background: var(--pink); }
+.mbar.bad span { font-weight: 700; color: var(--late-3); }
+.span { display: flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.span .track { position: relative; width: 96px; height: 8px; border-radius: 4px; background: #ececf2; flex: none; }
+.span .fact { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; background: var(--blue); }
+.span .prom { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--ink); }
+.span span { color: var(--ink-2); }
+.span span b { color: var(--ink); font-weight: 700; }
+.tkey { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--ink-2); margin: -6px 0 12px; }
+.tkey span { display: inline-flex; align-items: center; gap: 6px; }
+.tkey .k1 { width: 14px; height: 8px; border-radius: 0 4px 4px 0; background: var(--blue); }
+.tkey .k2 { width: 2px; height: 12px; border-radius: 1px; background: var(--ink); }
+.tkey .k3 { width: 14px; height: 8px; border-radius: 0 4px 4px 0; background: var(--pink); }
+@media (max-width: 480px) { .wide-only { display: none; } }
+
+/* концепция: карточки как на слайде «Что сдавать» */
+.cards3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+.card-g { background: var(--bubble); color: #fff; border-radius: var(--r-md); padding: 24px 26px; }
+.card-l { background: var(--lilac); border-radius: var(--r-md); padding: 24px 26px; }
+.card-g .who, .card-l .who { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+.card-g h3, .card-l h3 { margin: 10px 0 12px; font-size: 18px; line-height: 1.35; }
+.card-g p, .card-l p { margin: 0; font-size: 14.5px; line-height: 1.55; }
+.card-l p { color: var(--ink-2); }
+.card-g p b, .card-l p b { font-weight: 700; }
+.card-l p b { color: var(--ink); }
+.card-l .grain { display: inline-block; font-size: 12.5px; font-weight: 700; color: var(--violet); background: #fff; border-radius: 999px; padding: 2px 11px; margin: 0 0 12px; }
+.card-l h3 code { background: none; padding: 0; font-size: 16px; color: var(--ink); }
+
+/* ряды как на слайде «Как оцениваем» */
+.rows { display: grid; gap: 14px; }
+.row-p { background: var(--panel); border-radius: var(--r-lg); padding: 20px 28px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 10px 30px; align-items: center; }
+.row-p .hd { display: flex; align-items: center; gap: 16px; font-weight: 700; font-size: 16px; line-height: 1.35; }
+.row-p .bd { font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
+.row-p .bd p { margin: 0; }
+.row-p .bd p + p { margin-top: 6px; }
+.row-p .bd b { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.row-p .n { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+.row-p .n b { font-size: 22px; font-weight: 800; color: var(--late-3); letter-spacing: -.01em; margin-right: 6px; }
+.row-p .fix { color: var(--ink); }
+.row-p .fix::before { content: "Решение: "; font-weight: 700; color: var(--good); }
+@media (max-width: 700px) { .row-p { grid-template-columns: 1fr; } }
+
+/* показатели и срезы */
+.tscroll { overflow-x: auto; border-radius: var(--r-md); background: #fff; box-shadow: 0 0 0 1px #ececf1; }
+.tscroll table { min-width: 760px; }
+.tscroll td { vertical-align: top; }
+.tscroll td:first-child { font-weight: 700; }
+.mx td, .mx th { text-align: center; vertical-align: middle; }
+.mx td:first-child, .mx th:first-child { text-align: left; }
+.c { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.c.sum { color: var(--good); background: var(--good-wash); }
+.c.re { color: var(--late-3); background: var(--pink-wash); }
+.c.na { color: var(--muted); background: #f1f1f5; }
+.mxkey { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13.5px; color: var(--ink-2); margin: 14px 0 0; }
+.mxkey span { display: inline-flex; gap: 8px; align-items: center; }
+.callout { position: relative; margin-top: 26px; background: var(--bubble); color: #fff; border-radius: var(--r-lg); padding: 22px 30px; font-size: 16px; font-weight: 500; max-width: 900px; }
+.callout::after { content: ""; position: absolute; left: 60px; bottom: -14px; width: 56px; height: 26px; background: #44a3ff; border-radius: 0 0 28px 28px; }
+.callout b { font-weight: 800; }
+
+/* форма и границы */
+.fb { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 18px; }
+.fb .panel h3 { display: flex; align-items: center; gap: 12px; font-size: 18px; margin-bottom: 14px; }
+.fb ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.fb li { position: relative; padding-left: 20px; font-size: 14.5px; color: var(--ink-2); line-height: 1.55; }
+.fb li::before { content: ""; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+.fb .no li::before { background: var(--pink); }
+.fb li b { color: var(--ink); }
+
+.foot { margin: 96px 0 0; background: var(--grad); color: #fff; }
+.foot .wrap { padding-top: 40px; padding-bottom: 44px; }
+.foot h2 { color: #fff; margin: 0 0 8px; font-size: 28px; }
+.foot p { margin: 0; opacity: .92; max-width: 72ch; font-weight: 500; }
+.foot code { background: rgba(255,255,255,.18); color: #fff; }
+</style>
+</head>
+<body>
+<nav class="top" aria-label="Разделы">
+  <div class="in">
+    <span class="brand"><i></i>Capibara · исполнение заказа</span>
+    <a href="#path">Путь заказа</a>
+    <a href="#time">Месяцы</a>
+    <a href="#cost">Цена опоздания</a>
+    <a href="#who">Штаты и продавцы</a>
+    <a href="#concept">Концепция</a>
+    <a href="#slices">Срезы</a>
+    <a href="#bounds">Границы</a>
+    <a href="#rules">Правила</a>
+  </div>
+</nav>
+
+<header class="cover">
+  <svg class="pixels" id="pixels" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div class="eyebrow">Концепция дашборда</div>
+    <h1>Исполнение заказа: от оформления до вручения</h1>
+    <p>Выполняет ли Capibara обещание покупателю, на каком этапе теряется время и сколько стоит опоздание.</p>
+    <div class="meta">Доставленные заказы, сентябрь 2016 — август 2018 · данные собраны <span data-v="built_at" data-f="date">—</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section class="headline" aria-label="Главное">
+  <div class="bignum">
+    <div class="l">Доставлено вовремя</div>
+    <div class="v" data-v="kpi.otd" data-f="pct">—</div>
+    <div class="s">из <b data-v="kpi.delivered" data-f="int">—</b> вручённых заказов. Сравнение меток времени вместо дат дало бы <b data-v="kpi.otd_naive" data-f="pct">—</b>.</div>
+  </div>
+  <div class="bubble">
+    <div class="pt"><i></i><div>Медианный срок <b><span data-v="kpi.median_days" data-f="d1">—</span> дн.</b> при обещанных <b><span data-v="kpi.median_promised" data-f="d0">—</span> дн.</b> Запас большой, поэтому опоздания приходят из провалов, а не из жёсткого обещания.</div></div>
+    <div class="pt"><i></i><div>Провалы сосредоточены. Худший месяц — <b data-x="worst-month">—</b>, худший крупный штат — <b data-x="worst-state">—</b>.</div></div>
+    <div class="pt"><i></i><div>Опоздание стоит дорого: вовремя средняя оценка <b><span data-v="lateness.0.avg_score" data-f="d2">—</span>★</b>, при опоздании на 4–7 дней <b><span data-v="lateness.2.avg_score" data-f="d2">—</span>★</b>.</div></div>
+  </div>
+</section>
+
+<section class="kpis" aria-label="Показатели">
+  <div class="kpi">
+    <div class="l">Срок доставки, медиана</div>
+    <div class="v"><span data-v="kpi.median_days" data-f="d1">—</span><small>дн.</small></div>
+    <div class="s">У 10% заказов дольше <span data-v="kpi.p90_days" data-f="d1">—</span> дн.</div>
+  </div>
+  <div class="kpi">
+    <div class="l">Обещаем, медиана</div>
+    <div class="v"><span data-v="kpi.median_promised" data-f="d0">—</span><small>дн.</small></div>
+    <div class="s">Срок, который покупатель видит при оформлении</div>
+  </div>
+  <div class="kpi alert">
+    <div class="flag">Требует внимания</div>
+    <div class="l">Зависли в пути</div>
+    <div class="v" data-v="kpi.stuck" data-f="int">—</div>
+    <div class="s">Отгружены, не вручены, обещанная дата прошла</div>
+  </div>
+  <div class="kpi">
+    <div class="l">Отменено или недоступно</div>
+    <div class="v" data-v="kpi.cancel_rate" data-f="pct">—</div>
+    <div class="s">Из <span data-v="kpi.orders" data-f="int">—</span> оформленных заказов</div>
+  </div>
+  <div class="kpi">
+    <div class="l">Средняя оценка</div>
+    <div class="v"><span data-v="kpi.avg_score" data-f="d2">—</span><small>★</small></div>
+    <div class="s">Доставленные заказы, последний отзыв</div>
+  </div>
+</section>
+
+<section class="block" id="path">
+  <h2>Путь <em class="acc">заказа</em></h2>
+  <p class="lead">Четыре события в <span class="chipc">core.orders</span> и медиана времени между ними.
+    Почти весь срок занимает перевозка, а обещание с большим запасом перекрывает факт.</p>
+  <div class="pathbox">
+    <div class="path">
+      <div class="step"><div class="ring"></div><div class="t">Оформлен</div><div class="c">purchased_at</div></div>
+      <div class="step"><span class="gap" style="left:0"><span data-x="approve-time">—</span></span><div class="ring"></div><div class="t">Оплата подтверждена</div><div class="c">approved_at</div></div>
+      <div class="step"><span class="gap" style="left:0"><span data-v="kpi.median_seller" data-f="d1">—</span> дн. у продавца</span><div class="ring"></div><div class="t">Передан в доставку</div><div class="c">shipped_at</div></div>
+      <div class="step"><span class="gap" style="left:0"><span data-v="kpi.median_carrier" data-f="d1">—</span> дн. в пути</span><div class="ring"></div><div class="t">Вручён</div><div class="c">delivered_at</div></div>
+    </div>
+    <div class="vs" id="vs">
+      <div class="row"><span>Факт, медиана</span><div><div class="bar" id="vs-fact" style="background:var(--blue)"><b><span data-v="kpi.median_days" data-f="d1">—</span> дн.</b></div></div></div>
+      <div class="row"><span>У 10% дольше</span><div><div class="bar" id="vs-p90" style="background:#9db4ff"><b><span data-v="kpi.p90_days" data-f="d1">—</span> дн.</b></div></div></div>
+      <div class="row"><span>Обещано</span><div><div class="bar" id="vs-prom" style="background:var(--violet)"><b><span data-v="kpi.median_promised" data-f="d0">—</span> дн.</b></div></div></div>
+      <p class="note">Медианы этапов считаются по своим заказам и не складываются в медиану всего срока.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="time">
+  <h2>Обещание и <em class="acc">факт</em></h2>
+  <p class="lead">В обычный месяц вовремя приезжает 95–97% заказов. Провалы приходятся на пиковые месяцы,
+    и почти всё лишнее время в них добавляет перевозка.</p>
+  <div class="stack">
+    <div class="panel">
+      <h3>Доля доставленных вовремя</h3>
+      <p class="note">По месяцу оформления, с января 2017. Розовая зона и точки — ниже порога <span data-c="limit">—</span>.</p>
+      <div class="chart" id="otd-chart" tabindex="0" aria-label="Доля доставленных вовремя по месяцам. Стрелки влево и вправо переключают месяц."></div>
+    </div>
+    <div class="panel">
+      <h3>Где теряется время</h3>
+      <p class="note">Медиана в днях: у продавца (от подтверждения оплаты до передачи в доставку) и в перевозке (от передачи до вручения).
+        Медианы этапов не складываются в медиану всего срока, поэтому это две линии, а не стопка.</p>
+      <div class="legend"><span><i style="background:var(--pink)"></i>Перевозка</span><span><i style="background:var(--blue)"></i>Продавец</span></div>
+      <div class="chart" id="stage-chart" tabindex="0" aria-label="Медиана этапов по месяцам. Стрелки влево и вправо переключают месяц."></div>
+      <details class="tv">
+        <summary>Оба графика таблицей</summary>
+        <div class="tbox">
+          <table>
+            <thead><tr><th>Месяц</th><th class="num">Доставлено</th><th class="num">Вовремя</th><th class="num">Срок, дн.</th><th class="num">Продавец, дн.</th><th class="num">Перевозка, дн.</th></tr></thead>
+            <tbody id="month-body"></tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="cost">
+  <h2>Цена <em class="acc">опоздания</em></h2>
+  <p class="lead">Уже при опоздании на 4–7 дней больше половины оценок становятся негативными.
+    Дальше оценка почти не падает: ниже уже некуда.</p>
+  <div class="panel">
+    <h3>Средняя оценка в зависимости от опоздания</h3>
+    <p class="note">Последний отзыв доставленного заказа. Опоздание — дни после обещанной даты. Справа доля оценок 1–2★.</p>
+    <div class="legend"><span><i class="rect" style="background:var(--blue)"></i>Вовремя</span><span><i class="ramp" style="background:linear-gradient(90deg,var(--late-1),var(--late-4))"></i>Опоздание: светлее — меньше дней</span></div>
+    <div class="chart" id="late-chart"></div>
+  </div>
+</section>
+
+<section class="block" id="who">
+  <h2>Штаты и <em class="acc">продавцы</em></h2>
+  <p class="lead">Проблема сосредоточена: северо-восточные штаты и несколько продавцов,
+    которые стабильно отгружают позже своего срока.</p>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Штаты покупателей</h3>
+      <p class="note">Штат на момент заказа, от худшей доли «вовремя» к лучшей.</p>
+      <div class="tkey"><span><i class="k1"></i>вовремя, медиана срока</span><span><i class="k3"></i>ниже <span data-c="limit">—</span></span><span><i class="k2"></i>обещано</span></div>
+      <div class="tbox">
+        <table>
+          <thead><tr><th>Штат</th><th class="num wide-only">Заказов</th><th>Вовремя</th><th>Срок / обещано, дн.</th></tr></thead>
+          <tbody id="states-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Продавцы, отгружающие позже срока</h3>
+      <p class="note">Пятнадцать худших из <b data-v="kpi.sellers_100plus" data-f="int">—</b> продавцов с <span data-c="minship">—</span>+ отгрузками.
+        По площадке в срок <b data-v="kpi.seller_on_time" data-f="pct">—</b>. Только заказы с одним продавцом.</p>
+      <div class="tbox">
+        <table>
+          <thead><tr><th>Продавец</th><th>Штат</th><th class="num">Отгрузок</th><th>В срок</th></tr></thead>
+          <tbody id="sellers-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="concept">
+  <h2>Кто смотрит и <em class="acc">что решает</em></h2>
+  <p class="lead">Блок А целиком про продажи, поэтому дашборд закрывает то, чего продажи не показывают:
+    выполнение обещания. Только для этой области в модели есть полная цепочка событий заказа,
+    свой срок отгрузки у каждого продавца и отзыв в конце.</p>
+  <div class="cards3">
+    <div class="card-g">
+      <div class="who">Руководитель операций</div>
+      <h3>Где и когда нарушаем обещанный срок, на каком этапе теряется время</h3>
+      <p><b>Решает:</b> перераспределить перевозчиков по штатам, нарастить мощности к пиковым месяцам.</p>
+    </div>
+    <div class="card-l">
+      <div class="who">Менеджер по продавцам</div>
+      <h3>Кто систематически отгружает позже срока</h3>
+      <p><b>Решает:</b> предупреждение, понижение в выдаче, отключение.</p>
+    </div>
+    <div class="card-g">
+      <div class="who">Продукт и CX</div>
+      <h3>Насколько опоздание бьёт по оценке, честна ли обещанная дата</h3>
+      <p><b>Решает:</b> пересчитать алгоритм обещанной даты, заранее предупреждать покупателя об опоздании.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="source">
+  <h2>Откуда <em class="acc">данные</em></h2>
+  <p class="lead">Две витрины поверх <span class="chipc">core</span>. Исходные таблицы не меняются, у каждой витрины своё зерно.</p>
+  <div class="grid2">
+    <div class="card-l">
+      <h3><code>mart.order_fulfillment</code></h3>
+      <span class="grain">1 строка = 1 заказ</span>
+      <p>Основа — <b>core.orders</b>. Агрегатами по заказу через LEFT JOIN присоединяются <b>order_items</b>
+        (число продавцов, позиций, сумма, фрахт) и последний отзыв из <b>order_reviews</b>.
+        Число строк обязано совпадать с core.orders.</p>
+    </div>
+    <div class="card-l">
+      <h3><code>mart.seller_shipment</code></h3>
+      <span class="grain">1 строка = заказ × продавец</span>
+      <p>Срок отгрузки — максимум <b>shipping_limit_at</b> по позициям пары. Отсюда считается рейтинг продавцов.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="metrics">
+  <h2>Показатели и <em class="acc">их источник</em></h2>
+  <p class="lead">Формула, уровень расчёта и таблица модели, из которой берётся каждое поле.</p>
+  <div class="tscroll">
+  <table>
+    <thead><tr><th>Показатель</th><th>Формула</th><th>Уровень</th><th>Откуда</th></tr></thead>
+    <tbody>
+      <tr><td>Заказов оформлено</td><td><code>count(*)</code></td><td>заказ</td><td>orders</td></tr>
+      <tr><td>Доля отмен</td><td><code>count(status in (canceled, unavailable)) / count(*)</code></td><td>заказ</td><td>orders</td></tr>
+      <tr><td>Доставлено вовремя</td><td><code>count(delivered_at::date &lt;= estimated_delivery_date) / count(доставленных)</code></td><td>заказ</td><td>orders</td></tr>
+      <tr><td>Срок доставки, медиана и p90</td><td><code>percentile(delivered_at − purchased_at)</code></td><td>заказ</td><td>orders</td></tr>
+      <tr><td>Обещанный срок, медиана</td><td><code>median(estimated_delivery_date − purchased_at::date)</code></td><td>заказ</td><td>orders</td></tr>
+      <tr><td>Этапы: продавец, перевозка</td><td><code>median(shipped − approved)</code>, <code>median(delivered − shipped)</code></td><td>заказ</td><td>orders</td></tr>
+      <tr><td>Отгрузка продавцом в срок</td><td><code>count(shipped_at &lt;= shipping_limit_at) / count(пар)</code></td><td>заказ × продавец</td><td>order_items + orders</td></tr>
+      <tr><td>Зависшие в пути</td><td><code>status = shipped and estimated_delivery_date &lt; дата среза</code></td><td>заказ, остаток на дату</td><td>orders</td></tr>
+      <tr><td>Средняя оценка, доля 1–2★</td><td><code>avg(score)</code>, <code>count(score &lt;= 2) / count(*)</code></td><td>заказ, последний отзыв</td><td>order_reviews</td></tr>
+      <tr><td>Доля фрахта в чеке</td><td><code>sum(freight_value) / sum(price + freight_value)</code></td><td>заказ</td><td>order_items</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="block" id="slices">
+  <h2>Срезы и <em class="acc">неаддитивные</em> показатели</h2>
+  <p class="lead">Какие показатели можно складывать по строкам среза, а какие нужно пересчитывать по всему набору.
+    Ошибка здесь даёт итог таблицы, который не совпадает с плиткой наверху.</p>
+  <div class="tscroll">
+  <table class="mx">
+    <thead><tr><th>Показатель</th><th>Месяц</th><th>Штат</th><th>Продавец</th><th>Категория</th><th>Статус</th></tr></thead>
+    <tbody>
+      <tr><td>Заказов оформлено</td><td><span class="c sum">сумма</span></td><td><span class="c sum">сумма</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c sum">сумма</span></td></tr>
+      <tr><td>Деньги: товары и фрахт</td><td><span class="c sum">сумма</span></td><td><span class="c sum">сумма</span></td><td><span class="c sum">сумма</span></td><td><span class="c sum">сумма</span></td><td><span class="c sum">сумма</span></td></tr>
+      <tr><td>Доля отмен</td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c na">—</span></td></tr>
+      <tr><td>Доставлено вовремя</td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c na">—</span></td></tr>
+      <tr><td>Сроки, медиана и p90</td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c na">—</span></td></tr>
+      <tr><td>Отгрузка продавцом в срок</td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c na">—</span></td></tr>
+      <tr><td>Зависшие в пути</td><td><span class="c re">остаток</span></td><td><span class="c sum">сумма</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c na">—</span></td></tr>
+      <tr><td>Оценка и доля 1–2★</td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c na">—</span></td></tr>
+      <tr><td>Доля фрахта в чеке</td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td><td><span class="c re">пересчёт</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="mxkey">
+    <span><span class="c sum">сумма</span>строки среза складываются в итог</span>
+    <span><span class="c re">пересчёт</span>итог считается заново по всем заказам</span>
+    <span><span class="c re">остаток</span>значение на дату, по времени не складывается</span>
+    <span><span class="c na">—</span>срез не имеет смысла: показатель уже выбирает один статус</span>
+  </div>
+  <div class="callout">Заказ с несколькими продавцами попадает в строку каждого из них, поэтому число заказов
+    <b>по продавцам и категориям</b> не складывается: сумма даёт <b data-v="checks.order_seller_pairs" data-f="int">—</b>
+    при <b data-v="checks.orders_with_items" data-f="int">—</b> реальных заказах.</div>
+</section>
+
+<section class="block" id="bounds">
+  <h2>Форма и <em class="acc">границы</em></h2>
+  <p class="lead">Как дашборд устроен и где заканчивается его ответственность.</p>
+  <div class="fb">
+    <div class="panel">
+      <h3><span class="dot"></span>Форма</h3>
+      <ul>
+        <li><b>Одна страница</b>, сверху вниз: главное → путь заказа → месяцы → цена опоздания → штаты и продавцы.</li>
+        <li><b>Фильтры в одну строку над всем</b>: период оформления, штат покупателя, продавец, категория. Все блоки пересчитываются по одному срезу.</li>
+        <li><b>Порог «нормы» 90%</b> вовремя: ниже порога месяц или штат подсвечиваются.</li>
+        <li><b>Обновление раз в сутки</b> из витрин; плитка «Зависли в пути» считается на дату обновления.</li>
+      </ul>
+    </div>
+    <div class="panel no">
+      <h3><span class="dot p"></span>Чего здесь нет</h3>
+      <ul>
+        <li><b>Продажи и выручка</b> — это блок А и отдельный дашборд.</li>
+        <li><b>Перевозчик.</b> В данных нет, кто вёз заказ, поэтому «перевозка» — общий этап без разбивки по службам.</li>
+        <li><b>Причины отмен</b> и <b>текст отзывов</b>: статус и оценка есть, причин нет.</li>
+        <li><b>Часовые пояса.</b> Метки времени без зоны, поэтому сроки считаются в днях, а не в часах.</li>
+      </ul>
+    </div>
+    <div class="panel no">
+      <h3><span class="dot v"></span>Ограничения данных</h3>
+      <ul>
+        <li><b>Период</b> с сентября 2016 по август 2018: после августа в выгрузке почти одни отмены.</li>
+        <li><b>Своевременность продавца</b> честно считается только для заказов с одним продавцом: дата передачи в доставку одна на заказ.</li>
+        <li><b>Обещание</b> хранится как дата без времени, поэтому сравниваем по датам.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="rules">
+  <h2>Правила, без которых <em class="acc">цифры врут</em></h2>
+  <p class="lead">Каждое правило подкреплено счётчиком из модели. Скрипт пересчитывает эти цифры вместе с дашбордом.</p>
+  <div class="rows">
+    <div class="row-p">
+      <div class="hd"><span class="dot"></span><div>Дата против метки времени<span class="n"><b data-v="kpi.on_promise_day" data-f="int">—</b>заказов вручено в обещанный день</span></div></div>
+      <div class="bd"><p>Обещание хранится как дата, вручение как метка времени. Прямое сравнение засчитает такие заказы как опоздание.</p>
+        <p class="fix">сравниваем <code>delivered_at::date</code>: <b data-v="kpi.otd" data-f="pct">—</b> вместо <b data-v="kpi.otd_naive" data-f="pct">—</b>.</p></div>
+    </div>
+    <div class="row-p">
+      <div class="hd"><span class="dot v"></span><div>Знаменатель — только вручённые<span class="n"><b data-v="kpi.stuck" data-f="int">—</b>заказов застряли в пути</span></div></div>
+      <div class="bd"><p>У всех застрявших обещанная дата уже прошла. В долю «вовремя» они не попадают, и без поправки картина выглядит лучше реальной.</p>
+        <p class="fix">зависшие показываем рядом отдельной плиткой.</p></div>
+    </div>
+    <div class="row-p">
+      <div class="hd"><span class="dot"></span><div>Несколько продавцов в заказе<span class="n"><b data-v="checks.multi_seller_orders" data-f="int">—</b>заказов</span></div></div>
+      <div class="bd"><p>Сумма «заказов по продавцам» даёт <b data-v="checks.order_seller_pairs" data-f="int">—</b> при <b data-v="checks.orders_with_items" data-f="int">—</b> реальных, а <code>shipped_at</code> один на весь заказ.</p>
+        <p class="fix">в рейтинге продавцов только заказы с одним продавцом.</p></div>
+    </div>
+    <div class="row-p">
+      <div class="hd"><span class="dot v"></span><div>Несколько отзывов на заказ<span class="n"><b data-v="checks.multi_review_orders" data-f="int">—</b>заказов</span></div></div>
+      <div class="bd"><p>У <b data-v="checks.diff_score_orders" data-f="int">—</b> из них оценки разные. Ещё <b data-v="checks.no_review_orders" data-f="int">—</b> заказов без отзыва.</p>
+        <p class="fix">берём последний отзыв по <code>created_at</code>.</p></div>
+    </div>
+    <div class="row-p">
+      <div class="hd"><span class="dot"></span><div>Хронология нарушена<span class="n"><b data-v="checks.shipped_before_approved" data-f="int">—</b>отгрузок раньше оплаты</span></div></div>
+      <div class="bd"><p>Платёжный сервис ставит подтверждение с задержкой. У <b data-v="checks.shipped_before_purchase" data-f="int">—</b> заказов отгрузка раньше самого оформления.</p>
+        <p class="fix">отрицательные длительности не попадают в медианы этапов.</p></div>
+    </div>
+    <div class="row-p">
+      <div class="hd"><span class="dot v"></span><div>Обрезанное окно данных<span class="n"><b data-v="checks.tail_orders" data-f="int">—</b>заказов после августа 2018</span></div></div>
+      <div class="bd"><p>Из них <b data-v="checks.tail_canceled" data-f="int">—</b> отменены.</p>
+        <p class="fix">период заканчивается августом, иначе в конце графиков появится ложный обвал.</p></div>
+    </div>
+    <div class="row-p">
+      <div class="hd"><span class="dot"></span><div>География на момент заказа</div></div>
+      <div class="bd"><p>В <span class="chipc">core.customers</span> лежит последний адрес покупателя. Если брать его, старые заказы уедут в другой штат.</p>
+        <p class="fix">штат берём из <span class="chipc">core.orders</span>, где он сохранён на момент заказа.</p></div>
+    </div>
+    <div class="row-p">
+      <div class="hd"><span class="dot v"></span><div>Пустые и неполные заказы<span class="n"><b data-v="checks.review_before_delivery" data-f="int">—</b>отзывов раньше вручения</span></div></div>
+      <div class="bd"><p>У <b data-v="checks.delivered_no_date" data-f="int">—</b> доставленных нет даты вручения, <b data-v="checks.orders_without_items" data-f="int">—</b> заказов без позиций.</p>
+        <p class="fix">исключаем из конкретного показателя, а не из витрины.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <h2>Как пересобрать</h2>
+    <p>Данные внутри файла собирает <code>python solution/build_dashboard.py</code> из модели core
+      (сначала <code>solution/build_core.sql</code>). Файл открывается в браузере и без интернета: шрифты подменятся системными.</p>
+  </div>
+</footer>
+
+<script id="dash-data" type="application/json">
+{
+ "built_at": "2026-10-28",
+ "kpi": {
+  "orders": 99421,
+  "delivered": 96470,
+  "otd": 0.9323,
+  "otd_naive": 0.9189,
+  "on_promise_day": 1292,
+  "median_days": 10.2,
+  "p90_days": 23.1,
+  "median_promised": 24.0,
+  "median_approve": 0.01,
+  "median_seller": 1.8,
+  "median_carrier": 7.1,
+  "cancel_rate": 0.0122,
+  "stuck": 1107,
+  "avg_score": 4.16,
+  "seller_on_time": 0.9087,
+  "seller_pairs": 96379,
+  "sellers_100plus": 205
+ },
+ "checks": {
+  "orders_with_items": 98666,
+  "orders_without_items": 775,
+  "multi_seller_orders": 1278,
+  "order_seller_pairs": 100010,
+  "multi_review_orders": 547,
+  "diff_score_orders": 202,
+  "no_review_orders": 768,
+  "shipped_before_approved": 1359,
+  "shipped_before_purchase": 166,
+  "delivered_no_date": 8,
+  "tail_orders": 20,
+  "tail_canceled": 19,
+  "review_before_delivery": 5127
+ },
+ "monthly": [
+  {
+   "month": "2017-01",
+   "delivered": 750,
+   "otd": 0.9707,
+   "median_days": 10.7,
+   "median_seller": 1.8,
+   "median_carrier": 7.2
+  },
+  {
+   "month": "2017-02",
+   "delivered": 1653,
+   "otd": 0.9704,
+   "median_days": 11.0,
+   "median_seller": 1.9,
+   "median_carrier": 7.3
+  },
+  {
+   "month": "2017-03",
+   "delivered": 2546,
+   "otd": 0.9544,
+   "median_days": 10.1,
+   "median_seller": 1.8,
+   "median_carrier": 7.0
+  },
+  {
+   "month": "2017-04",
+   "delivered": 2303,
+   "otd": 0.9344,
+   "median_days": 12.7,
+   "median_seller": 2.0,
+   "median_carrier": 8.9
+  },
+  {
+   "month": "2017-05",
+   "delivered": 3545,
+   "otd": 0.9701,
+   "median_days": 9.8,
+   "median_seller": 1.6,
+   "median_carrier": 7.0
+  },
+  {
+   "month": "2017-06",
+   "delivered": 3135,
+   "otd": 0.9697,
+   "median_days": 10.8,
+   "median_seller": 1.9,
+   "median_carrier": 7.4
+  },
+  {
+   "month": "2017-07",
+   "delivered": 3872,
+   "otd": 0.9721,
+   "median_days": 10.2,
+   "median_seller": 1.9,
+   "median_carrier": 7.1
+  },
+  {
+   "month": "2017-08",
+   "delivered": 4193,
+   "otd": 0.9709,
+   "median_days": 9.8,
+   "median_seller": 1.9,
+   "median_carrier": 6.9
+  },
+  {
+   "month": "2017-09",
+   "delivered": 4150,
+   "otd": 0.9561,
+   "median_days": 10.3,
+   "median_seller": 2.0,
+   "median_carrier": 7.1
+  },
+  {
+   "month": "2017-10",
+   "delivered": 4478,
+   "otd": 0.9582,
+   "median_days": 10.3,
+   "median_seller": 2.0,
+   "median_carrier": 7.0
+  },
+  {
+   "month": "2017-11",
+   "delivered": 7288,
+   "otd": 0.876,
+   "median_days": 12.7,
+   "median_seller": 2.7,
+   "median_carrier": 8.8
+  },
+  {
+   "month": "2017-12",
+   "delivered": 5513,
+   "otd": 0.9254,
+   "median_days": 13.1,
+   "median_seller": 2.2,
+   "median_carrier": 9.1
+  },
+  {
+   "month": "2018-01",
+   "delivered": 7069,
+   "otd": 0.943,
+   "median_days": 11.8,
+   "median_seller": 2.1,
+   "median_carrier": 8.0
+  },
+  {
+   "month": "2018-02",
+   "delivered": 6555,
+   "otd": 0.8587,
+   "median_days": 14.3,
+   "median_seller": 2.2,
+   "median_carrier": 11.0
+  },
+  {
+   "month": "2018-03",
+   "delivered": 7003,
+   "otd": 0.8104,
+   "median_days": 13.4,
+   "median_seller": 2.1,
+   "median_carrier": 9.9
+  },
+  {
+   "month": "2018-04",
+   "delivered": 6798,
+   "otd": 0.955,
+   "median_days": 9.3,
+   "median_seller": 1.5,
+   "median_carrier": 6.9
+  },
+  {
+   "month": "2018-05",
+   "delivered": 6749,
+   "otd": 0.9344,
+   "median_days": 9.1,
+   "median_seller": 1.3,
+   "median_carrier": 6.5
+  },
+  {
+   "month": "2018-06",
+   "delivered": 6096,
+   "otd": 0.9884,
+   "median_days": 8.0,
+   "median_seller": 1.2,
+   "median_carrier": 5.9
+  },
+  {
+   "month": "2018-07",
+   "delivered": 6156,
+   "otd": 0.9662,
+   "median_days": 7.5,
+   "median_seller": 1.3,
+   "median_carrier": 5.3
+  },
+  {
+   "month": "2018-08",
+   "delivered": 6351,
+   "otd": 0.9381,
+   "median_days": 7.0,
+   "median_seller": 1.2,
+   "median_carrier": 5.0
+  }
+ ],
+ "states": [
+  {
+   "state": "AL",
+   "delivered": 397,
+   "otd": 0.7859,
+   "median_days": 22.3,
+   "median_promised": 32.0
+  },
+  {
+   "state": "MA",
+   "delivered": 717,
+   "otd": 0.8257,
+   "median_days": 19.2,
+   "median_promised": 31.0
+  },
+  {
+   "state": "SE",
+   "delivered": 335,
+   "otd": 0.8478,
+   "median_days": 18.0,
+   "median_promised": 30.0
+  },
+  {
+   "state": "PI",
+   "delivered": 476,
+   "otd": 0.8613,
+   "median_days": 16.3,
+   "median_promised": 30.0
+  },
+  {
+   "state": "CE",
+   "delivered": 1279,
+   "otd": 0.8624,
+   "median_days": 18.2,
+   "median_promised": 32.0
+  },
+  {
+   "state": "RR",
+   "delivered": 41,
+   "otd": 0.878,
+   "median_days": 25.0,
+   "median_promised": 45.0
+  },
+  {
+   "state": "BA",
+   "delivered": 3256,
+   "otd": 0.8784,
+   "median_days": 16.9,
+   "median_promised": 30.0
+  },
+  {
+   "state": "RJ",
+   "delivered": 12350,
+   "otd": 0.8789,
+   "median_days": 12.0,
+   "median_promised": 25.0
+  },
+  {
+   "state": "PA",
+   "delivered": 946,
+   "otd": 0.8879,
+   "median_days": 21.1,
+   "median_promised": 37.0
+  },
+  {
+   "state": "ES",
+   "delivered": 1995,
+   "otd": 0.8927,
+   "median_days": 13.6,
+   "median_promised": 26.0
+  },
+  {
+   "state": "PB",
+   "delivered": 517,
+   "otd": 0.8956,
+   "median_days": 18.2,
+   "median_promised": 33.0
+  },
+  {
+   "state": "TO",
+   "delivered": 274,
+   "otd": 0.9015,
+   "median_days": 15.9,
+   "median_promised": 29.0
+  },
+  {
+   "state": "MS",
+   "delivered": 701,
+   "otd": 0.903,
+   "median_days": 13.9,
+   "median_promised": 26.0
+  },
+  {
+   "state": "PE",
+   "delivered": 1593,
+   "otd": 0.904,
+   "median_days": 15.7,
+   "median_promised": 32.0
+  },
+  {
+   "state": "RN",
+   "delivered": 474,
+   "otd": 0.9072,
+   "median_days": 16.1,
+   "median_promised": 32.5
+  },
+  {
+   "state": "SC",
+   "delivered": 3546,
+   "otd": 0.9179,
+   "median_days": 13.0,
+   "median_promised": 26.0
+  },
+  {
+   "state": "GO",
+   "delivered": 1957,
+   "otd": 0.9346,
+   "median_days": 13.9,
+   "median_promised": 27.0
+  },
+  {
+   "state": "RS",
+   "delivered": 5344,
+   "otd": 0.9392,
+   "median_days": 13.2,
+   "median_promised": 29.0
+  },
+  {
+   "state": "MT",
+   "delivered": 886,
+   "otd": 0.9402,
+   "median_days": 16.1,
+   "median_promised": 32.0
+  },
+  {
+   "state": "DF",
+   "delivered": 2080,
+   "otd": 0.9433,
+   "median_days": 11.4,
+   "median_promised": 25.0
+  },
+  {
+   "state": "MG",
+   "delivered": 11354,
+   "otd": 0.9543,
+   "median_days": 10.3,
+   "median_promised": 24.0
+  },
+  {
+   "state": "SP",
+   "delivered": 40494,
+   "otd": 0.9551,
+   "median_days": 7.2,
+   "median_promised": 19.0
+  },
+  {
+   "state": "PR",
+   "delivered": 4923,
+   "otd": 0.9596,
+   "median_days": 10.4,
+   "median_promised": 25.0
+  },
+  {
+   "state": "AC",
+   "delivered": 80,
+   "otd": 0.9625,
+   "median_days": 18.4,
+   "median_promised": 41.0
+  },
+  {
+   "state": "AP",
+   "delivered": 67,
+   "otd": 0.9701,
+   "median_days": 24.3,
+   "median_promised": 48.0
+  },
+  {
+   "state": "RO",
+   "delivered": 243,
+   "otd": 0.9712,
+   "median_days": 17.6,
+   "median_promised": 38.0
+  },
+  {
+   "state": "AM",
+   "delivered": 145,
+   "otd": 0.9724,
+   "median_days": 25.9,
+   "median_promised": 46.0
+  }
+ ],
+ "lateness": [
+  {
+   "ord": 1,
+   "bucket": "Вовремя",
+   "reviews": 89443,
+   "avg_score": 4.29,
+   "neg_share": 0.0927
+  },
+  {
+   "ord": 2,
+   "bucket": "1–3 дня",
+   "reviews": 1852,
+   "avg_score": 3.29,
+   "neg_share": 0.3213
+  },
+  {
+   "ord": 3,
+   "bucket": "4–7 дней",
+   "reviews": 1748,
+   "avg_score": 2.1,
+   "neg_share": 0.6762
+  },
+  {
+   "ord": 4,
+   "bucket": "8–14 дней",
+   "reviews": 1446,
+   "avg_score": 1.67,
+   "neg_share": 0.8015
+  },
+  {
+   "ord": 5,
+   "bucket": "15+ дней",
+   "reviews": 1335,
+   "avg_score": 1.72,
+   "neg_share": 0.7835
+  }
+ ],
+ "sellers": [
+  {
+   "seller": "1ca7077d",
+   "state": "SP",
+   "shipments": 112,
+   "on_time": 0.4643
+  },
+  {
+   "seller": "88460e8e",
+   "state": "PR",
+   "shipments": 227,
+   "on_time": 0.489
+  },
+  {
+   "seller": "f4aba7c0",
+   "state": "SP",
+   "shipments": 109,
+   "on_time": 0.5596
+  },
+  {
+   "seller": "213b25e6",
+   "state": "SP",
+   "shipments": 138,
+   "on_time": 0.6159
+  },
+  {
+   "seller": "dd7ddc04",
+   "state": "SP",
+   "shipments": 115,
+   "on_time": 0.6174
+  },
+  {
+   "seller": "7aa4334b",
+   "state": "SP",
+   "shipments": 214,
+   "on_time": 0.6355
+  },
+  {
+   "seller": "8e6cc767",
+   "state": "MG",
+   "shipments": 103,
+   "on_time": 0.6408
+  },
+  {
+   "seller": "37515688",
+   "state": "SP",
+   "shipments": 222,
+   "on_time": 0.6441
+  },
+  {
+   "seller": "79ebd9a6",
+   "state": "PR",
+   "shipments": 125,
+   "on_time": 0.656
+  },
+  {
+   "seller": "4c2b2301",
+   "state": "SP",
+   "shipments": 256,
+   "on_time": 0.6758
+  },
+  {
+   "seller": "2eb70248",
+   "state": "SP",
+   "shipments": 186,
+   "on_time": 0.6774
+  },
+  {
+   "seller": "06a2c3af",
+   "state": "MA",
+   "shipments": 391,
+   "on_time": 0.6854
+  },
+  {
+   "seller": "7c67e144",
+   "state": "SP",
+   "shipments": 970,
+   "on_time": 0.7021
+  },
+  {
+   "seller": "c31eff83",
+   "state": "SP",
+   "shipments": 118,
+   "on_time": 0.7203
+  },
+  {
+   "seller": "431af27f",
+   "state": "SP",
+   "shipments": 115,
+   "on_time": 0.7304
+  }
+ ]
+}
+</script>
+
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById('dash-data').textContent);
+  const OTD_LIMIT = 0.9;   // порог «нормального» месяца и штата
+  const MIN_SHIP = 100;    // продавцы в рейтинге — от стольких отгрузок (совпадает с HAVING в скрипте)
+  const BIG_STATE = 1000;  // «крупный» штат для вывода в шапке
+  const NS = 'http://www.w3.org/2000/svg';
+  const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+  const MONTHS_LONG = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  const MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+  const group = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const fixed = (v, k) => {
+    const [i, f] = Number(v).toFixed(k).split('.');
+    return f ? `${group(i)}.${f}` : group(i);
+  };
+  const F = {
+    pct: (v) => `${fixed(v * 100, 1)}%`,
+    pct0: (v) => `${fixed(v * 100, 0)}%`,
+    int: (v) => fixed(v, 0),
+    d0: (v) => fixed(v, 0),
+    d1: (v) => fixed(v, 1),
+    d2: (v) => fixed(v, 2),
+    date: (s) => { const [y, m, d] = s.split('-'); return `${Number(d)} ${MONTHS_GEN[Number(m) - 1]} ${y}`; }
+  };
+  const monthName = (ym) => { const [y, m] = ym.split('-'); return `${MONTHS_LONG[Number(m) - 1]} ${y}`; };
+  const get = (path) => path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), DATA);
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  if (!DATA.kpi) {
+    document.querySelector('.headline').textContent = 'Данных нет: запустите python solution/build_dashboard.py';
+    return;
+  }
+
+  document.querySelectorAll('[data-v]').forEach((el) => {
+    const v = get(el.dataset.v);
+    if (v != null) el.textContent = F[el.dataset.f || 'd1'](v);
+  });
+  document.querySelectorAll('[data-c="limit"]').forEach((el) => { el.textContent = F.pct0(OTD_LIMIT); });
+  document.querySelectorAll('[data-c="minship"]').forEach((el) => { el.textContent = F.int(MIN_SHIP); });
+  const worstMonth = DATA.monthly.reduce((a, b) => (b.otd < a.otd ? b : a));
+  const worstState = DATA.states.filter((s) => s.delivered >= BIG_STATE).reduce((a, b) => (b.otd < a.otd ? b : a));
+  document.querySelectorAll('[data-x="worst-month"]').forEach((el) => { el.textContent = `${monthName(worstMonth.month)}, ${F.pct(worstMonth.otd)}`; });
+  document.querySelectorAll('[data-x="worst-state"]').forEach((el) => { el.textContent = `${worstState.state}, ${F.pct(worstState.otd)}`; });
+  const approveMin = Math.round(DATA.kpi.median_approve * 24 * 60);
+  document.querySelectorAll('[data-x="approve-time"]').forEach((el) => { el.textContent = `≈${approveMin} мин на оплату`; });
+
+  // Полоски «факт против обещания» на одной шкале
+  const vsMax = Math.max(DATA.kpi.p90_days, DATA.kpi.median_promised);
+  [['vs-fact', DATA.kpi.median_days], ['vs-p90', DATA.kpi.p90_days], ['vs-prom', DATA.kpi.median_promised]].forEach(([id, v]) => {
+    document.getElementById(id).style.width = `calc(${v / vsMax} * (100% - 70px))`;
+  });
+
+  // --- SVG-помощники ---
+  function svgEl(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+    if (parent) parent.append(e);
+    return e;
+  }
+  function text(parent, x, y, str, attrs) {
+    const t = svgEl('text', { x, y, ...attrs }, parent);
+    t.textContent = str;
+    return t;
+  }
+  function textWidth(svg, strings, cls) {
+    let w = 0;
+    strings.forEach((s) => {
+      const t = text(svg, 0, 0, s, cls ? { class: cls } : {});
+      w = Math.max(w, t.getComputedTextLength());
+      t.remove();
+    });
+    return w;
+  }
+  const lin = (d0, d1, r0, r1) => (v) => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+  function niceTicks(lo, hi, n) {
+    const raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((s) => s >= raw);
+    const ticks = [];
+    for (let v = Math.floor(lo / step + 1e-9) * step; v <= hi + step * 1e-9; v += step) ticks.push(+v.toFixed(10));
+    if (ticks[ticks.length - 1] < hi) ticks.push(+(ticks[ticks.length - 1] + step).toFixed(10));
+    return ticks;
+  }
+  // Горизонтальный столбец: квадратный у базовой линии, скруглённый 4px на конце данных.
+  function hbar(x0, x1, y, h) {
+    const r = Math.min(4, (x1 - x0) / 2, h / 2);
+    return `M${x0},${y}H${x1 - r}A${r},${r} 0 0 1 ${x1},${y + r}V${y + h - r}A${r},${r} 0 0 1 ${x1 - r},${y + h}H${x0}Z`;
+  }
+  function makeTip(box) {
+    const tip = document.createElement('div');
+    tip.className = 'tip';
+    tip.hidden = true;
+    box.append(tip);
+    return {
+      // rows: [цвет ключа | null, значение, подпись]
+      show(head, rows, px, py) {
+        tip.replaceChildren();
+        const h = document.createElement('div');
+        h.className = 'h';
+        h.textContent = head;
+        tip.append(h);
+        rows.forEach(([color, value, label]) => {
+          const r = document.createElement('div');
+          r.className = 'r';
+          if (color) { const k = document.createElement('i'); k.className = 'k'; k.style.background = color; r.append(k); }
+          const b = document.createElement('b');
+          b.textContent = value;
+          const s = document.createElement('span');
+          s.textContent = label;
+          r.append(b, s);
+          tip.append(r);
+        });
+        tip.hidden = false;
+        const tw = tip.offsetWidth, bw = box.clientWidth;
+        const left = px + 16 + tw > bw ? Math.max(0, px - 16 - tw) : px + 16;
+        tip.style.transform = `translate(${left}px, ${Math.max(0, py - 14)}px)`;
+      },
+      hide() { tip.hidden = true; }
+    };
+  }
+
+  // --- Пиксельный декор обложки: настоящая доля «вовремя» по месяцам, нарисованная квадратиками ---
+  (function pixels() {
+    const svg = document.getElementById('pixels');
+    const rows = DATA.monthly, cell = 14, gap = 3, levels = 14;
+    const lo = 0.78, hi = 1.0;
+    const W = rows.length * 2 * (cell + gap), H = (levels + 1) * (cell + gap);
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const lv = rows.map((r) => Math.round((Math.max(lo, Math.min(hi, r.otd)) - lo) / (hi - lo) * levels));
+    const put = (cx, cy) => svgEl('rect', { x: cx * (cell + gap), y: (levels - cy) * (cell + gap), width: cell, height: cell, fill: '#fff' }, svg);
+    lv.forEach((l, i) => {
+      put(i * 2, l);
+      const nxt = lv[i + 1];
+      if (nxt == null) return;
+      // ступенька к следующему месяцу: горизонтальный шаг и вертикальный перепад
+      const a = Math.min(l, nxt), b = Math.max(l, nxt);
+      for (let k = a; k <= b; k++) put(i * 2 + 1, k);
+    });
+  })();
+
+  // --- Линии по месяцам ---
+  function monthLines(box, rows, series, opt) {
+    box.replaceChildren();
+    const W = Math.max(300, box.clientWidth), H = opt.height, mb = 28, mt = 12;
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': opt.label }, box);
+    const surface = css('--panel');
+    const vals = rows.flatMap((r) => series.map((s) => r[s.key]));
+    const [lo, hi] = opt.domain(vals);
+    const yt = niceTicks(lo, hi, 4);
+    const y = lin(yt[0], yt[yt.length - 1], H - mb, mt);
+    const last = rows[rows.length - 1];
+    const endStr = (s) => s.fmt(last[s.key]);
+    const ml = textWidth(svg, yt.map(opt.yFmt)) + 12;
+    const mr = textWidth(svg, series.map(endStr).concat(opt.refLabel ? [opt.refLabel] : []), 'lab') + 18;
+    const x = lin(0, rows.length - 1, ml, W - mr);
+
+    if (opt.ref != null) {
+      svgEl('rect', { x: ml, y: y(opt.ref), width: W - mr - ml, height: (H - mb) - y(opt.ref), fill: css('--pink-wash') }, svg);
+    }
+    yt.forEach((t, i) => {
+      if (i > 0) svgEl('line', { x1: ml, x2: W - mr, y1: y(t), y2: y(t), stroke: css('--grid') }, svg);
+      text(svg, ml - 10, y(t), opt.yFmt(t), { 'text-anchor': 'end', 'dominant-baseline': 'middle' });
+    });
+    svgEl('line', { x1: ml, x2: W - mr, y1: H - mb, y2: H - mb, stroke: css('--axis') }, svg);
+    const step = W < 560 ? 6 : 3;
+    rows.forEach((r, i) => {
+      const m = Number(r.month.slice(5)) - 1;
+      if (m % step !== 0) return;
+      svgEl('line', { x1: x(i), x2: x(i), y1: H - mb, y2: H - mb + 4, stroke: css('--axis') }, svg);
+      text(svg, x(i), H - 7, m === 0 ? r.month.slice(0, 4) : MONTHS[m], { 'text-anchor': 'middle', class: m === 0 ? 'lab2' : '' });
+    });
+    if (opt.ref != null) {
+      svgEl('line', { x1: ml, x2: W - mr, y1: y(opt.ref), y2: y(opt.ref), stroke: css('--pink'), 'stroke-width': 1 }, svg);
+      if (opt.refLabel) text(svg, W - mr + 8, y(opt.ref), opt.refLabel, { 'dominant-baseline': 'middle', class: 'lab2' });
+    }
+
+    series.forEach((s) => {
+      if (opt.area) {
+        const a = rows.map((r, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(r[s.key]).toFixed(1)}`).join('')
+          + `L${x(rows.length - 1)},${H - mb}L${x(0)},${H - mb}Z`;
+        svgEl('path', { d: a, fill: s.color, 'fill-opacity': 0.1 }, svg);
+      }
+      const d = rows.map((r, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(r[s.key]).toFixed(1)}`).join('');
+      svgEl('path', { d, fill: 'none', stroke: s.color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+    });
+    // отмеченные точки (ниже порога) и подписи к ним: текст тёмный, цвет несёт только точка
+    if (opt.isBad) {
+      const s = series[0];
+      rows.forEach((r, i) => {
+        if (!opt.isBad(r)) return;
+        svgEl('circle', { cx: x(i), cy: y(r[s.key]), r: 5, fill: css('--pink'), stroke: surface, 'stroke-width': 2 }, svg);
+        text(svg, x(i), y(r[s.key]) + 20, `${MONTHS[Number(r.month.slice(5)) - 1]} ${F.pct0(r[s.key])}`, { 'text-anchor': 'middle', class: 'lab' });
+      });
+    }
+    // концы линий: точка цвета серии + значение тёмным текстом
+    const endYs = series.map((s) => y(last[s.key]));
+    for (let i = 1; i < endYs.length; i++) {
+      if (Math.abs(endYs[i] - endYs[i - 1]) < 16) endYs[i] = endYs[i - 1] + (endYs[i] >= endYs[i - 1] ? 16 : -16);
+    }
+    series.forEach((s, si) => {
+      svgEl('circle', { cx: x(rows.length - 1), cy: y(last[s.key]), r: 4, fill: s.color, stroke: surface, 'stroke-width': 2 }, svg);
+      text(svg, W - mr + 10, endYs[si], endStr(s), { class: 'lab', 'dominant-baseline': 'middle' });
+    });
+
+    const rule = svgEl('line', { y1: mt, y2: H - mb, stroke: css('--ink-2'), 'stroke-width': 1, visibility: 'hidden' }, svg);
+    const focus = series.map((s) => svgEl('circle', { r: 5, fill: s.color, stroke: surface, 'stroke-width': 2, visibility: 'hidden' }, svg));
+    const tip = makeTip(box);
+    let cur = -1;
+    const show = (i) => {
+      cur = i;
+      const r = rows[i];
+      rule.setAttribute('x1', x(i)); rule.setAttribute('x2', x(i)); rule.setAttribute('visibility', 'visible');
+      series.forEach((s, si) => { focus[si].setAttribute('cx', x(i)); focus[si].setAttribute('cy', y(r[s.key])); focus[si].setAttribute('visibility', 'visible'); });
+      const k = W / svg.getBoundingClientRect().width;
+      tip.show(monthName(r.month), opt.tip(r), x(i) / k, Math.min(...series.map((s) => y(r[s.key]))) / k);
+    };
+    const hide = () => {
+      cur = -1; tip.hide(); rule.setAttribute('visibility', 'hidden');
+      focus.forEach((f) => f.setAttribute('visibility', 'hidden'));
+    };
+    const hit = svgEl('rect', { x: ml - 8, y: 0, width: W - mr - ml + 16, height: H - mb, fill: 'transparent' }, svg);
+    hit.addEventListener('pointermove', (ev) => {
+      const b = svg.getBoundingClientRect();
+      const mx = (ev.clientX - b.left) * (W / b.width);
+      show(Math.max(0, Math.min(rows.length - 1, Math.round((mx - ml) / (W - mr - ml) * (rows.length - 1)))));
+    });
+    hit.addEventListener('pointerleave', hide);
+    box.onkeydown = (ev) => {
+      if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+      ev.preventDefault();
+      const n = cur < 0 ? rows.length - 1 : cur + (ev.key === 'ArrowRight' ? 1 : -1);
+      show(Math.max(0, Math.min(rows.length - 1, n)));
+    };
+    box.onblur = hide;
+  }
+
+  // --- Горизонтальные столбцы оценки по опозданию ---
+  function lateBars(box, rows) {
+    box.replaceChildren();
+    const W = Math.max(300, box.clientWidth), band = 46, H = rows.length * band + 28;
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Средняя оценка по опозданию' }, box);
+    const fills = [css('--blue'), css('--late-1'), css('--late-2'), css('--late-3'), css('--late-4')];
+    const val = (r) => `${F.d2(r.avg_score)}★`;
+    const neg = (r) => `${F.pct0(r.neg_share)} оценок 1–2★`;
+    const ml = textWidth(svg, rows.map((r) => r.bucket), 'lab') + 14;
+    const mr = textWidth(svg, rows.map(val), 'lab') + textWidth(svg, rows.map(neg)) + 30;
+    const x = lin(0, 5, ml, W - mr);
+    for (let t = 0; t <= 5; t++) {
+      svgEl('line', { x1: x(t), x2: x(t), y1: 0, y2: H - 28, stroke: t === 0 ? css('--axis') : css('--grid') }, svg);
+      text(svg, x(t), H - 8, `${t}★`, { 'text-anchor': 'middle' });
+    }
+    const tip = makeTip(box);
+    rows.forEach((r, i) => {
+      const yc = i * band + band / 2, bh = 24;
+      text(svg, ml - 12, yc, r.bucket, { 'text-anchor': 'end', 'dominant-baseline': 'middle', class: i === 0 ? 'lab' : 'lab2' });
+      const bar = svgEl('path', { d: hbar(x(0), x(r.avg_score), yc - bh / 2, bh), fill: fills[i] || fills[fills.length - 1] }, svg);
+      const t1 = text(svg, x(r.avg_score) + 8, yc, val(r), { class: 'lab', 'dominant-baseline': 'middle' });
+      text(svg, x(r.avg_score) + 8 + t1.getComputedTextLength() + 8, yc, neg(r), { 'dominant-baseline': 'middle' });
+      const hit = svgEl('rect', { x: 0, y: yc - band / 2, width: W, height: band, fill: 'transparent', tabindex: 0 }, svg);
+      const on = (px, py) => {
+        bar.setAttribute('fill-opacity', 0.82);
+        tip.show(r.bucket, [[fills[i], val(r), 'средняя оценка'], [null, F.pct(r.neg_share), 'оценок 1–2★'], [null, F.int(r.reviews), 'отзывов']], px, py);
+      };
+      const off = () => { bar.removeAttribute('fill-opacity'); tip.hide(); };
+      hit.addEventListener('pointermove', (ev) => { const b = box.getBoundingClientRect(); on(ev.clientX - b.left, ev.clientY - b.top); });
+      hit.addEventListener('pointerleave', off);
+      hit.addEventListener('focus', () => { const k = box.clientWidth / W; on(x(r.avg_score) * k, yc * k); });
+      hit.addEventListener('blur', off);
+    });
+  }
+
+  // --- Таблицы ---
+  function td(tr, str, cls) {
+    const c = tr.insertCell();
+    c.textContent = str;
+    if (cls) c.className = cls;
+    return c;
+  }
+  function barTd(tr, share) {
+    const c = tr.insertCell();
+    const wrap = document.createElement('div');
+    wrap.className = 'mbar' + (share < OTD_LIMIT ? ' bad' : '');
+    const track = document.createElement('div');
+    track.className = 'track';
+    const fill = document.createElement('div');
+    fill.className = 'fill';
+    fill.style.width = `${Math.max(0, Math.min(1, share)) * 100}%`;
+    track.append(fill);
+    const s = document.createElement('span');
+    s.textContent = F.pct(share);
+    wrap.append(track, s);
+    c.append(wrap);
+  }
+  const maxPromised = Math.max(...DATA.states.map((r) => r.median_promised));
+  function spanTd(tr, fact, promised) {
+    const c = tr.insertCell();
+    const wrap = document.createElement('div');
+    wrap.className = 'span';
+    const track = document.createElement('div');
+    track.className = 'track';
+    const f = document.createElement('div');
+    f.className = 'fact';
+    f.style.width = `${fact / maxPromised * 100}%`;
+    const p = document.createElement('div');
+    p.className = 'prom';
+    p.style.left = `${promised / maxPromised * 100}%`;
+    track.append(f, p);
+    const s = document.createElement('span');
+    const b = document.createElement('b');
+    b.textContent = F.d1(fact);
+    s.append(b, ` / ${F.d0(promised)}`);
+    wrap.append(track, s);
+    c.append(wrap);
+  }
+  const sb = document.getElementById('states-body');
+  DATA.states.forEach((r) => {
+    const tr = sb.insertRow();
+    td(tr, r.state); td(tr, F.int(r.delivered), 'num wide-only'); barTd(tr, r.otd); spanTd(tr, r.median_days, r.median_promised);
+  });
+  const lb = document.getElementById('sellers-body');
+  DATA.sellers.forEach((r) => {
+    const tr = lb.insertRow();
+    td(tr, r.seller, 'mono'); td(tr, r.state); td(tr, F.int(r.shipments), 'num'); barTd(tr, r.on_time);
+  });
+  const mb = document.getElementById('month-body');
+  DATA.monthly.forEach((r) => {
+    const tr = mb.insertRow();
+    td(tr, monthName(r.month)); td(tr, F.int(r.delivered), 'num'); td(tr, F.pct(r.otd), 'num');
+    td(tr, F.d1(r.median_days), 'num'); td(tr, F.d1(r.median_seller), 'num'); td(tr, F.d1(r.median_carrier), 'num');
+  });
+
+  // --- Отрисовка и перерисовка при смене ширины и после загрузки шрифтов ---
+  const otdBox = document.getElementById('otd-chart');
+  const stageBox = document.getElementById('stage-chart');
+  const lateBox = document.getElementById('late-chart');
+  function draw() {
+    const blue = css('--blue');
+    monthLines(otdBox, DATA.monthly, [{ key: 'otd', color: blue, fmt: F.pct }], {
+      height: 280, label: 'Доля доставленных вовремя по месяцам', ref: OTD_LIMIT, refLabel: `порог ${F.pct0(OTD_LIMIT)}`,
+      domain: (v) => [Math.min(0.75, Math.min(...v)), 1], yFmt: F.pct0,
+      isBad: (r) => r.otd < OTD_LIMIT,
+      tip: (r) => [[blue, F.pct(r.otd), 'вовремя'], [null, F.int(r.delivered), 'доставлено'], [null, `${F.d1(r.median_days)} дн.`, 'медиана срока']]
+    });
+    const st = [
+      { key: 'median_carrier', name: 'перевозка', color: css('--pink'), fmt: (v) => `${F.d1(v)} дн.` },
+      { key: 'median_seller', name: 'продавец', color: blue, fmt: (v) => `${F.d1(v)} дн.` }
+    ];
+    monthLines(stageBox, DATA.monthly, st, {
+      height: 250, label: 'Медиана этапов по месяцам', area: true,
+      domain: (v) => [0, Math.max(...v)], yFmt: F.d0,
+      tip: (r) => st.map((s) => [s.color, s.fmt(r[s.key]), s.name])
+    });
+    lateBars(lateBox, DATA.lateness);
+  }
+  draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  let lastW = 0, raf = 0;
+  new ResizeObserver(() => {
+    const w = otdBox.clientWidth;
+    if (w === lastW) return;
+    lastW = w;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(draw);
+  }).observe(document.querySelector('main'));
+})();
+</script>
+</body>
+</html>
