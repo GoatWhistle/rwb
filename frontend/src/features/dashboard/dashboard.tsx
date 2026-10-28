@@ -299,16 +299,16 @@ function TabCards({
       )}
       {tab === "delivery" && (
         <div className="dg">
-          <div className="dg-8">
+          <div className="dtop-7">
             <DeliveryDays rows={rowsOf(q.deliveryDays.data)} query={q.deliveryDays} index={4} />
           </div>
-          <div className="dg-4">
+          <div className="dtop-5">
             <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={5} />
           </div>
-          <div className="dg-8">
+          <div className="dtop-7">
             <DeliveryStages rows={rowsOf(q.stages.data)} query={q.stages} index={6} />
           </div>
-          <div className="dg-4">
+          <div className="dtop-5">
             <OnTimeMap rows={rowsOf(q.states.data)} query={q.states} index={7} />
           </div>
           <div className="dg-12">
