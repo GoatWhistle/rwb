@@ -53,26 +53,18 @@
       }
     })
     const top = PLATES[2].top
-    const cx = 500
-    const cy = top + N * B
-    kit.svg("ellipse", { cx, cy, rx: 190, ry: 95, class: "st-glow" }, svg)
+    const H = 2 * A
+    const up = (p) => [p[0], p[1] - H]
+    const b0 = point(top, 4, 4)
+    const b1 = point(top, 6, 4)
+    const b2 = point(top, 6, 6)
+    const b3 = point(top, 4, 6)
+    kit.svg("polygon", { points: poly([b0, b1, b2, b3]), class: "st-shadow" }, svg)
     const cube = kit.svg("g", { class: "st-cube" }, svg)
-    const s = 70
-    const h = 70
-    const c0 = [cx, cy - 30]
-    const tTop = [c0[0], c0[1] - s * 0.5]
-    const tR = [c0[0] + s, c0[1]]
-    const tB = [c0[0], c0[1] + s * 0.5]
-    const tL = [c0[0] - s, c0[1]]
-    const down = (p) => [p[0], p[1] + h]
-    kit.svg("polygon", { points: poly([tL, tB, down(tB), down(tL)]), class: "st-cube-l" }, cube)
-    kit.svg("polygon", { points: poly([tB, tR, down(tR), down(tB)]), class: "st-cube-r" }, cube)
-    kit.svg("polygon", { points: poly([tTop, tR, tB, tL]), class: "st-cube-t" }, cube)
+    kit.svg("polygon", { points: poly([up(b3), up(b2), b2, b3]), class: "st-cube-l" }, cube)
+    kit.svg("polygon", { points: poly([up(b2), up(b1), b1, b2]), class: "st-cube-r" }, cube)
+    kit.svg("polygon", { points: poly([up(b0), up(b1), up(b2), up(b3)]), class: "st-cube-t" }, cube)
     cube.style.setProperty("--d", `${(delay + 2.05).toFixed(2)}s`)
-    for (let k = 0; k < 3; k += 1) {
-      const ring = kit.svg("ellipse", { cx, cy: cy + 10, rx: 120, ry: 60, class: "st-ring" }, svg)
-      ring.style.setProperty("--d", `${(delay + 2.8 + k * 0.8).toFixed(2)}s`)
-    }
     svg.classList.add(`is-${mode}`)
   }
 })()

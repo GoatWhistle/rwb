@@ -1,12 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query"
-import {
-  ChevronRight,
-  LayoutDashboard,
-  MessageSquare,
-  PanelLeftClose,
-  PanelLeftOpen,
-  RefreshCw,
-} from "lucide-react"
+import { MessageSquare, RefreshCw } from "lucide-react"
 import { useState } from "react"
 import { ChatPanel } from "@/features/chat/chat-panel"
 import { Dashboard } from "@/features/dashboard/dashboard"
@@ -15,6 +8,7 @@ import type { DashboardContext, Filters } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { IconButton } from "@/shared/ui/controls"
 import { DatumLogo } from "@/shared/ui/datum-logo"
+import "@/shared/styles/shell.css"
 import "@/shared/styles/dashboard.css"
 import "@/shared/styles/chat.css"
 
@@ -23,7 +17,6 @@ export function App() {
   const [filters, setFilters] = useState<Filters>(initialFilters)
   const [chatOpen, setChatOpen] = useState(() => window.innerWidth > 768)
   const [chatWidth, setChatWidth] = useState(() => (window.innerWidth <= 1024 ? 360 : 400))
-  const [navOpen, setNavOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [context, setContext] = useState<DashboardContext>({ filters })
   const [contextName, setContextName] = useState("")
@@ -44,65 +37,25 @@ export function App() {
   }
   return (
     <div
-      className={`app-shell ${chatOpen ? "chat-open" : ""} ${expanded && chatOpen ? "chat-expanded" : ""} ${navOpen ? "nav-expanded" : ""}`}
+      className={`app-shell ${chatOpen ? "chat-open" : ""} ${expanded && chatOpen ? "chat-expanded" : ""}`}
       style={{ "--chat-width": `${chatWidth}px` } as React.CSSProperties}
     >
       <a href="#main" className="skip-link">
         {ru.skip}
       </a>
-      <nav className="app-rail" aria-label={ru.product}>
-        <div className="nav-heading">
-          {navOpen && (
-            <a href="/" className="nav-logo" aria-label={ru.product}>
-              <DatumLogo />
-            </a>
-          )}
-          <IconButton
-            label={navOpen ? ru.closeNav : ru.openNav}
-            aria-expanded={navOpen}
-            onClick={() => setNavOpen(!navOpen)}
-          >
-            {navOpen ? <PanelLeftClose size={19} /> : <PanelLeftOpen size={19} />}
-          </IconButton>
-        </div>
-        <div className="rail-links">
-          <IconButton
-            label={ru.overview}
-            className="rail-active"
-            onClick={() => document.getElementById("main")?.focus()}
-          >
-            <LayoutDashboard size={20} />
-            {navOpen && <span>{ru.overview}</span>}
-          </IconButton>
-        </div>
-        <div className="rail-bottom">
-          <span className="workspace-avatar" title={ru.workspace}>
-            C
-          </span>
-        </div>
-      </nav>
-      <header className="app-header">
-        <div className="header-brand">
-          <span>{ru.workspace}</span>
-          <ChevronRight size={14} />
-          <span className="header-location">{ru.analytics}</span>
-        </div>
+      <header className="app-header shell-enter">
+        <a href="/" className="header-logo" aria-label={ru.product}>
+          <DatumLogo className="datum-logo-intro" />
+        </a>
         <div className="header-actions">
           <IconButton
-            className="mobile-nav-toggle"
-            label={navOpen ? ru.closeNav : ru.openNav}
-            aria-expanded={navOpen}
-            onClick={() => setNavOpen(!navOpen)}
-          >
-            {navOpen ? <PanelLeftClose size={19} /> : <PanelLeftOpen size={19} />}
-          </IconButton>
-          <IconButton
+            className="refresh-button"
             label={ru.refresh}
             onClick={() => {
               void client.invalidateQueries({ queryKey: ["metric"] })
             }}
           >
-            <RefreshCw size={17} />
+            <RefreshCw size={18} />
           </IconButton>
           <IconButton
             label={chatOpen ? ru.closeChat : ru.openChat}
@@ -113,7 +66,12 @@ export function App() {
           </IconButton>
         </div>
       </header>
-      <main id="main" tabIndex={-1} className="main-area">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="main-area shell-enter"
+        style={{ "--i": 1 } as React.CSSProperties}
+      >
         <Dashboard filters={filters} onFilters={updateFilters} onAsk={ask} />
       </main>
       {chatOpen && (
@@ -149,7 +107,11 @@ export function App() {
           onPointerUp={(e) => e.currentTarget.releasePointerCapture(e.pointerId)}
         />
       )}
-      <div className="chat-area" hidden={!chatOpen}>
+      <div
+        className="chat-area shell-enter"
+        style={{ "--i": 2 } as React.CSSProperties}
+        hidden={!chatOpen}
+      >
         <ChatPanel
           active={chatOpen}
           context={context}
