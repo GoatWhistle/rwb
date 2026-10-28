@@ -158,15 +158,7 @@ export function SalesTrend({
       query={query}
       index={index}
       className="os-card"
-      actions={
-        <CardTools
-          help={ru.trendNote}
-          rows={rows}
-          filename="datum-monthly"
-          view={view}
-          onView={setView}
-        />
-      }
+      actions={<CardTools rows={rows} filename="datum-monthly" view={view} onView={setView} />}
     >
       <TrendHead
         rows={rows}
@@ -229,12 +221,11 @@ export function Categories({
       title={ru.categories}
       accent="выручку"
       description={ru.categoriesNote}
+      hint={ru.tips.categories}
       query={query}
       index={index}
       className="os-card"
-      actions={
-        <CardTools help={ru.tips.categories} rows={rows} filename="datum-categories" png={false} />
-      }
+      actions={<CardTools rows={rows} filename="datum-categories" png={false} />}
     >
       {rows.length === 0 ? (
         <EmptyState />
@@ -274,18 +265,12 @@ export function Sellers({
       title={ru.sellers}
       accent="больше"
       description={ru.sellersNote}
+      hint={ru.tips.sellers}
       query={query}
       index={index}
       className="os-card"
       actions={
-        <CardTools
-          help={ru.tips.sellers}
-          rows={rows}
-          filename="datum-sellers"
-          view={view}
-          onView={setView}
-          png={false}
-        />
+        <CardTools rows={rows} filename="datum-sellers" view={view} onView={setView} png={false} />
       }
     >
       {rows.length === 0 ? (

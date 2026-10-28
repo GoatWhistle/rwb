@@ -1,10 +1,10 @@
-import { BarChart3, Download, MessageSquare, MoreHorizontal, Table2 } from "lucide-react"
+import { BarChart3, Download, MoreHorizontal, Table2 } from "lucide-react"
 import type { CSSProperties, MouseEvent, ReactNode } from "react"
 import { useState } from "react"
 import type { Row } from "@/shared/format"
 import { downloadCsv } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
-import { ErrorState, IconButton } from "@/shared/ui/controls"
+import { ErrorState, HintLabel, IconButton } from "@/shared/ui/controls"
 import "@/shared/styles/overview-sales.css"
 
 export interface CardQuery {
@@ -29,6 +29,8 @@ export function Card({
   title,
   accent,
   description,
+  hint,
+  onAsk,
   actions,
   query,
   index = 0,
@@ -38,6 +40,8 @@ export function Card({
   title: string
   accent: string
   description?: string | undefined
+  hint?: string | undefined
+  onAsk?: (() => void) | undefined
   actions?: ReactNode
   query?: CardQuery | undefined
   index?: number | undefined
@@ -64,7 +68,16 @@ export function Card({
       <div className="panel-heading">
         <div>
           <h2>
-            <AccentTitle text={title} accent={accent} />
+            {hint ? (
+              <HintLabel
+                className="hint-title"
+                label={<AccentTitle text={title} accent={accent} />}
+                text={hint}
+                onAsk={onAsk}
+              />
+            ) : (
+              <AccentTitle text={title} accent={accent} />
+            )}
           </h2>
           {description && <p>{description}</p>}
         </div>
@@ -111,16 +124,12 @@ function downloadPng(event: MouseEvent<HTMLElement>, filename: string) {
 }
 
 export function CardTools({
-  help,
-  onAsk,
   rows,
   filename,
   view,
   onView,
   png = true,
 }: {
-  help: string
-  onAsk?: (() => void) | undefined
   rows: Row[]
   filename: string
   view?: "chart" | "table" | undefined
@@ -144,21 +153,6 @@ export function CardTools({
         </IconButton>
         {open && (
           <div className="os-menu-list" role="menu">
-            <p className="os-menu-help">{help}</p>
-            {onAsk && (
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  onAsk()
-                  setOpen(false)
-                }}
-              >
-                <MessageSquare size={14} />
-                {ru.ask}
-              </button>
-            )}
-            <hr />
             {view && onView && (
               <>
                 <button
@@ -199,18 +193,19 @@ export function CardTools({
               <Download size={14} />
               Скачать CSV
             </button>
-            <button
-              type="button"
-              role="menuitem"
-              disabled={!png || view === "table"}
-              onClick={(e) => {
-                downloadPng(e, `${filename}.png`)
-                setOpen(false)
-              }}
-            >
-              <Download size={14} />
-              Скачать PNG
-            </button>
+            {png && view !== "table" && (
+              <button
+                type="button"
+                role="menuitem"
+                onClick={(e) => {
+                  downloadPng(e, `${filename}.png`)
+                  setOpen(false)
+                }}
+              >
+                <Download size={14} />
+                Скачать PNG
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -617,3 +617,40 @@
 .dashboard .metric-grid > *:focus-within {
   z-index: 6;
 }
+.hint-title .hint-trigger {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-decoration-color: #d4d4d9;
+}
+.os-menu-list {
+  min-width: 200px;
+  padding: 6px;
+  gap: 2px;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(29 29 27 / 0.12);
+}
+.os-menu-list button {
+  height: 36px;
+  padding: 0 12px;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 13.5px;
+}
+.os-menu-list button svg {
+  color: #5e5e66;
+}
+.os-menu-list hr {
+  margin: 4px 6px;
+  border: 0;
+  border-top: 1px solid #e2e2e7;
+}
+.dashboard .metric-grid > *:nth-last-child(-n + 2) .hint-pop {
+  left: auto;
+  right: -8px;
+  transform-origin: calc(100% - 16px) 0;
+}
+.dashboard .os-card .os-more {
+  padding: 0 10px 0 14px;
+}

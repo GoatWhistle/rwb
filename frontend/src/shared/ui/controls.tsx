@@ -35,14 +35,16 @@ export function HintLabel({
   label,
   text,
   onAsk,
+  className = "",
 }: {
-  label: string
+  label: ReactNode
   text: string
   onAsk?: (() => void) | undefined
+  className?: string
 }) {
   const id = useId()
   return (
-    <span className="hint">
+    <span className={`hint ${className}`}>
       <button type="button" className="hint-trigger" aria-describedby={id}>
         {label}
       </button>

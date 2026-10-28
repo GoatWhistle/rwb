@@ -109,6 +109,7 @@ export function Lateness({
       title={ru.lateness}
       accent="оценку"
       description="Средняя оценка отзыва по сроку доставки, из 5"
+      hint={ru.tips.lateness}
       query={query}
       index={index}
     >
