@@ -49,7 +49,7 @@ export function Dashboard({
   const sellers = useMetric("block_a.2", filters, salesTab)
   const kpi = useMetric("dashboard.kpi", filters, overview || delivery)
   const deliveryMonthly = useMetric("dashboard.monthly", filters, delivery)
-  const states = useMetric("dashboard.states", filters, overview || delivery)
+  const states = useMetric("dashboard.states", filters, !salesTab)
   const lateness = useMetric("dashboard.lateness", filters, delivery)
   const sellerDelivery = useMetric("dashboard.sellers", filters, delivery)
   const kpiQueries = {
@@ -125,7 +125,9 @@ export function Dashboard({
           tab={tab}
           q={{ monthly, categories, sellers, states, deliveryMonthly, lateness, sellerDelivery }}
         />
-        {tab === "customers" && <CustomerProfile returnedPct={returnedPct} />}
+        {tab === "customers" && (
+          <CustomerProfile returnedPct={returnedPct} states={rowsOf(states.data)} />
+        )}
       </div>
     </div>
   )

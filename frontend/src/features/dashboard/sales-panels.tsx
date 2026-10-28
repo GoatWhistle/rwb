@@ -1,24 +1,137 @@
-import { Download, Table2, TrendingUp } from "lucide-react"
+import type { CSSProperties } from "react"
 import { useState } from "react"
 import type { MetricResult } from "@/shared/api/metrics"
 import type { Row } from "@/shared/format"
-import {
-  categoryName,
-  compact,
-  downloadCsv,
-  money,
-  month,
-  number,
-  numeric,
-  percent,
-} from "@/shared/format"
+import { categoryName, compact, money, month, number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
-import { Button, EmptyState, IconButton, Tip } from "@/shared/ui/controls"
+import { Button, EmptyState } from "@/shared/ui/controls"
 import { DataTable } from "@/shared/ui/data-table"
 import { Money } from "@/shared/ui/money"
 import type { CardQuery } from "./card"
-import { Card } from "./card"
+import { Card, CardTools } from "./card"
+
+const shareFormat = new Intl.NumberFormat("ru-RU", { style: "percent", maximumFractionDigits: 1 })
+const priorLabel = "Год назад"
+
+function withPriorYear(rows: Row[], key: string): Row[] {
+  const byMonth = new Map(rows.map((row) => [String(row.month).slice(0, 7), numeric(row[key])]))
+  return rows.map((row) => {
+    const at = String(row.month).slice(0, 7)
+    const prev = `${Number(at.slice(0, 4)) - 1}${at.slice(4)}`
+    return { ...row, prior_year: byMonth.get(prev) ?? null }
+  })
+}
+
+const titleCase = (text: string) =>
+  text.toLocaleLowerCase("ru").replace(/(^|[\s-])\S/g, (c) => c.toLocaleUpperCase("ru"))
+
+const place = (row: Row) =>
+  [row.city ? titleCase(String(row.city)) : "", row.state ? String(row.state).toUpperCase() : ""]
+    .filter(Boolean)
+    .join(", ")
+
+function BarList({
+  rows,
+  label,
+  value,
+  total,
+  format,
+}: {
+  rows: Row[]
+  label: (row: Row) => string
+  value: string
+  total: number
+  format: (n: number) => string
+}) {
+  const values = rows.map((row) => numeric(row[value]))
+  const max = Math.max(...values.map((n) => n ?? 0), 1)
+  return (
+    <ol className="os-barlist">
+      <li className="os-barlist-head" aria-hidden="true">
+        <span />
+        <span>{ru.revenue}</span>
+        <span>Доля</span>
+      </li>
+      {rows.map((row, i) => {
+        const n = values[i] ?? null
+        const name = label(row)
+        return (
+          <li
+            key={`${name}-${String(i)}`}
+            style={{ "--w": (n ?? 0) / max, "--i": i } as CSSProperties}
+          >
+            <span className="os-bar">
+              <span className="os-bar-fill" />
+              <span className="os-bar-label" title={name}>
+                {name}
+              </span>
+            </span>
+            <strong>{n === null ? ru.noValue : format(n)}</strong>
+            <span>{n === null || total <= 0 ? ru.noValue : shareFormat.format(n / total)}</span>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
+function TrendHead({
+  rows,
+  series,
+  onSeries,
+  prior,
+}: {
+  rows: Row[]
+  series: string
+  onSeries: (series: string) => void
+  prior: boolean
+}) {
+  const last = rows.at(-1),
+    previous = rows.at(-2)
+  const a = numeric(last?.[series]),
+    b = numeric(previous?.[series])
+  const delta = a !== null && b !== null && b !== 0 ? (a - b) / b : null
+  return (
+    <div className="os-chart-head">
+      <div className="os-legend">
+        <Button
+          aria-pressed={series === "revenue"}
+          className={series === "revenue" ? "on" : ""}
+          onClick={() => onSeries("revenue")}
+        >
+          <i />
+          {ru.revenue}
+        </Button>
+        <Button
+          aria-pressed={series === "orders_cnt"}
+          className={series === "orders_cnt" ? "on" : ""}
+          onClick={() => onSeries("orders_cnt")}
+        >
+          <i />
+          {ru.orders}
+        </Button>
+        {prior && (
+          <span className="os-legend-prior">
+            <i />
+            {priorLabel}
+          </span>
+        )}
+      </div>
+      {delta !== null && (
+        <div className={`os-delta ${delta >= 0 ? "up" : "down"}`}>
+          <strong>
+            {delta > 0 ? "+" : delta < 0 ? "−" : ""}
+            {percent(Math.abs(delta))}
+          </strong>
+          <span>
+            {last && previous ? `${month(last.month)} к ${month(previous.month)}` : ru.lastMonth}
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function SalesTrend({
   result,
@@ -30,15 +143,12 @@ export function SalesTrend({
   index?: number
 }) {
   const [series, setSeries] = useState("revenue")
-  const [table, setTable] = useState(false)
+  const [view, setView] = useState<"chart" | "table">("chart")
   const rows = result?.table.rows ?? []
-  const last = rows.at(-1),
-    prior = rows.at(-2)
-  const a = numeric(last?.[series]),
-    b = numeric(prior?.[series])
-  const delta = a !== null && b !== null && b !== 0 ? (a - b) / b : null
   const format = series === "revenue" ? (n: number) => money(n) : number
   const tick = series === "revenue" ? (n: number) => money(n, true) : compact
+  const plotted = withPriorYear(rows, series)
+  const hasPrior = plotted.filter((row) => row.prior_year !== null).length > 1
   return (
     <Card
       title={ru.trend}
@@ -46,64 +156,24 @@ export function SalesTrend({
       description={ru.trendNote}
       query={query}
       index={index}
+      className="os-card"
       actions={
-        <div className="panel-actions">
-          <div className="segmented">
-            <Button
-              className={!table ? "selected" : ""}
-              aria-pressed={!table}
-              onClick={() => setTable(false)}
-              aria-label={ru.chart}
-            >
-              <TrendingUp size={15} />
-            </Button>
-            <Button
-              className={table ? "selected" : ""}
-              aria-pressed={table}
-              onClick={() => setTable(true)}
-              aria-label={ru.table}
-            >
-              <Table2 size={15} />
-            </Button>
-          </div>
-          <IconButton label={ru.export} onClick={() => downloadCsv(rows, "datum-monthly.csv")}>
-            <Download size={16} />
-          </IconButton>
-        </div>
+        <CardTools
+          help={ru.trendNote}
+          rows={rows}
+          filename="datum-monthly"
+          view={view}
+          onView={setView}
+        />
       }
     >
-      <div className="chart-toolbar">
-        <div className="series-switch">
-          <Button
-            aria-pressed={series === "revenue"}
-            className={series === "revenue" ? "active" : ""}
-            onClick={() => setSeries("revenue")}
-          >
-            <span className="legend-dot" />
-            {ru.revenue}
-          </Button>
-          <Button
-            aria-pressed={series === "orders_cnt"}
-            className={series === "orders_cnt" ? "active" : ""}
-            onClick={() => setSeries("orders_cnt")}
-          >
-            <span className="legend-dot" />
-            {ru.orders}
-          </Button>
-        </div>
-        {delta !== null && (
-          <div className="chart-change">
-            <strong>
-              {delta > 0 ? "+" : ""}
-              {percent(delta)}
-            </strong>
-            <span>
-              {last && prior ? `${month(last.month)} / ${month(prior.month)}` : ru.lastMonth}
-            </span>
-          </div>
-        )}
-      </div>
-      {table ? (
+      <TrendHead
+        rows={rows}
+        series={series}
+        onSeries={setSeries}
+        prior={hasPrior && view === "chart"}
+      />
+      {view === "table" ? (
         <DataTable
           rows={rows}
           columns={[
@@ -124,13 +194,15 @@ export function SalesTrend({
         />
       ) : (
         <Chart
-          rows={rows}
+          rows={plotted}
           x="month"
           y={series}
           label={ru.trend}
           formatValue={format}
           formatTick={tick}
           formatLabel={month}
+          compare={hasPrior ? "prior_year" : undefined}
+          compareLabel={priorLabel}
         />
       )}
     </Card>
@@ -149,10 +221,7 @@ export function Categories({
 }) {
   const [all, setAll] = useState(false)
   const shown = all ? rows : rows.slice(0, limit)
-  const max = Math.max(
-    ...rows.map((row) => numeric(row.revenue)).filter((value): value is number => value !== null),
-    1,
-  )
+  const total = rows.reduce((sum, row) => sum + (numeric(row.revenue) ?? 0), 0)
   return (
     <Card
       title={ru.categories}
@@ -160,32 +229,25 @@ export function Categories({
       description={ru.categoriesNote}
       query={query}
       index={index}
-      actions={<Tip text={ru.tips.categories} />}
+      className="os-card"
+      actions={
+        <CardTools help={ru.tips.categories} rows={rows} filename="datum-categories" png={false} />
+      }
     >
-      {rows.length === 0 && <EmptyState />}
-      <div className="category-list">
-        {shown.map((row) => {
-          const revenue = numeric(row.revenue)
-          const share = numeric(row.revenue_pct)
-          return (
-            <div className="category-row" key={String(row.category)}>
-              <div className="category-head">
-                <span title={String(row.category)}>{categoryName(row.category)}</span>
-                <strong>{revenue === null ? ru.noValue : <Money value={revenue} compact />}</strong>
-                <span>{share === null ? ru.noValue : percent(share / 100)}</span>
-              </div>
-              {revenue !== null && (
-                <div className="category-track">
-                  <div className="hbar-fill" style={{ width: `${(revenue / max) * 100}%` }} />
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
+      {rows.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <BarList
+          rows={shown}
+          label={(row) => categoryName(row.category)}
+          value="revenue"
+          total={total}
+          format={(n) => money(n, true)}
+        />
+      )}
       {rows.length > limit && (
-        <Button className="text-button" onClick={() => setAll(!all)}>
-          {all ? ru.showLess : ru.showAll}
+        <Button className="os-more" onClick={() => setAll(!all)}>
+          {all ? ru.showLess : `${ru.showAll} · ${number(rows.length)}`}
         </Button>
       )}
     </Card>
@@ -200,6 +262,9 @@ export function Sellers({
   query?: CardQuery
   index?: number
 }) {
+  const [view, setView] = useState<"chart" | "table">("chart")
+  const labelled = rows.map((row) => ({ ...row, place: place(row) || ru.noValue }))
+  const total = rows.reduce((sum, row) => sum + (numeric(row.revenue) ?? 0), 0)
   return (
     <Card
       title={ru.sellers}
@@ -207,24 +272,50 @@ export function Sellers({
       description={ru.sellersNote}
       query={query}
       index={index}
-      actions={<Tip text={ru.tips.sellers} />}
+      className="os-card"
+      actions={
+        <CardTools
+          help={ru.tips.sellers}
+          rows={rows}
+          filename="datum-sellers"
+          view={view}
+          onView={setView}
+          png={false}
+        />
+      }
     >
-      <DataTable
-        rows={rows}
-        searchable
-        columns={[
-          { key: "seller_id", label: ru.seller, format: (v) => `${String(v).slice(0, 8)}…` },
-          { key: "city", label: ru.city },
-          { key: "state", label: ru.region },
-          { key: "orders_cnt", label: ru.orders, numeric: true, format: (v) => number(Number(v)) },
-          {
-            key: "revenue",
-            label: ru.revenue,
-            numeric: true,
-            format: (v) => <Money value={Number(v)} />,
-          },
-        ]}
-      />
+      {rows.length === 0 ? (
+        <EmptyState />
+      ) : view === "chart" ? (
+        <BarList
+          rows={labelled}
+          label={(row) => String(row.place)}
+          value="revenue"
+          total={total}
+          format={(n) => money(n, true)}
+        />
+      ) : (
+        <DataTable
+          rows={labelled}
+          searchable
+          filename="datum-sellers.csv"
+          columns={[
+            { key: "place", label: "Город, штат" },
+            {
+              key: "orders_cnt",
+              label: ru.orders,
+              numeric: true,
+              format: (v) => number(Number(v)),
+            },
+            {
+              key: "revenue",
+              label: ru.revenue,
+              numeric: true,
+              format: (v) => <Money value={Number(v)} />,
+            },
+          ]}
+        />
+      )}
     </Card>
   )
 }

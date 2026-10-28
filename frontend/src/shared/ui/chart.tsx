@@ -16,6 +16,18 @@ export interface ChartProps {
   formatTick?: ((n: number) => string) | undefined
   target?: number | undefined
   targetLabel?: string | undefined
+  compare?: string | undefined
+  compareLabel?: string | undefined
+}
+function valueAt(values: (number | null)[], index: number | null) {
+  return index === null ? null : (values[index] ?? null)
+}
+function linePath(values: (number | null)[], px: (i: number) => number, py: (n: number) => number) {
+  return values
+    .map((n, i) =>
+      n === null ? "" : `${i === 0 || values[i - 1] === null ? "M" : "L"}${px(i)},${py(n)}`,
+    )
+    .join(" ")
 }
 export function Chart({
   rows,
@@ -28,6 +40,8 @@ export function Chart({
   formatTick,
   target,
   targetLabel,
+  compare = "",
+  compareLabel,
 }: ChartProps) {
   const tick = formatTick ?? formatValue
   const container = useRef<HTMLDivElement>(null)
@@ -50,13 +64,15 @@ export function Chart({
     bottom = 32
   const values = rows.map((row) => numeric(row[y]))
   const measured = values.filter((n): n is number => n !== null)
+  const prior = rows.map((row) => numeric(row[compare]))
+  const priorMeasured = prior.filter((n): n is number => n !== null)
   if (!measured.length)
     return (
       <div className="chart-wrap" ref={container}>
         <EmptyState />
       </div>
     )
-  const dataMax = Math.max(...measured, target ?? 0, 1e-9)
+  const dataMax = Math.max(...measured, ...priorMeasured, target ?? 0, 1e-9)
   const dataMin = Math.min(...measured, 0)
   const magnitude = 10 ** Math.floor(Math.log10((dataMax - dataMin) / 4))
   const step = Math.ceil((dataMax - dataMin) / 4 / magnitude) * magnitude
@@ -71,6 +87,8 @@ export function Chart({
     if (n !== null)
       segments.push(`${i === 0 || values[i - 1] === null ? "M" : "L"}${px(i)},${py(n)}`)
   })
+  const priorPath = linePath(prior, px, py)
+  const priorValue = valueAt(prior, active)
   const row = active === null ? null : rows[active]
   const value = active === null ? null : values[active]
   return (
@@ -139,6 +157,7 @@ export function Chart({
             </text>
           </g>
         )}
+        {priorMeasured.length > 1 && <path d={priorPath} className="chart-prior" />}
         {type === "line" && <path d={segments.join(" ")} className="chart-line" pathLength={1} />}
         {rows.map((item, i) => {
           const n = values[i]
@@ -210,6 +229,11 @@ export function Chart({
         >
           <span>{formatLabel(row[x])}</span>
           <strong>{formatValue(value)}</strong>
+          {priorValue !== null && (
+            <em>
+              {compareLabel}: {formatValue(priorValue)}
+            </em>
+          )}
         </div>
       )}
       <p className="sr-only">

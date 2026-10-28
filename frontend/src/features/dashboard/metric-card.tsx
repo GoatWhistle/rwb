@@ -4,6 +4,7 @@ import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metri
 import { number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { IconButton, Tip } from "@/shared/ui/controls"
+import "@/shared/styles/overview-sales.css"
 
 export interface MetricSpec {
   key: keyof typeof ru.tips
@@ -80,7 +81,12 @@ export function MetricCard({
           <span className="metric-note">{metric.note}</span>
         </span>
         {measured.length > 1 && (
-          <svg className="sparkline" viewBox="0 0 100 28" aria-hidden="true">
+          <svg
+            className="sparkline"
+            viewBox="0 0 100 28"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
             <path
               d={spark
                 .map((n, i) =>
