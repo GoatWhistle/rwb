@@ -9,7 +9,9 @@ import { ChatComposer } from "./chat-composer"
 import { Message } from "./message"
 import { ThinkingStatus } from "./thinking-status"
 import { useChat } from "./use-chat"
+import { useVisualViewport } from "./use-visual-viewport"
 import { useVoiceInput } from "./use-voice-input"
+import "@/shared/styles/mobile-chat.css"
 
 export function ChatPanel({
   active,
@@ -31,6 +33,7 @@ export function ChatPanel({
   onClose: () => void
 }) {
   const chat = useChat()
+  useVisualViewport(active)
   const [input, setInput] = useState("")
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)

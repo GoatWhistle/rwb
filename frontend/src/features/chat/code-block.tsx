@@ -1,4 +1,4 @@
-import { Check, Copy } from "lucide-react"
+import { Check, Copy, WrapText } from "lucide-react"
 import { useEffect, useState } from "react"
 import { ru } from "@/shared/i18n/ru"
 
@@ -73,6 +73,7 @@ const COLLAPSED_LINES = 12
 export function CodeBlock({ code, language }: { code: string; language: "sql" | "json" }) {
   const [copied, setCopied] = useState(false)
   const [open, setOpen] = useState(false)
+  const [wrap, setWrap] = useState(() => window.matchMedia("(max-width: 768px)").matches)
   useEffect(() => {
     if (!copied) return
     const timer = window.setTimeout(() => setCopied(false), 1600)
@@ -84,21 +85,34 @@ export function CodeBlock({ code, language }: { code: string; language: "sql" | 
     <div className="code-card">
       <div className="code-card-head">
         <span className="code-badge">{language.toUpperCase()}</span>
-        <button
-          type="button"
-          className="code-card-action"
-          onClick={() => {
-            navigator.clipboard?.writeText(code).then(
-              () => setCopied(true),
-              () => setCopied(false),
-            )
-          }}
-        >
-          {copied ? <Check size={13} /> : <Copy size={13} />}
-          {copied ? ru.chatCopied : ru.chatCopy}
-        </button>
+        <span className="code-card-actions">
+          <button
+            type="button"
+            className={`code-card-action ${wrap ? "is-on" : ""}`}
+            aria-pressed={wrap}
+            onClick={() => setWrap(!wrap)}
+          >
+            <WrapText size={13} />
+            {ru.chatWrap}
+          </button>
+          <button
+            type="button"
+            className="code-card-action"
+            onClick={() => {
+              navigator.clipboard?.writeText(code).then(
+                () => setCopied(true),
+                () => setCopied(false),
+              )
+            }}
+          >
+            {copied ? <Check size={13} /> : <Copy size={13} />}
+            {copied ? ru.chatCopied : ru.chatCopy}
+          </button>
+        </span>
       </div>
-      <div className={`code-card-body ${long && !open ? "is-collapsed" : ""}`}>
+      <div
+        className={`code-card-body ${long && !open ? "is-collapsed" : ""} ${wrap ? "is-wrapped" : ""}`}
+      >
         <pre>
           <code>
             {rows.map((line) => (
