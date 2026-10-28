@@ -2,10 +2,9 @@ import { useQueryClient } from "@tanstack/react-query"
 import {
   ChevronRight,
   LayoutDashboard,
+  MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
-  PanelRightClose,
-  PanelRightOpen,
   RefreshCw,
 } from "lucide-react"
 import { useState } from "react"
@@ -109,7 +108,7 @@ export function App() {
             aria-expanded={chatOpen}
             onClick={() => setChatOpen(!chatOpen)}
           >
-            {chatOpen ? <PanelRightClose size={19} /> : <PanelRightOpen size={19} />}
+            <MessageSquare size={19} />
           </IconButton>
         </div>
       </header>

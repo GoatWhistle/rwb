@@ -5,7 +5,6 @@ import {
   Maximize2,
   MessageSquare,
   Minimize2,
-  PanelRightClose,
   Plus,
   Square,
   X,
@@ -79,7 +78,7 @@ export function ChatPanel({
             </span>
           </IconButton>
           <IconButton label={ru.closeChat} onClick={onClose}>
-            <PanelRightClose size={18} />
+            <X size={18} />
           </IconButton>
         </div>
       </div>
