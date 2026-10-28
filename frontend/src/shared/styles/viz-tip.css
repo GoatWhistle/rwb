@@ -2,11 +2,15 @@
   position: relative;
   min-width: 0;
 }
-.viz-tip-host .chart-tooltip.viz-tip {
+.chart-tooltip.tip-float {
+  position: fixed;
   top: 0;
   left: 0;
+  z-index: 1000;
+  max-width: min(320px, calc(100vw - 16px));
+}
+.chart-tooltip.viz-tip {
   min-width: 150px;
-  max-width: 100%;
   padding: 8px 12px;
   border-radius: 10px;
   font-size: 12px;
@@ -14,11 +18,11 @@
   z-index: 5;
   animation: viz-tip-in 120ms ease-out both;
 }
-.viz-tip-host .viz-tip .chart-tooltip-head {
+.viz-tip .chart-tooltip-head {
   font-weight: 600;
   color: var(--viz-text);
 }
-.viz-tip-host .viz-tip-swatch {
+.viz-tip .viz-tip-swatch {
   width: 10px;
   height: 10px;
   border-radius: 3px;
@@ -54,7 +58,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .viz-tip-host .chart-tooltip.viz-tip,
+  .chart-tooltip.viz-tip,
   .viz-tip-host [data-tip-head] {
     animation: none;
     transition: none;

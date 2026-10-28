@@ -250,20 +250,22 @@ function TabCards({
       )}
       {tab === "overview" && (
         <div className="dg">
-          <div className="dg-6 dg-x4">
+          <div className="dg-6">
             <TileMap rows={rowsOf(q.statesRevenue.data)} query={q.statesRevenue} index={5} />
           </div>
-          <div className="dg-6 dg-x4">
-            <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={6} />
-          </div>
-          <div className="dg-12 dg-x4 dg-stack">
-            <StatusBar rows={rowsOf(q.statusMix.data)} query={q.statusMix} index={7} />
-            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={8} />
+          <div className="dg-6">
+            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={6} />
           </div>
           <div className="dg-6">
-            <Geography rows={rowsOf(q.states.data)} query={q.states} index={9} limit={5} />
+            <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={7} />
           </div>
           <div className="dg-6">
+            <Geography rows={rowsOf(q.states.data)} query={q.states} index={8} limit={5} />
+          </div>
+          <div className="dg-12">
+            <StatusBar rows={rowsOf(q.statusMix.data)} query={q.statusMix} index={9} />
+          </div>
+          <div className="dg-12">
             <Categories
               rows={rowsOf(q.categories.data)}
               query={q.categories}
@@ -279,19 +281,19 @@ function TabCards({
             <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={5} />
           </div>
           <div className="dg-6">
-            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={6} />
+            <Installments rows={rowsOf(q.installments.data)} query={q.installments} index={6} />
           </div>
           <div className="dg-6">
             <AvgCheckTrend rows={rowsOf(q.kpiMonthly.data)} query={q.kpiMonthly} index={7} />
           </div>
           <div className="dg-6">
-            <Installments rows={rowsOf(q.installments.data)} query={q.installments} index={8} />
+            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={8} />
           </div>
           <div className="dg-6">
-            <Categories rows={rowsOf(q.categories.data)} query={q.categories} index={5} />
+            <Categories rows={rowsOf(q.categories.data)} query={q.categories} index={9} />
           </div>
           <div className="dg-6">
-            <Sellers rows={rowsOf(q.sellers.data)} query={q.sellers} index={6} />
+            <Sellers rows={rowsOf(q.sellers.data)} query={q.sellers} index={10} />
           </div>
         </div>
       )}
@@ -301,13 +303,13 @@ function TabCards({
             <DeliveryDays rows={rowsOf(q.deliveryDays.data)} query={q.deliveryDays} index={4} />
           </div>
           <div className="dg-4">
-            <OnTimeMap rows={rowsOf(q.states.data)} query={q.states} index={5} />
+            <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={5} />
           </div>
           <div className="dg-8">
             <DeliveryStages rows={rowsOf(q.stages.data)} query={q.stages} index={6} />
           </div>
           <div className="dg-4">
-            <ReviewScores rows={rowsOf(q.scores.data)} query={q.scores} index={7} />
+            <OnTimeMap rows={rowsOf(q.states.data)} query={q.states} index={7} />
           </div>
           <div className="dg-12">
             <DeliveryTrend
@@ -317,7 +319,7 @@ function TabCards({
             />
           </div>
           <div className="dg-6">
-            <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={9} />
+            <ReviewScores rows={rowsOf(q.scores.data)} query={q.scores} index={9} />
           </div>
           <div className="dg-6">
             <Geography rows={rowsOf(q.states.data)} query={q.states} index={10} />

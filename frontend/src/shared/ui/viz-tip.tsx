@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import "@/shared/styles/chart.css"
 import "@/shared/styles/viz-tip.css"
 
@@ -17,12 +18,68 @@ export function tipAttrs(head: string, rows: TipRow[]) {
 interface TipState {
   head: string
   rows: TipRow[]
+  anchor: TipAnchor
+}
+
+const GAP = 8
+const EDGE = 8
+
+export interface TipAnchor {
   x: number
   top: number
   bottom: number
 }
 
-const GAP = 8
+export function placeTip(node: HTMLElement, anchor: TipAnchor) {
+  const width = node.offsetWidth
+  const height = node.offsetHeight
+  const vw = document.documentElement.clientWidth
+  const vh = window.innerHeight
+  const left = Math.min(Math.max(anchor.x - width / 2, EDGE), Math.max(vw - width - EDGE, EDGE))
+  const above = anchor.top - height - GAP
+  const below = anchor.bottom + GAP
+  const top =
+    above >= EDGE || below + height > vh - EDGE
+      ? Math.max(above, EDGE)
+      : Math.min(below, vh - height - EDGE)
+  node.style.left = `${left}px`
+  node.style.top = `${top}px`
+  node.style.visibility = ""
+}
+
+export function FloatTip({
+  anchor,
+  className,
+  children,
+}: {
+  anchor: TipAnchor | null
+  className?: string
+  children: ReactNode
+}) {
+  const node = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (node.current && anchor) placeTip(node.current, anchor)
+  }, [anchor])
+  useEffect(() => {
+    if (!anchor) return
+    const hide = () => {
+      if (node.current) node.current.style.visibility = "hidden"
+    }
+    window.addEventListener("scroll", hide, true)
+    return () => window.removeEventListener("scroll", hide, true)
+  }, [anchor])
+  if (!anchor || typeof document === "undefined") return null
+  return createPortal(
+    <div
+      ref={node}
+      className={`chart-tooltip tip-float${className ? ` ${className}` : ""}`}
+      role="tooltip"
+    >
+      {children}
+    </div>,
+    document.body,
+  )
+}
 
 function readRows(value: string | null): TipRow[] {
   if (!value) return []
@@ -36,7 +93,6 @@ function readRows(value: string | null): TipRow[] {
 
 export function VizTip({ children, className }: { children: ReactNode; className?: string }) {
   const host = useRef<HTMLDivElement>(null)
-  const tip = useRef<HTMLDivElement>(null)
   const [state, setState] = useState<TipState | null>(null)
 
   useEffect(() => {
@@ -50,14 +106,11 @@ export function VizTip({ children, className }: { children: ReactNode; className
       active?.classList.remove("viz-tip-on")
       active = target
       target.classList.add("viz-tip-on")
-      const box = el.getBoundingClientRect()
       const rect = target.getBoundingClientRect()
       setState({
         head: target.getAttribute("data-tip-head") ?? "",
         rows: readRows(target.getAttribute("data-tip-rows")),
-        x: rect.left + rect.width / 2 - box.left,
-        top: rect.top - box.top,
-        bottom: rect.bottom - box.top,
+        anchor: { x: rect.left + rect.width / 2, top: rect.top, bottom: rect.bottom },
       })
     }
     const hide = (event: Event) => {
@@ -79,23 +132,11 @@ export function VizTip({ children, className }: { children: ReactNode; className
     }
   }, [])
 
-  useLayoutEffect(() => {
-    const el = host.current
-    const node = tip.current
-    if (!el || !node || !state) return
-    const width = node.offsetWidth
-    const height = node.offsetHeight
-    const left = Math.min(Math.max(state.x - width / 2, 0), Math.max(el.clientWidth - width, 0))
-    const above = state.top - height - GAP
-    node.style.left = `${left}px`
-    node.style.top = `${above >= 0 ? above : state.bottom + GAP}px`
-  }, [state])
-
   return (
     <div ref={host} className={`viz-tip-host${className ? ` ${className}` : ""}`}>
       {children}
       {state && (
-        <div ref={tip} className="chart-tooltip viz-tip" role="tooltip">
+        <FloatTip anchor={state.anchor} className="viz-tip">
           <span className="chart-tooltip-head">{state.head}</span>
           {state.rows.map((row) => (
             <span key={row.label} className="chart-tooltip-row">
@@ -107,7 +148,7 @@ export function VizTip({ children, className }: { children: ReactNode; className
               <strong>{row.value}</strong>
             </span>
           ))}
-        </div>
+        </FloatTip>
       )}
     </div>
   )

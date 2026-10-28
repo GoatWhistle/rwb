@@ -4,6 +4,8 @@ import type { Row } from "../format"
 import { cell, number, numeric } from "../format"
 import { ru } from "../i18n/ru"
 import { EmptyState } from "./controls"
+import type { TipAnchor } from "./viz-tip"
+import { FloatTip } from "./viz-tip"
 import "../styles/viz-palette.css"
 import "../styles/chart.css"
 
@@ -98,15 +100,22 @@ function Legend({
     </ul>
   )
 }
+function anchorAt(el: HTMLElement | null, fx: number, fy: number): TipAnchor | null {
+  const svg = el?.querySelector("svg")
+  if (!svg) return null
+  const rect = svg.getBoundingClientRect()
+  const y = rect.top + fy * rect.height
+  return { x: rect.left + fx * rect.width, top: y - 6, bottom: y + 6 }
+}
 function Tooltip({
-  left,
+  anchor,
   head,
   series,
   value,
   prior,
   priorValue,
 }: {
-  left: string
+  anchor: TipAnchor | null
   head: string
   series?: string | undefined
   value: string
@@ -114,7 +123,7 @@ function Tooltip({
   priorValue: string | null
 }) {
   return (
-    <div className="chart-tooltip" style={{ left }}>
+    <FloatTip anchor={anchor}>
       <span className="chart-tooltip-head">{head}</span>
       <span className="chart-tooltip-row">
         <span className="chart-swatch" style={swatch(SERIES)} />
@@ -128,7 +137,7 @@ function Tooltip({
           <strong>{priorValue}</strong>
         </span>
       )}
-    </div>
+    </FloatTip>
   )
 }
 function LineMarks({
@@ -469,7 +478,7 @@ export function Chart({
       {row && value !== null && (
         <Tooltip
           key={active}
-          left={`clamp(8px, calc(${(px(active ?? 0) / width) * 100}% + 12px), calc(100% - 200px))`}
+          anchor={anchorAt(container.current, px(active ?? 0) / width, py(value) / height)}
           head={formatLabel(row[x])}
           series={seriesLabel}
           value={formatValue(value)}
