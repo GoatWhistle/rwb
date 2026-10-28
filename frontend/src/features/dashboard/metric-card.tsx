@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metrics"
 import { number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
-import { Tip } from "@/shared/ui/controls"
+import { HintLabel } from "@/shared/ui/controls"
 import "@/shared/styles/overview-sales.css"
 
 export interface MetricSpec {
@@ -65,8 +65,7 @@ export function MetricCard({
   return (
     <article className="metric-card">
       <div className="metric-label">
-        <span>{metric.label}</span>
-        <Tip text={ru.tips[metric.key]} onAsk={ask} />
+        <HintLabel label={metric.label} text={ru.tips[metric.key]} onAsk={ask} />
       </div>
       <strong className="metric-value">
         {metric.value === null ? (
@@ -77,8 +76,8 @@ export function MetricCard({
       </strong>
       <div className="metric-bottom">
         <span className="metric-meta">
-          {delta !== null && <Delta value={delta} />}
           <span className="metric-note">{metric.note}</span>
+          {delta !== null && <Delta value={delta} />}
         </span>
         {measured.length > 1 && (
           <svg

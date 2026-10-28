@@ -1,10 +1,10 @@
-import { BarChart3, Download, MoreHorizontal, Table2 } from "lucide-react"
+import { BarChart3, Download, MessageSquare, MoreHorizontal, Table2 } from "lucide-react"
 import type { CSSProperties, MouseEvent, ReactNode } from "react"
 import { useState } from "react"
 import type { Row } from "@/shared/format"
 import { downloadCsv } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
-import { ErrorState, IconButton, Tip } from "@/shared/ui/controls"
+import { ErrorState, IconButton } from "@/shared/ui/controls"
 import "@/shared/styles/overview-sales.css"
 
 export interface CardQuery {
@@ -130,7 +130,6 @@ export function CardTools({
   const [open, setOpen] = useState(false)
   return (
     <div className="os-tools">
-      <Tip text={help} onAsk={onAsk} />
       <div className="os-menu">
         <IconButton
           label={ru.widgetMenu}
@@ -145,6 +144,21 @@ export function CardTools({
         </IconButton>
         {open && (
           <div className="os-menu-list" role="menu">
+            <p className="os-menu-help">{help}</p>
+            {onAsk && (
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  onAsk()
+                  setOpen(false)
+                }}
+              >
+                <MessageSquare size={14} />
+                {ru.ask}
+              </button>
+            )}
+            <hr />
             {view && onView && (
               <>
                 <button

@@ -1,4 +1,4 @@
-import { CircleAlert, CircleHelp, MessageSquare, RefreshCw } from "lucide-react"
+import { CircleAlert, MessageSquare, RefreshCw } from "lucide-react"
 import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react"
 import { useId } from "react"
 import { ru } from "../i18n/ru"
@@ -31,20 +31,28 @@ export function IconButton({
     </Button>
   )
 }
-export function Tip({ text, onAsk }: { text: string; onAsk?: (() => void) | undefined }) {
+export function HintLabel({
+  label,
+  text,
+  onAsk,
+}: {
+  label: string
+  text: string
+  onAsk?: (() => void) | undefined
+}) {
   const id = useId()
   return (
-    <span className="tip">
-      <button type="button" className="tip-trigger" aria-label={ru.more} aria-describedby={id}>
-        <CircleHelp size={14} />
+    <span className="hint">
+      <button type="button" className="hint-trigger" aria-describedby={id}>
+        {label}
       </button>
-      <span className="tip-content" role="tooltip" id={id}>
-        {text}
+      <span className="hint-pop" role="tooltip" id={id}>
+        <span className="hint-text">{text}</span>
         {onAsk && (
-          <Button onClick={onAsk}>
-            <MessageSquare size={14} />
+          <button type="button" className="hint-ask" onClick={onAsk}>
+            <MessageSquare size={14} aria-hidden="true" />
             {ru.ask}
-          </Button>
+          </button>
         )}
       </span>
     </span>

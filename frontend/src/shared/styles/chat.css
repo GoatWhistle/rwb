@@ -937,3 +937,18 @@ details[open] > .disclosure-summary > .disclosure-chevron {
     animation: none;
   }
 }
+.chat-area .chat-heading .chat-title h2 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.chat-area .chat-title .assistant-avatar {
+  width: 36px;
+  height: 36px;
+  background: none;
+  box-shadow: none;
+}
+.chat-area .chat-title .assistant-avatar svg {
+  width: 32px;
+  height: 32px;
+}

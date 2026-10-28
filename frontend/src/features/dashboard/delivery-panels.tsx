@@ -3,7 +3,7 @@ import type { Row } from "@/shared/format"
 import { month, number, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
-import { Button, Tip } from "@/shared/ui/controls"
+import { Button } from "@/shared/ui/controls"
 import { DataTable } from "@/shared/ui/data-table"
 import { HBars } from "./bars"
 import type { CardQuery } from "./card"
@@ -111,7 +111,6 @@ export function Lateness({
       description="Средняя оценка отзыва по сроку доставки, из 5"
       query={query}
       index={index}
-      actions={<Tip text={ru.tips.lateness} />}
     >
       <HBars
         rows={rows}
