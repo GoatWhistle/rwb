@@ -70,6 +70,7 @@ const mix = (hex, other, k) => {
   return `#${a.map((v, i) => Math.round(v * (1 - k) + b[i] * k).toString(16).padStart(2, "0")).join("")}`
 }
 const random = rng(7)
+const cellMeta = []
 for (const plate of PLATES) {
   const shift = (p) => [p[0], p[1] + T]
   const left = [point(plate.top, 0, N), point(plate.top, N, N), shift(point(plate.top, N, N)), shift(point(plate.top, 0, N))]
@@ -91,6 +92,18 @@ for (const plate of PLATES) {
       cells += `<polygon points="${poly(pts)}" fill="${plate.color}" fill-opacity="${o.toFixed(2)}"/>`
     }
     add(`st-${plate.name}-row${i}`, 1000, 1000, `<rect x="0" y="0" width="1000" height="1000" fill="none"/>${cells}`)
+    for (let j = 0; j < N; j += 1) {
+      const m = cells.match(/<polygon[^>]*\/>/g)[j]
+      const pts = m.match(/points="([^"]+)"/)[1].split(" ").map((s) => s.split(",").map(Number))
+      const xs = pts.map((q) => q[0])
+      const ys = pts.map((q) => q[1])
+      const bx = Math.floor(Math.min(...xs)) - 1
+      const by = Math.floor(Math.min(...ys)) - 1
+      const bw = Math.ceil(Math.max(...xs)) + 1 - bx
+      const bh = Math.ceil(Math.max(...ys)) + 1 - by
+      cellMeta.push({ plate: plate.name, i, j, x: bx, y: by, w: bw, h: bh })
+      add(`cell-${plate.name}-${i}-${j}`, bw, bh, m, `${bx} ${by} ${bw} ${bh}`)
+    }
   }
 }
 {
@@ -130,6 +143,7 @@ units.forEach((u, t) => {
   }
   add(`wf-${t}`, WW, WH, rects)
 })
+fs.writeFileSync(path.join(HERE, "data", "cells.json"), JSON.stringify(cellMeta))
 fs.writeFileSync(path.join(HERE, "data", "waffle.json"), JSON.stringify({ w: WW, h: WH, colors: tableColors }))
 
 fs.mkdirSync(OUT, { recursive: true })

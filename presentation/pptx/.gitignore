@@ -4,3 +4,7 @@ out/deck-anim.pptx
 out/*.tmp
 out/shots/
 out/sheet*.png
+out/plan.json
+out/deck-anim-*.pptx
+out/Datum-*.pptx
+out/Datum-*.pdf
