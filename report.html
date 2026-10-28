@@ -67,6 +67,18 @@ details.sql { margin: 14px 0; }
 details.sql summary { cursor: pointer; font-weight: 600; color: var(--accent-dark); font-size: 14.5px; }
 details.sql summary:hover { text-decoration: underline; }
 details.sql pre { margin-top: 10px; }
+.x-title { font-size: 13px; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600; margin: 16px 0 8px; }
+.explain { border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface); overflow: hidden; font-size: 14px; }
+.xr { display: grid; grid-template-columns: 290px 1fr; gap: 14px;
+  padding: 9px 14px; border-top: 1px solid var(--grid); }
+.xr:first-child { border-top: none; }
+.xr > code { background: none; padding: 0; color: var(--accent-dark);
+  font-size: 12.5px; line-height: 1.5; word-break: break-word; }
+.xr > span { color: var(--ink-2); line-height: 1.5; }
+.xr > span b { color: var(--ink); }
+@media (max-width: 700px) { .xr { grid-template-columns: 1fr; gap: 3px; } }
 .check { display: inline-block; font-size: 13.5px; font-weight: 600; color: #0a6b3d;
   background: #e9f6ee; border-radius: 999px; padding: 2px 12px; margin-top: 10px; }
 figure.chart { margin: 20px 0 0; background: var(--surface); border: 1px solid var(--border);
@@ -222,9 +234,11 @@ footer { margin-top: 70px; padding-top: 20px; border-top: 1px solid var(--grid);
        <code>(order_id, item_no)</code>. Одна строка = одна единица товара, поэтому
        количество считается как <code>count(*)</code>.</p></div>
   <div class="card"><h3>Типы и ограничения — в модели</h3>
-    <p>Даты стали <code>timestamp</code>, деньги — <code>numeric(10,2)</code>, статусы и
-       оценки зажаты <code>CHECK</code>-ами, связи — внешними ключами. Теперь мусор не
-       пройдёт в core молча: загрузка упадёт и покажет где.</p></div>
+    <p>Даты стали <code>timestamp</code>, деньги — <code>numeric(10,2)</code>, связи —
+       внешними ключами. <code>CHECK</code> — это правило-ограничение, которое база
+       проверяет сама при каждой вставке: статус только из списка восьми допустимых,
+       оценка только от 1 до 5, цена не меньше нуля. Строка с мусором не запишется —
+       загрузка упадёт и покажет где, вместо того чтобы молча испортить отчёты.</p></div>
   <div class="card"><h3>Пересборка с нуля</h3>
     <p>Скрипт начинается с <code>DROP SCHEMA core CASCADE</code> и заканчивается сверкой
        числа строк raw против core по каждой таблице. Перенос без потерь — свойство,
@@ -290,6 +304,22 @@ monthly <span class="sql-k">AS</span> (
 <span class="sql-k">SELECT</span> m.month, coalesce(t.orders_cnt, 0), coalesce(t.revenue, 0)
 <span class="sql-k">FROM</span> months m <span class="sql-k">LEFT JOIN</span> monthly t <span class="sql-k">USING</span> (month)
 <span class="sql-k">ORDER BY</span> m.month;</code></pre>
+<p class="x-title">Разбор по словам</p>
+<div class="explain">
+  <div class="xr"><code>WITH months AS (…)</code><span><b>WITH</b> создаёт временную подтаблицу с именем — дальше к ней можно обращаться, как к обычной таблице. <b>AS</b> — «назовём её вот так». Здесь их две: <code>months</code> (календарь) и <code>monthly</code> (факты из данных).</span></div>
+  <div class="xr"><code>generate_series('2016-09-01'::date, '2018-08-01', interval '1 month')</code><span>Функция-«генератор»: выдаёт ряд значений от первого до второго аргумента с шагом из третьего. Здесь — 24 даты, по одной на месяц. <b>interval '1 month'</b> — тот самый шаг «один месяц».</span></div>
+  <div class="xr"><code>::date</code><span>Приведение типа: текст <code>'2016-09-01'</code> превращается в настоящую дату. Двойное двоеточие — синтаксис Postgres, читается «как дата».</span></div>
+  <div class="xr"><code>SELECT … AS month</code><span><b>SELECT</b> — «выбрать и показать вот эти колонки». <b>AS month</b> — дать колонке имя.</span></div>
+  <div class="xr"><code>FROM core.orders o</code><span><b>FROM</b> — из какой таблицы брать строки. Буква <code>o</code> — псевдоним: дальше вместо длинного <code>core.orders</code> пишем <code>o</code>, поэтому <code>o.status</code> — «колонка status таблицы заказов».</span></div>
+  <div class="xr"><code>LEFT JOIN core.order_items i USING (order_id)</code><span><b>JOIN</b> — приклеить к каждому заказу его строки из другой таблицы. <b>USING (order_id)</b> — клеить по равенству колонки order_id в обеих. <b>LEFT</b> — важно: заказы, которым пары не нашлось (775 заказов без позиций), не выбрасывать, а оставить с пустыми значениями. Обычный JOIN их бы молча удалил.</span></div>
+  <div class="xr"><code>date_trunc('month', o.purchased_at)</code><span>«Обрезать» дату до начала месяца: 14 мая 2017 18:33 → 1 мая 2017. Так все заказы одного месяца получают одинаковую метку, по которой их можно сгруппировать.</span></div>
+  <div class="xr"><code>count(DISTINCT o.order_id)</code><span><b>count</b> — посчитать строки. <b>DISTINCT</b> — «только разные»: после склейки с позициями заказ из трёх товаров превратился в три строки, без DISTINCT он посчитался бы трижды.</span></div>
+  <div class="xr"><code>sum(i.price) FILTER (WHERE o.status = 'delivered')</code><span><b>sum</b> — сложить значения. <b>FILTER (WHERE …)</b> — в сумму пропускать только строки, прошедшие условие: здесь — только доставленные заказы. Отменённые в выручку не попадают.</span></div>
+  <div class="xr"><code>coalesce(x, 0)</code><span>«Если x пустой (NULL) — взять 0». У ноября 2016 нет ни заказов, ни выручки; без coalesce в отчёте стояла бы пустота вместо нуля.</span></div>
+  <div class="xr"><code>GROUP BY 1</code><span>Сгруппировать строки по первой колонке из SELECT (месяцу) и посчитать count/sum внутри каждой группы. «1» — просто ссылка на позицию колонки, чтобы не повторять выражение.</span></div>
+  <div class="xr"><code>FROM months m LEFT JOIN monthly t</code><span>Финал: к полному календарю (24 месяца) прикладываем посчитанные факты. LEFT JOIN снова принципиален — у ноября 2016 фактов нет, но строка месяца обязана остаться.</span></div>
+  <div class="xr"><code>ORDER BY m.month</code><span>Отсортировать результат по месяцу, от раннего к позднему.</span></div>
+</div>
 </details>
 <span class="check">✓ Контроль: 24 строки, одна нулевая, итого 13 221 498.11</span>
 
@@ -324,6 +354,19 @@ monthly <span class="sql-k">AS</span> (
 <span class="sql-k">GROUP BY</span> s.seller_id, s.city, s.state
 <span class="sql-k">ORDER BY</span> revenue <span class="sql-k">DESC</span>
 <span class="sql-k">LIMIT</span> 10;</code></pre>
+<p class="x-title">Разбор по словам</p>
+<div class="explain">
+  <div class="xr"><code>FROM core.order_items i</code><span>Идём <b>от позиций</b>, а не от заказов — выручка продавца складывается из его строк. В заказе могут быть товары разных продавцов, и сумма целого заказа продавцу не принадлежит.</span></div>
+  <div class="xr"><code>JOIN core.orders o USING (order_id)</code><span>Приклеиваем заказ к каждой позиции — он нужен ради статуса. Обычный (внутренний) JOIN здесь безопасен: позиций без заказа в данных нет, мы это проверили.</span></div>
+  <div class="xr"><code>JOIN core.sellers s USING (seller_id)</code><span>Приклеиваем продавца — из его таблицы берём город и штат.</span></div>
+  <div class="xr"><code>WHERE o.status = 'delivered'</code><span><b>WHERE</b> — фильтр строк до всякого подсчёта: дальше идут только позиции доставленных заказов.</span></div>
+  <div class="xr"><code>count(DISTINCT i.order_id)</code><span>В скольких <b>разных</b> заказах были товары продавца. Без DISTINCT заказ с двумя его товарами посчитался бы дважды.</span></div>
+  <div class="xr"><code>count(*)</code><span>Число строк в группе. Одна строка позиции = одна единица товара, поэтому это и есть «сколько единиц продал».</span></div>
+  <div class="xr"><code>sum(i.price) AS revenue</code><span>Сумма цен только его позиций — выручка продавца. <b>AS revenue</b> — имя колонки, на него же ссылается сортировка ниже.</span></div>
+  <div class="xr"><code>GROUP BY s.seller_id, s.city, s.state</code><span>Одна группа = один продавец: все его позиции сворачиваются в одну строку результата. Город и штат перечислены, потому что всё, что стоит в SELECT вне агрегатных функций, обязано быть в GROUP BY.</span></div>
+  <div class="xr"><code>ORDER BY revenue DESC</code><span>Сортировка по выручке. <b>DESC</b> (descending) — по убыванию: самый крупный сверху.</span></div>
+  <div class="xr"><code>LIMIT 10</code><span>Показать только первые 10 строк результата — топ-10.</span></div>
+</div>
 </details>
 <span class="check">✓ Контроль: у первого продавца 226 987.93</span>
 
@@ -347,6 +390,16 @@ monthly <span class="sql-k">AS</span> (
 <span class="sql-k">SELECT</span> round(avg(order_total), 2) <span class="sql-k">AS</span> avg_check,
        round(avg(lines), 2)       <span class="sql-k">AS</span> avg_lines
 <span class="sql-k">FROM</span> per_order;</code></pre>
+<p class="x-title">Разбор по словам</p>
+<div class="explain">
+  <div class="xr"><code>WITH per_order AS (…)</code><span>Весь смысл запроса — в двухступенчатости. Первая ступень (эта подтаблица) сворачивает строки до заказов, вторая — усредняет заказы. Пропустишь первую ступень — получишь среднюю <b>строку</b> (139.97), а не средний <b>чек</b>.</span></div>
+  <div class="xr"><code>sum(i.price + i.freight_value)</code><span>Внутри одного заказа складываем по каждой строке цену товара и стоимость его доставки: покупатель платит за всё вместе. Это и есть чек заказа.</span></div>
+  <div class="xr"><code>count(*) AS lines</code><span>Сколько строк в заказе — контрольное число: если «средний чек» вдруг равен средней строке, уровень перепутан.</span></div>
+  <div class="xr"><code>WHERE o.status = 'delivered'</code><span>Чек считаем только по доставленным заказам — тем же, что входят в выручку.</span></div>
+  <div class="xr"><code>GROUP BY i.order_id</code><span>Одна группа = один заказ: подтаблица per_order содержит одну строку на заказ с его полной суммой.</span></div>
+  <div class="xr"><code>avg(order_total)</code><span><b>avg</b> — среднее арифметическое. Усредняем уже готовые чеки заказов — каждый заказ весит одинаково, сколько бы строк в нём ни было.</span></div>
+  <div class="xr"><code>round(…, 2)</code><span>Округлить до двух знаков после запятой — это деньги.</span></div>
+</div>
 </details>
 <span class="check">✓ Контроль: 159.88 (ловушки 123.75 и 139.97 обойдены)</span>
 
@@ -364,6 +417,16 @@ monthly <span class="sql-k">AS</span> (
        count(*) <span class="sql-k">FILTER</span> (<span class="sql-k">WHERE</span> orders_cnt &gt;= 2) <span class="sql-k">AS</span> returned,
        round(100.0 * count(*) <span class="sql-k">FILTER</span> (<span class="sql-k">WHERE</span> orders_cnt &gt;= 2) / count(*), 2) <span class="sql-k">AS</span> pct
 <span class="sql-k">FROM</span> per_customer;</code></pre>
+<p class="x-title">Разбор по словам</p>
+<div class="explain">
+  <div class="xr"><code>WITH per_customer AS (…)</code><span>Первая ступень: по одной строке на человека с числом его заказов.</span></div>
+  <div class="xr"><code>SELECT customer_unique_id, count(*)</code><span>Группируем заказы по <b>customer_unique_id</b> — стабильному идентификатору человека — и считаем, сколько заказов у каждого. Возьми тут customer_id — у каждого «покупателя» оказался бы ровно один заказ, и повторных не нашлось бы вовсе.</span></div>
+  <div class="xr"><code>GROUP BY 1</code><span>Группировка по первой колонке SELECT — идентификатору человека.</span></div>
+  <div class="xr"><code>count(*)</code><span>Во внешнем запросе считает строки per_customer — то есть людей. Всего их 96 096.</span></div>
+  <div class="xr"><code>count(*) FILTER (WHERE orders_cnt &gt;= 2)</code><span>Тот же счётчик, но через фильтр проходят только люди с двумя и более заказами — вернувшиеся.</span></div>
+  <div class="xr"><code>100.0 * … / count(*)</code><span>Доля в процентах. <b>100.0</b> — именно с точкой: поделив целое на целое, SQL отбросил бы дробную часть и выдал 0. Дробное число в формуле переводит весь расчёт в дробные.</span></div>
+  <div class="xr"><code>round(…, 2)</code><span>Округление до сотых процента: 3.12.</span></div>
+</div>
 </details>
 <span class="check">✓ Контроль: 96 096 покупателей, 3,12% вернулись</span>
 
@@ -386,6 +449,17 @@ monthly <span class="sql-k">AS</span> (
 <span class="sql-k">WHERE</span> o.status = <span class="sql-k">'delivered'</span>
 <span class="sql-k">GROUP BY</span> 1
 <span class="sql-k">ORDER BY</span> revenue <span class="sql-k">DESC</span>;</code></pre>
+<p class="x-title">Разбор по словам</p>
+<div class="explain">
+  <div class="xr"><code>coalesce(p.category_name, '(без категории)')</code><span>«Если категория пустая (NULL) — подставить подпись». Так 610 товаров без категории не исчезают из отчёта, а образуют собственную строку. Выбросишь их — сумма по категориям разойдётся с общей выручкой на 170 тысяч.</span></div>
+  <div class="xr"><code>JOIN core.products p USING (product_id)</code><span>Приклеиваем карточку товара ради его категории. Внутренний JOIN безопасен: позиций без товара нет, проверено при осмотре данных.</span></div>
+  <div class="xr"><code>WHERE o.status = 'delivered'</code><span>В расчёт идут только доставленные заказы — то же определение выручки, что и везде.</span></div>
+  <div class="xr"><code>sum(i.price) AS revenue</code><span>Выручка категории — сумма цен её товаров.</span></div>
+  <div class="xr"><code>sum(sum(i.price)) OVER ()</code><span>Самое хитрое место. Внутренний <code>sum(i.price)</code> — выручка категории (после группировки). Внешний <code>sum(…) OVER ()</code> — <b>оконная функция</b>: она проходит по уже сгруппированным строкам и складывает их все. <b>OVER ()</b> с пустыми скобками значит «окно = весь результат». Итог: в каждой строке рядом с выручкой категории доступна общая выручка — и можно поделить одно на другое.</span></div>
+  <div class="xr"><code>100 * … / …</code><span>Доля категории в процентах от общей выручки.</span></div>
+  <div class="xr"><code>GROUP BY 1</code><span>Группировка по первой колонке — названию категории (уже с подставленной подписью для пустых).</span></div>
+  <div class="xr"><code>ORDER BY revenue DESC</code><span>Крупнейшие категории сверху.</span></div>
+</div>
 </details>
 <span class="check">✓ Контроль: 74 категории, топ 1 233 131.72, сумма сходится с 13 221 498.11</span>
 
