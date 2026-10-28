@@ -283,7 +283,8 @@ function XLabel({ show, x, y, text }: { show: boolean; x: number; y: number; tex
   )
 }
 function labelEvery(i: number, count: number, width: number) {
-  return i % Math.ceil(count / Math.max(2, Math.floor(width / 120))) === 0 || i === count - 1
+  const step = Math.ceil(count / Math.max(2, Math.floor(width / 120)))
+  return i === count - 1 || (i % step === 0 && count - 1 - i >= step * 0.6)
 }
 function describe(n: number | null, format: (n: number) => string) {
   return n === null ? ru.noValue : format(n)

@@ -6,6 +6,7 @@ import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import { DeliveryTileMap, Histogram, ScoreBars, StackedBars } from "./dc-viz"
 import { stateName } from "./states"
+import "@/shared/styles/fill-delivery-bottom.css"
 
 const t = ru.dc
 const days = (n: number) => `${number(n, 1)} дн.`
@@ -88,6 +89,9 @@ export function OnTimeMap({ rows, query, index }: Props) {
 }
 
 export function ReviewScores({ rows, query, index }: Props) {
+  const total = (key: string) => rows.reduce((sum, row) => sum + (numeric(row[key]) ?? 0), 0)
+  const onTime = total("on_time")
+  const late = total("late")
   return (
     <Card
       title={t.scoresTitle}
@@ -96,6 +100,7 @@ export function ReviewScores({ rows, query, index }: Props) {
       hint={t.scoresHint}
       query={query}
       index={index}
+      className="fdb-scores"
       actions={tools(rows, "review-scores", false)}
     >
       <ScoreBars
@@ -105,6 +110,11 @@ export function ReviewScores({ rows, query, index }: Props) {
           { key: "late", label: t.late, color: "var(--viz-negative)" },
         ]}
       />
+      {onTime + late > 0 && (
+        <p className="footnote">
+          {`Доли от ${number(onTime)} отзывов о заказах вовремя и ${number(late)} — с опозданием`}
+        </p>
+      )}
     </Card>
   )
 }
