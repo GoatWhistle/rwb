@@ -1,0 +1,81 @@
+@media (max-width: 640px) {
+  html:has(.app-shell) {
+    background: #f1f1f3;
+  }
+  .app-shell,
+  .app-shell.chat-open,
+  .app-shell.chat-expanded {
+    display: block;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    background: #f1f1f3;
+  }
+  .app-shell .retention-hero span {
+    text-wrap: balance;
+  }
+  .app-shell .app-header {
+    display: flex;
+    align-items: center;
+    height: calc(52px + env(safe-area-inset-top, 0px));
+    background: #fff;
+  }
+  .app-shell .main-area {
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+  .app-shell .dash-toolbar .dashboard-tabs {
+    top: env(safe-area-inset-top, 0px);
+  }
+  .app-shell .chat-fab {
+    width: 52px;
+    height: 52px;
+    transition:
+      translate 200ms var(--ease-out),
+      background-color 160ms var(--ease-out);
+  }
+  .app-shell[data-scroll="down"] .chat-fab {
+    translate: 0 calc(100% + 24px + env(safe-area-inset-bottom, 0px));
+    pointer-events: none;
+  }
+  .app-shell .dashboard .panel-heading h2 {
+    text-wrap: balance;
+  }
+  .app-shell .dashboard .panel-heading p,
+  .app-shell .dashboard .footnote,
+  .app-shell .dashboard .metric-note {
+    text-wrap: pretty;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .metric-label {
+    align-items: flex-start;
+  }
+  .app-shell .dashboard .customers-grid .retention-hero {
+    margin-block: 0;
+    row-gap: 6px;
+  }
+  .app-shell .dashboard .customers-grid .retention-hero span {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .app-shell .dashboard .customers-grid .retention-bar {
+    height: 24px;
+    margin-block: 0;
+  }
+  .app-shell .dashboard .customers-grid .retention-legend {
+    flex-direction: column;
+    gap: 8px;
+    margin-block: 0;
+  }
+  .app-shell .dashboard .customers-grid .retention-legend > span {
+    font-size: 14px;
+  }
+  .app-shell .dashboard .customers-grid .retention-legend strong {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+}
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .app-shell .chat-fab {
+    transition: none;
+  }
+}
