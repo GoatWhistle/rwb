@@ -143,3 +143,21 @@
     transition: none;
   }
 }
+.dg .barlist {
+  gap: 10px;
+  padding-block: 8px;
+}
+.dg .barlist-row {
+  min-height: 40px;
+  font-size: 14px;
+}
+.dg .barlist-track {
+  height: 40px;
+}
+.dg .barlist-fill {
+  height: 24px;
+  border-radius: 0 6px 6px 0;
+}
+.dg .barlist-value {
+  font-size: 13.5px;
+}

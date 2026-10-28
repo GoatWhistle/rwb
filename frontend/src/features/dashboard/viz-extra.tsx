@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react"
 import type { Row } from "@/shared/format"
 import { compact, money, month, number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
@@ -264,6 +265,27 @@ const STATUS_LABEL: Record<string, string> = {
   approved: "Одобрен",
 }
 
+const DONUT_C = 2 * Math.PI * 78
+
+function donutSegments(rows: Row[], total: number) {
+  let offset = 0
+  return rows.map((r) => {
+    const value = numeric(r.orders) ?? 0
+    const share = total ? value / total : 0
+    const length = Math.max(share * DONUT_C - 1.5, share > 0 ? 1.2 : 0)
+    const seg = {
+      key: String(r.status),
+      label: STATUS_LABEL[String(r.status)] ?? String(r.status),
+      value,
+      share,
+      length,
+      offset,
+    }
+    offset += share * DONUT_C
+    return seg
+  })
+}
+
 export function StatusBar({
   rows,
   query,
@@ -284,34 +306,44 @@ export function StatusBar({
       index={index}
       actions={<CardTools rows={rows} filename="status-mix.csv" png={false} />}
     >
-      <VizTip>
-        <div className="vx-status">
+      <div className="vx-donut-wrap">
+        <VizTip>
+          <svg className="vx-donut" viewBox="0 0 200 200" role="img" aria-label="Статусы заказов">
+            {donutSegments(rows, total).map((seg, i) => (
+              <circle
+                key={seg.key}
+                className={`vx-donut-seg vx-s${Math.min(i, 5)}`}
+                cx="100"
+                cy="100"
+                r="78"
+                strokeDasharray={`${seg.length} ${DONUT_C - seg.length}`}
+                strokeDashoffset={-seg.offset}
+                style={{ "--i": i } as CSSProperties}
+                {...tipAttrs(seg.label, [
+                  { label: "Заказов", value: number(seg.value), swatch: `vx-s${Math.min(i, 5)}` },
+                  { label: "Доля", value: percent(seg.share, 1) },
+                ])}
+              />
+            ))}
+            <text x="100" y="96" textAnchor="middle" className="vx-donut-total">
+              {number(total)}
+            </text>
+            <text x="100" y="118" textAnchor="middle" className="vx-donut-caption">
+              заказов
+            </text>
+          </svg>
+        </VizTip>
+        <ul className="vx-donut-legend">
           {rows.map((r, i) => (
-            <span
-              key={String(r.status)}
-              className={`vx-s${Math.min(i, 5)}`}
-              style={{ flexGrow: numeric(r.orders) ?? 0 }}
-              {...tipAttrs(STATUS_LABEL[String(r.status)] ?? String(r.status), [
-                {
-                  label: "Заказов",
-                  value: number(numeric(r.orders) ?? 0),
-                  swatch: `vx-s${Math.min(i, 5)}`,
-                },
-                { label: "Доля", value: percent(total ? (numeric(r.orders) ?? 0) / total : 0, 1) },
-              ])}
-            />
+            <li key={String(r.status)}>
+              <i className={`vx-s${Math.min(i, 5)}`} />
+              <span>{STATUS_LABEL[String(r.status)] ?? String(r.status)}</span>
+              <b>{percent(total ? (numeric(r.orders) ?? 0) / total : 0, 1)}</b>
+              <small>{number(numeric(r.orders) ?? 0)}</small>
+            </li>
           ))}
-        </div>
-      </VizTip>
-      <ul className="vx-legend vx-legend-grid">
-        {rows.slice(0, 6).map((r, i) => (
-          <li key={String(r.status)}>
-            <i className={`vx-s${Math.min(i, 5)}`} />
-            {STATUS_LABEL[String(r.status)] ?? String(r.status)}
-            <b>{percent(total ? (numeric(r.orders) ?? 0) / total : 0, 1)}</b>
-          </li>
-        ))}
-      </ul>
+        </ul>
+      </div>
     </Card>
   )
 }

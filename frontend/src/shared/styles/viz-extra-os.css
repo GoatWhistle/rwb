@@ -229,3 +229,120 @@
 .vx-columns small {
   font-size: 11px;
 }
+.vx-donut-wrap {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  margin-top: 8px;
+}
+.vx-donut {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(-90deg);
+}
+.vx-donut text {
+  transform: rotate(90deg);
+  transform-origin: 100px 100px;
+}
+.vx-donut-seg {
+  fill: none;
+  stroke-width: 26;
+  background: none;
+  transition:
+    stroke-width 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  animation: vx-donut-in 700ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.vx-donut-seg.vx-s0 {
+  stroke: var(--viz-1);
+}
+.vx-donut-seg.vx-s1 {
+  stroke: var(--viz-2);
+}
+.vx-donut-seg.vx-s2 {
+  stroke: var(--viz-3);
+}
+.vx-donut-seg.vx-s3 {
+  stroke: var(--viz-6);
+}
+.vx-donut-seg.vx-s4 {
+  stroke: var(--viz-9);
+}
+.vx-donut-seg.vx-s5 {
+  stroke: var(--viz-8);
+}
+.vx-donut:has(.vx-donut-seg:hover) .vx-donut-seg:not(:hover) {
+  opacity: 0.45;
+}
+@keyframes vx-donut-in {
+  from {
+    opacity: 0;
+  }
+}
+.vx-donut-total {
+  fill: #1d1d1b;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.vx-donut-caption {
+  fill: #5e5e66;
+  font-size: 13px;
+}
+.vx-donut-legend {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13.5px;
+}
+.vx-donut-legend li {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) 56px 64px;
+  align-items: center;
+  gap: 10px;
+}
+.vx-donut-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.vx-donut-legend b {
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.vx-donut-legend small {
+  text-align: right;
+  color: #8c8c96;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 560px) {
+  .vx-donut-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vx-donut-seg {
+    animation: none;
+  }
+}
+.vx-donut-wrap {
+  grid-template-columns: minmax(140px, 190px) minmax(0, 1fr);
+  gap: 24px;
+}
+.vx-donut-legend li {
+  grid-template-columns: 10px minmax(110px, 1fr) 48px 52px;
+  gap: 8px;
+}
+.vx-donut-legend li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

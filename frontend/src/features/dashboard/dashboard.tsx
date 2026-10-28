@@ -4,7 +4,7 @@ import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metri
 import { useMetric } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState } from "@/shared/ui/controls"
-import { AssistantIcon } from "../chat/assistant-icon"
+import { ConstructorIcon } from "../constructor/constructor-icon"
 import { ConstructorPage } from "../constructor/constructor-page"
 import { CustomerProfile } from "./customer-profile"
 import {
@@ -148,7 +148,7 @@ export function Dashboard({
             }}
           >
             <span className="ctor-entry-icon" aria-hidden="true">
-              <AssistantIcon size={18} />
+              <ConstructorIcon size={18} />
             </span>
             {ru.constructor}
           </button>
@@ -254,7 +254,7 @@ function TabCards({
             <TileMap rows={rowsOf(q.statesRevenue.data)} query={q.statesRevenue} index={5} />
           </div>
           <div className="dg-6">
-            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={6} />
+            <StatusBar rows={rowsOf(q.statusMix.data)} query={q.statusMix} index={6} />
           </div>
           <div className="dg-6">
             <Heatmap rows={rowsOf(q.heatmap.data)} query={q.heatmap} index={7} />
@@ -262,10 +262,10 @@ function TabCards({
           <div className="dg-6">
             <Geography rows={rowsOf(q.states.data)} query={q.states} index={8} limit={5} />
           </div>
-          <div className="dg-12">
-            <StatusBar rows={rowsOf(q.statusMix.data)} query={q.statusMix} index={9} />
+          <div className="dg-6">
+            <PaymentsMix rows={rowsOf(q.payments.data)} query={q.payments} index={9} />
           </div>
-          <div className="dg-12">
+          <div className="dg-6">
             <Categories
               rows={rowsOf(q.categories.data)}
               query={q.categories}

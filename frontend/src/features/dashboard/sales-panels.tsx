@@ -223,17 +223,21 @@ export function Categories({
   const total = rows.reduce((sum, row) => sum + (numeric(row.revenue) ?? 0), 0)
   useLayoutEffect(() => {
     const box = listRef.current
-    if (!box) return
+    if (!box || rows.length === 0) return
     const measure = () => {
       const items = box.querySelectorAll<HTMLElement>(".os-barlist > li")
       const cut = items[limit + 1]
-      setHeight(all || !cut ? box.scrollHeight : cut.offsetTop)
+      setHeight(
+        all || !cut
+          ? box.scrollHeight
+          : cut.getBoundingClientRect().top - box.getBoundingClientRect().top,
+      )
     }
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(box)
     return () => observer.disconnect()
-  }, [all, limit])
+  }, [all, limit, rows.length])
   return (
     <Card
       title={ru.categories}
