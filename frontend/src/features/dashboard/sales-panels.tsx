@@ -2,7 +2,16 @@ import { Download, Table2, TrendingUp } from "lucide-react"
 import { useState } from "react"
 import type { MetricResult } from "@/shared/api/metrics"
 import type { Row } from "@/shared/format"
-import { categoryName, downloadCsv, money, month, number, numeric, percent } from "@/shared/format"
+import {
+  categoryName,
+  compact,
+  downloadCsv,
+  money,
+  month,
+  number,
+  numeric,
+  percent,
+} from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
 import { Button, EmptyState, IconButton, Panel, Tip } from "@/shared/ui/controls"
@@ -18,7 +27,8 @@ export function SalesTrend({ result }: { result: MetricResult }) {
   const a = numeric(last?.[series]),
     b = numeric(prior?.[series])
   const delta = a !== null && b !== null && b !== 0 ? (a - b) / b : null
-  const format = series === "revenue" ? (n: number) => money(n, true) : number
+  const format = series === "revenue" ? (n: number) => money(n) : number
+  const tick = series === "revenue" ? (n: number) => money(n, true) : compact
   return (
     <Panel
       title={ru.trend}
@@ -106,6 +116,7 @@ export function SalesTrend({ result }: { result: MetricResult }) {
           y={series}
           label={ru.trend}
           formatValue={format}
+          formatTick={tick}
           formatLabel={month}
         />
       )}

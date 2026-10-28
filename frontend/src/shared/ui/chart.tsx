@@ -13,6 +13,7 @@ export interface ChartProps {
   type?: "line" | "bar"
   formatValue?: ((n: number) => string) | undefined
   formatLabel?: ((value: unknown) => string) | undefined
+  formatTick?: ((n: number) => string) | undefined
 }
 export function Chart({
   rows,
@@ -22,7 +23,9 @@ export function Chart({
   type = "line",
   formatValue = number,
   formatLabel = cell,
+  formatTick,
 }: ChartProps) {
+  const tick = formatTick ?? formatValue
   const container = useRef<HTMLDivElement>(null)
   const [chartWidth, setChartWidth] = useState(800)
   useEffect(() => {
@@ -37,11 +40,11 @@ export function Chart({
   const [active, setActive] = useState<number | null>(null)
   const id = useId()
   const width = chartWidth,
-    height = 226,
-    left = 85,
+    height = 260,
+    left = 72,
     right = 18,
     top = 14,
-    bottom = 30
+    bottom = 32
   const values = rows.map((row) => numeric(row[y]))
   const measured = values.filter((n): n is number => n !== null)
   if (!measured.length)
@@ -81,11 +84,49 @@ export function Chart({
             <g key={i}>
               <line x1={left} x2={width - right} y1={py(n)} y2={py(n)} className="chart-grid" />
               <text x={left - 12} y={py(n) + 4} textAnchor="end" className="chart-label">
-                {formatValue(n)}
+                {tick(n)}
               </text>
             </g>
           )
         })}
+        {type === "line" &&
+          values.map((n, i) => {
+            if (n !== null || rows.length < 2) return null
+            const span = (width - left - right) / Math.max(rows.length - 1, 1)
+            return (
+              <g key={`gap-${String(rows[i]?.[x])}`}>
+                <rect
+                  x={px(i) - span / 2}
+                  y={top}
+                  width={span}
+                  height={height - top - bottom}
+                  className="chart-gap"
+                />
+                <text x={px(i)} y={top + 14} textAnchor="middle" className="chart-gap-label">
+                  {ru.noDataMonth}
+                </text>
+              </g>
+            )
+          })}
+        {type === "line" &&
+          values.map((_, i) => {
+            if (values[i] === null || (i > 0 && values[i - 1] !== null)) return null
+            let end = i
+            while (end + 1 < values.length && values[end + 1] !== null) end += 1
+            if (end === i) return null
+            const base = py(Math.max(min, 0))
+            const points = values
+              .slice(i, end + 1)
+              .map((n, k) => `${px(i + k)},${py(n ?? 0)}`)
+              .join(" L")
+            return (
+              <path
+                key={`area-${String(rows[i]?.[x])}`}
+                d={`M${px(i)},${base} L${points} L${px(end)},${base} Z`}
+                className="chart-area"
+              />
+            )
+          })}
         {type === "line" && <path d={segments.join(" ")} className="chart-line" />}
         {rows.map((item, i) => {
           const n = values[i]

@@ -3,6 +3,8 @@ import { ru } from "./i18n/ru"
 export type Row = Record<string, unknown>
 export const number = (value: number, digits = 0) =>
   new Intl.NumberFormat("ru-RU", { maximumFractionDigits: digits }).format(value)
+export const compact = (value: number) =>
+  new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 }).format(value)
 export const money = (value: number, compact = false) =>
   new Intl.NumberFormat("ru-RU", {
     style: "currency",
