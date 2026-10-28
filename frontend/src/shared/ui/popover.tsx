@@ -6,6 +6,7 @@ const CLOSE_MS = 140
 export function useAutoFocus<T extends HTMLElement>() {
   const ref = useRef<T>(null)
   useEffect(() => {
+    if (window.matchMedia?.("(pointer: coarse)").matches) return
     ref.current?.focus()
   }, [])
   return ref
@@ -47,7 +48,9 @@ export function Popover({
   useEffect(() => {
     if (!open) return
     const onDown = (event: PointerEvent) => {
-      if (!root.current?.contains(event.target as Node)) setOpen(false)
+      const target = event.target as Element
+      if (!root.current?.contains(target) || target.classList?.contains("popover-scrim"))
+        setOpen(false)
     }
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -75,6 +78,9 @@ export function Popover({
       >
         {trigger}
       </button>
+      {mounted && (
+        <div className="popover-scrim" data-state={open ? "open" : "closed"} aria-hidden="true" />
+      )}
       {mounted && (
         <div
           id={id}

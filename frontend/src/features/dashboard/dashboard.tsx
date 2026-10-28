@@ -49,6 +49,13 @@ export function Dashboard({
       const index = (TABS as readonly string[]).indexOf(tab)
       const active = index < 0 ? null : nav.querySelectorAll<HTMLElement>("button")[index]
       setIndicator(active ? { x: active.offsetLeft, w: active.offsetWidth } : null)
+      if (active && nav.scrollWidth > nav.clientWidth)
+        nav.scrollTo({
+          left: active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2,
+          behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+        })
     }
     place()
     const observer = new ResizeObserver(place)
@@ -150,7 +157,7 @@ export function Dashboard({
             <span className="ctor-entry-icon" aria-hidden="true">
               <ConstructorIcon size={18} />
             </span>
-            {ru.constructor}
+            <span className="ctor-entry-label">{ru.constructor}</span>
           </button>
           <span className="dash-toolbar-divider" aria-hidden="true" />
           <FiltersBar value={filters} onChange={onFilters} />

@@ -115,14 +115,21 @@ export function FiltersBar({
             </>
           }
         >
-          {() => (
-            <MultiSelect
-              options={states}
-              value={value.states ?? []}
-              onChange={(next) => onChange({ ...value, states: next })}
-              allLabel={ru.allStates}
-              searchLabel={ru.stateSearch}
-            />
+          {(close) => (
+            <>
+              <MultiSelect
+                options={states}
+                value={value.states ?? []}
+                onChange={(next) => onChange({ ...value, states: next })}
+                allLabel={ru.allStates}
+                searchLabel={ru.stateSearch}
+              />
+              <div className="sheet-done">
+                <Button className="primary" onClick={close}>
+                  {ru.done}
+                </Button>
+              </div>
+            </>
           )}
         </Popover>
         {(value.states?.length ?? 0) > 0 && (
