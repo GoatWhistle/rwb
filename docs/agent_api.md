@@ -44,6 +44,17 @@ SQL, зерно, единицы, определения, ограничения,
 
 ## Чат
 
+### Голосовой ввод
+
+`GET /api/audio/health` возвращает `available`, `model`, `max_seconds`.
+`POST /api/audio/transcribe` принимает бинарный WAV с `Content-Type: audio/wav`:
+моно PCM16, 8–48 кГц, 0,25–600 секунд, до 32 МиБ. Пример ответа:
+`{"text":"Покажи выручку по месяцам.","duration_seconds":2.4,"model":"GigaAM-v3-e2e-ctc"}`.
+Веса и токенизатор загружаются только из `GIGAAM_MODEL_DIR`; сетевое скачивание
+выключено. WAV обрабатывается в памяти, результат вставляется в черновик.
+Ошибки содержат `detail.code`: `invalid_audio` (415/422), `audio_too_long` (413),
+`speech_not_detected` (422), `speech_busy` (429), `speech_unavailable` (503).
+
 `POST /api/chat/stream`, ответ `text/event-stream`. Используйте `fetch` с POST
 и чтением response body; нативный браузерный EventSource отправляет GET.
 

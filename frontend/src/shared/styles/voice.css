@@ -1,0 +1,85 @@
+.voice-button.recording {
+  color: #b7233b;
+  background: #fff0f2;
+}
+.voice-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 10px 8px;
+  min-height: 30px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.voice-status .icon-button {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+}
+.voice-error {
+  color: #a12c3d;
+}
+.voice-spinner {
+  animation: voice-spin 1s linear infinite;
+}
+@keyframes voice-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voice-spinner {
+    animation: none;
+  }
+}
+
+.voice-composer {
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  gap: 10px;
+}
+.voice-composer .voice-cancel {
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--text);
+}
+.voice-waveform {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  overflow: hidden;
+}
+.voice-wave-bar {
+  width: 3px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--text);
+  transition: transform 80ms linear;
+}
+.voice-composer .voice-record-stop {
+  border: 1px solid #bfcfff;
+  outline: 2px solid #4d7dff;
+  outline-offset: 2px;
+  color: var(--text);
+  border-radius: 50%;
+  margin: 0 3px;
+}
+.voice-elapsed {
+  color: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 768px) {
+  .voice-elapsed {
+    display: none;
+  }
+}
