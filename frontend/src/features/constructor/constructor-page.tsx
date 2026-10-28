@@ -28,6 +28,7 @@ import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState, IconButton } from "@/shared/ui/controls"
 import "@/shared/styles/constructor.css"
 import "@/shared/styles/ctor-clean.css"
+import "@/shared/styles/mobile-ctor.css"
 import { Canvas } from "./canvas"
 import { CtorEmpty } from "./empty-state"
 import { WidgetGenerator } from "./generator"
@@ -215,6 +216,19 @@ function Switcher({
   const [title, setTitle] = useState("")
   const [confirm, setConfirm] = useState<string | null>(null)
   const [menu, setMenu] = useState<string | null>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  useEffect(() => {
+    const list = listRef.current
+    const index = dashboards.findIndex((d) => d.id === activeId)
+    const item = list?.children[index]
+    if (!list || !(item instanceof HTMLElement) || list.scrollWidth <= list.clientWidth) return
+    const offset = item.getBoundingClientRect().left - list.getBoundingClientRect().left
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    list.scrollTo({
+      left: list.scrollLeft + offset - (list.clientWidth - item.offsetWidth) / 2,
+      behavior: reduce ? "auto" : "smooth",
+    })
+  }, [dashboards, activeId])
   useEffect(() => {
     if (!menu) return
     const close = (e: PointerEvent | KeyboardEvent) => {
@@ -236,7 +250,7 @@ function Switcher({
   }
   return (
     <nav className="ctor-switcher" aria-label={ru.ctorDashboards}>
-      <ul>
+      <ul ref={listRef}>
         {loading && ["a", "b"].map((id) => <li key={id} className="switcher-skeleton" />)}
         {dashboards.map((dashboard) => (
           <li key={dashboard.id} className={dashboard.id === activeId ? "active" : ""}>
