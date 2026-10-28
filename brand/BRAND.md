@@ -23,13 +23,13 @@
 | `wordmark/unbounded.svg`, `wordmark/unbounded-white.svg` | надпись отдельно |
 | `logos.html` | все варианты знаков и шрифтов для сравнения |
 
-| `favicon/favicon.svg` | фавикон, сетка 32 px: скруглённая плитка (радиус 30 %) на градиенте sky-ink #226CF5 → #2348FF, на ней три плиты светлыми оттенками raw, core, mart (верхняя белая) и кубик #2348FF; он же `frontend/public/favicon.svg` |
-| `favicon/favicon-16.svg` | тот же знак, перерисованный под сетку 16 px (плиты толщиной 1 px, радиус 4 px), исходник для `favicon-16.png` |
+| `favicon/favicon.svg` | фавикон, сетка 32 px, прозрачный фон: три плиты raw, core, mart (верхние грани светлее: #8AE4F8, #8FB9FA, #AA8CF5; боковые #3BC4EE/#1F8BBE, #518FF2/#2C5BC8, #7F57EB/#5634BF) и кубик #2348FF; он же `frontend/public/favicon.svg` |
+| `favicon/favicon-16.svg`, `-32.svg`, `-48.svg` | знак, перерисованный под каждую сетку: на 16 px плиты толщиной 2 px с шагом 3 px, кубик 6 px |
 | `favicon/favicon-16.png`, `-32.png`, `-48.png` | растровые фавиконы; из них Pillow собирает `frontend/public/favicon.ico` (16, 32, 48) |
-| `favicon/options.png` | сравнение вариантов A–D на 16/32/48 px и в увеличении ×8, на светлой и тёмной вкладке; выбран A |
-| `favicon/apple-touch-icon.svg`, `apple-touch-icon.png` | 180 px, квадрат без скругления (iOS скругляет сам), знак занимает 62 % |
-| `favicon/icon.svg`, `icon-192.png`, `icon-512.png` | PWA-иконки, радиус 30 %, знак 66 % |
-| `favicon/maskable.svg`, `maskable-512.png` | maskable, фон в край, знак 50 % внутри безопасной зоны 80 % |
+| `favicon/options.png` | сравнение вариантов A–D на 16/32/48 px и в увеличении, на светлой и тёмной вкладке; выбран C |
+| `favicon/apple-touch-icon.svg`, `apple-touch-icon.png` | 180 px, белый квадрат (iOS скругляет сам), знак 66 % |
+| `favicon/icon.svg`, `icon-192.png`, `icon-512.png` | PWA-иконки, белая плитка с радиусом 30 %, знак 70 % |
+| `favicon/maskable.svg`, `maskable-512.png` | maskable, белый фон в край, знак 56 % внутри безопасной зоны 80 % |
 | `og/og.svg`, `og/og.png` | соцкарточка 1200 × 630 в стиле обложки; в SVG шрифт Inter встроен base64, эталон для сетей это PNG |
 | `animation/logo-animated.svg` | анимация локапа на CSS @keyframes, 1,55 с, без JS |
 | `animation/preview.html` | просмотр анимации крупно с кнопкой повтора |
