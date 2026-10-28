@@ -42,6 +42,21 @@
 .vx-caption b {
   color: var(--text, inherit);
 }
+.vx-peak {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin-top: 12px;
+}
+.vx-peak em {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1f2f6;
+  color: var(--text-muted, #6b7280);
+}
 .vx-tiles {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
