@@ -213,7 +213,10 @@ footer { margin-top: 70px; padding-top: 20px; border-top: 1px solid var(--grid);
   <div class="card"><h3>Покупатель = человек</h3>
     <p>Аналитикам нужны повторные покупки и когорты — значит, ключ обязан быть стабильным
        от заказа к заказу. <code>customer_unique_id</code> стабилен, <code>customer_id</code> — нет.
-       География человека взята по его последнему заказу.</p></div>
+       География двухслойная: в <code>customers</code> — актуальная, по последнему заказу,
+       а в <code>orders</code> — снимок на момент покупки, иначе исторические продажи
+       по регионам считались бы по новым адресам (39 покупателей заказывали
+       из разных штатов).</p></div>
   <div class="card"><h3>Позиция, а не «товар в заказе»</h3>
     <p><code>order_item_id</code> — порядковый номер строки, не идентификатор. Ключ позиции —
        <code>(order_id, item_no)</code>. Одна строка = одна единица товара, поэтому
@@ -522,7 +525,8 @@ const ER_TABLES = {
     ["customer_unique_id", "pk"], ["city, state, zip", "plain"]]},
   orders:     {x: 380, y: 40,  title: "orders", rows: [
     ["order_id", "pk"], ["customer_unique_id", "fk"], ["status", "plain"],
-    ["purchased_at … delivered_at", "plain"], ["estimated_delivery_date", "plain"]]},
+    ["purchased_at … delivered_at", "plain"], ["estimated_delivery_date", "plain"],
+    ["city, state на момент заказа", "plain"]]},
   payments:   {x: 730, y: 70,  title: "order_payments", rows: [
     ["order_id + payment_no", "pk"], ["payment_type, installments", "plain"], ["amount", "plain"]]},
   reviews:    {x: 730, y: 250, title: "order_reviews", rows: [

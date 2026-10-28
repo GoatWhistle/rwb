@@ -85,7 +85,9 @@ FROM raw.sellers;
 -- 4. Покупатели
 --    Человек = customer_unique_id. customer_id в источнике — это
 --    «учётка одного заказа»: на каждый заказ своя, ключом быть не может.
---    География — по последнему заказу покупателя.
+--    Здесь — АКТУАЛЬНАЯ география (по последнему заказу): «где
+--    покупатель сейчас». География на момент каждого заказа хранится
+--    в core.orders — исторические отчёты по регионам считать оттуда.
 -- ------------------------------------------------------------
 CREATE TABLE core.customers (
     customer_unique_id text PRIMARY KEY,
@@ -107,20 +109,28 @@ ORDER BY c.customer_unique_id, o.order_purchase_timestamp DESC;
 -- ------------------------------------------------------------
 -- 5. Заказы
 --    customer_id сохраняем как атрибут-ссылку на источник,
---    аналитика ходит по customer_unique_id.
+--    аналитика по людям ходит по customer_unique_id.
+--    География покупателя (город/штат/индекс) — СНИМОК на момент
+--    заказа: в raw.customers строка 1:1 с заказом, так что это
+--    атрибут заказа. core.customers при соединении отдал бы всем
+--    старым заказам последний адрес человека и исказил бы
+--    исторические продажи по регионам.
 -- ------------------------------------------------------------
 CREATE TABLE core.orders (
-    order_id                text PRIMARY KEY,
-    customer_unique_id      text NOT NULL REFERENCES core.customers,
-    customer_id             text NOT NULL,                 -- id учётки из источника
-    status                  text NOT NULL CHECK (status IN
+    order_id                 text PRIMARY KEY,
+    customer_unique_id       text NOT NULL REFERENCES core.customers,
+    customer_id              text NOT NULL,                -- id учётки из источника
+    status                   text NOT NULL CHECK (status IN
         ('created','approved','invoiced','processing',
          'shipped','delivered','canceled','unavailable')),
-    purchased_at            timestamp NOT NULL,
-    approved_at             timestamp,
-    shipped_at              timestamp,                     -- передан в доставку
-    delivered_at            timestamp,                     -- вручён покупателю
-    estimated_delivery_date date                           -- обещано при оформлении
+    purchased_at             timestamp NOT NULL,
+    approved_at              timestamp,
+    shipped_at               timestamp,                    -- передан в доставку
+    delivered_at             timestamp,                    -- вручён покупателю
+    estimated_delivery_date  date,                         -- обещано при оформлении
+    customer_zip_code_prefix text,                         -- география на момент заказа
+    customer_city            text,
+    customer_state           text
 );
 
 INSERT INTO core.orders
@@ -133,7 +143,10 @@ SELECT
     NULLIF(trim(o.order_approved_at), '')::timestamp,
     NULLIF(trim(o.order_delivered_carrier_date), '')::timestamp,
     NULLIF(trim(o.order_delivered_customer_date), '')::timestamp,
-    NULLIF(trim(o.order_estimated_delivery_date), '')::date
+    NULLIF(trim(o.order_estimated_delivery_date), '')::date,
+    c.customer_zip_code_prefix,
+    c.customer_city,
+    c.customer_state
 FROM raw.orders o
 JOIN raw.customers c USING (customer_id);
 
