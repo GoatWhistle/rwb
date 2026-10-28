@@ -83,11 +83,6 @@
 .chat-welcome {
   padding-top: clamp(50px, 14vh, 150px);
 }
-.welcome-mark {
-  display: block;
-  flex-shrink: 0;
-  margin: 0 auto 18px;
-}
 .chat-welcome h3 {
   font-size: 20px;
   letter-spacing: -0.045em;
@@ -925,7 +920,7 @@ details[open] > .disclosure-summary > .disclosure-chevron {
   display: block;
   overflow: visible;
 }
-.chat-title.is-thinking .assistant-icon-cube {
+.chat-title.is-thinking .assistant-icon-top {
   animation: assistant-cube-lift 900ms ease-in-out infinite;
 }
 @keyframes assistant-cube-lift {
@@ -938,7 +933,7 @@ details[open] > .disclosure-summary > .disclosure-chevron {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .chat-title.is-thinking .assistant-icon-cube {
+  .chat-title.is-thinking .assistant-icon-top {
     animation: none;
   }
 }
