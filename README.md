@@ -10,10 +10,12 @@ SQL-запросами на вопросы аналитиков.
 ## Решение команды
 
 Модель и ответы — в [solution/](solution/): `build_core.sql` собирает `core`
-из `raw`, `answers_block_a.sql` отвечает на вопросы блока А. Разбор данных
-и решений — [report.html](report.html). Дашборд «Исполнение заказа» —
-[solution/dashboard.html](solution/dashboard.html), его данные собирает
-`solution/build_dashboard.py`.
+из `raw`, `build_mart.sql` — витрины `mart` поверх него,
+`answers_block_a.sql` отвечает на вопросы блока А
+(`answers_block_a_check.sql` — то же со сверкой контрольных цифр).
+Разбор данных и решений — [report.html](report.html). Дашборд
+«Исполнение заказа» — [solution/dashboard.html](solution/dashboard.html),
+его данные собирает из витрин `solution/build_dashboard.py`.
 
 ## Быстрый старт
 

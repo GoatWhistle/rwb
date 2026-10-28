@@ -444,7 +444,8 @@ tbody tr:hover td { background: #fafaff; }
 
 <section class="block" id="source">
   <h2>Откуда <em class="acc">данные</em></h2>
-  <p class="lead">Две витрины поверх <span class="chipc">core</span>. Исходные таблицы не меняются, у каждой витрины своё зерно.</p>
+  <p class="lead">Две витрины поверх <span class="chipc">core</span>, собирает <code>solution/build_mart.sql</code>.
+    Исходные таблицы не меняются, у каждой витрины своё зерно.</p>
   <div class="grid2">
     <div class="card-l">
       <h3><code>mart.order_fulfillment</code></h3>
@@ -463,21 +464,21 @@ tbody tr:hover td { background: #fafaff; }
 
 <section class="block" id="metrics">
   <h2>Показатели и <em class="acc">их источник</em></h2>
-  <p class="lead">Формула, уровень расчёта и таблица модели, из которой берётся каждое поле.</p>
+  <p class="lead">Формула, уровень расчёта и витрина, из которой берётся каждое поле.</p>
   <div class="tscroll">
   <table>
     <thead><tr><th>Показатель</th><th>Формула</th><th>Уровень</th><th>Откуда</th></tr></thead>
     <tbody>
-      <tr><td>Заказов оформлено</td><td><code>count(*)</code></td><td>заказ</td><td>orders</td></tr>
-      <tr><td>Доля отмен</td><td><code>count(status in (canceled, unavailable)) / count(*)</code></td><td>заказ</td><td>orders</td></tr>
-      <tr><td>Доставлено вовремя</td><td><code>count(delivered_at::date &lt;= estimated_delivery_date) / count(доставленных)</code></td><td>заказ</td><td>orders</td></tr>
-      <tr><td>Срок доставки, медиана и p90</td><td><code>percentile(delivered_at − purchased_at)</code></td><td>заказ</td><td>orders</td></tr>
-      <tr><td>Обещанный срок, медиана</td><td><code>median(estimated_delivery_date − purchased_at::date)</code></td><td>заказ</td><td>orders</td></tr>
-      <tr><td>Этапы: продавец, перевозка</td><td><code>median(shipped − approved)</code>, <code>median(delivered − shipped)</code></td><td>заказ</td><td>orders</td></tr>
-      <tr><td>Отгрузка продавцом в срок</td><td><code>count(shipped_at &lt;= shipping_limit_at) / count(пар)</code></td><td>заказ × продавец</td><td>order_items + orders</td></tr>
-      <tr><td>Зависшие в пути</td><td><code>status = shipped and estimated_delivery_date &lt; дата среза</code></td><td>заказ, остаток на дату</td><td>orders</td></tr>
-      <tr><td>Средняя оценка, доля 1–2★</td><td><code>avg(score)</code>, <code>count(score &lt;= 2) / count(*)</code></td><td>заказ, последний отзыв</td><td>order_reviews</td></tr>
-      <tr><td>Доля фрахта в чеке</td><td><code>sum(freight_value) / sum(price + freight_value)</code></td><td>заказ</td><td>order_items</td></tr>
+      <tr><td>Заказов оформлено</td><td><code>count(*)</code></td><td>заказ</td><td>order_fulfillment</td></tr>
+      <tr><td>Доля отмен</td><td><code>count(status in (canceled, unavailable)) / count(*)</code></td><td>заказ</td><td>order_fulfillment</td></tr>
+      <tr><td>Доставлено вовремя</td><td><code>count(on_time) / count(доставленных)</code></td><td>заказ</td><td>order_fulfillment</td></tr>
+      <tr><td>Срок доставки, медиана и p90</td><td><code>percentile(days_total)</code></td><td>заказ</td><td>order_fulfillment</td></tr>
+      <tr><td>Обещанный срок, медиана</td><td><code>median(estimated_delivery_date − purchased_at::date)</code></td><td>заказ</td><td>order_fulfillment</td></tr>
+      <tr><td>Этапы: продавец, перевозка</td><td><code>median(days_seller)</code>, <code>median(days_carrier)</code></td><td>заказ</td><td>order_fulfillment</td></tr>
+      <tr><td>Отгрузка продавцом в срок</td><td><code>count(shipped_at &lt;= shipping_limit_at) / count(пар)</code></td><td>заказ × продавец</td><td>seller_shipment</td></tr>
+      <tr><td>Зависшие в пути</td><td><code>status = shipped and estimated_delivery_date &lt; дата среза</code></td><td>заказ, остаток на дату</td><td>order_fulfillment</td></tr>
+      <tr><td>Средняя оценка, доля 1–2★</td><td><code>avg(last_review_score)</code>, <code>count(score &lt;= 2) / count(*)</code></td><td>заказ, последний отзыв</td><td>order_fulfillment</td></tr>
+      <tr><td>Доля фрахта в чеке</td><td><code>sum(freight_total) / sum(items_total + freight_total)</code></td><td>заказ</td><td>order_fulfillment</td></tr>
     </tbody>
   </table>
   </div>
@@ -599,8 +600,9 @@ tbody tr:hover td { background: #fafaff; }
 <footer class="foot">
   <div class="wrap">
     <h2>Как пересобрать</h2>
-    <p>Данные внутри файла собирает <code>python solution/build_dashboard.py</code> из модели core
-      (сначала <code>solution/build_core.sql</code>). Файл открывается в браузере и без интернета: шрифты подменятся системными.</p>
+    <p>Данные внутри файла собирает <code>python solution/build_dashboard.py</code> из витрин mart
+      (порядок: <code>build_core.sql</code> → <code>build_mart.sql</code> → этот скрипт).
+      Файл открывается в браузере и без интернета: шрифты подменятся системными.</p>
   </div>
 </footer>
 

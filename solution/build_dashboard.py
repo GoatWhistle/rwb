@@ -2,11 +2,11 @@
 """
 Данные для дашборда «Исполнение заказа» (solution/dashboard.html).
 
-Считает показатели из модели core и вписывает их в блок
-<script id="dash-data"> внутри dashboard.html. Сам HTML не зависит
-от базы и интернета: открывается двойным кликом.
+Считает показатели из витрин mart (solution/build_mart.sql) и вписывает
+их в блок <script id="dash-data"> внутри dashboard.html. Сам HTML
+не зависит от базы и интернета: открывается двойным кликом.
 
-Запуск из корня проекта, после сборки core:
+Запуск из корня проекта, после build_core.sql и build_mart.sql:
     python solution/build_dashboard.py
 
 Другая база:
@@ -27,48 +27,32 @@ except ImportError:
 
 HTML = pathlib.Path(__file__).with_name("dashboard.html")
 
-# Общая база всех показателей:
+# Общая база всех показателей — срезы двух витрин mart:
 #   d  — доставленные заказы с датой вручения, оформленные до конца
 #        августа 2018 (в сентябре–октябре в выгрузке только отмены);
-#   lr — один отзыв на заказ, последний по времени.
-# Этапы с отрицательной длительностью (отгрузка раньше подтверждения
-# оплаты) превращаются в NULL и не попадают в медианы.
+#        on_time и длительности этапов уже посчитаны в витрине;
+#   os — отгрузки: пары заказ × продавец из заказов с одним
+#        продавцом (shipped_at в источнике один на весь заказ).
 BASE = """
 CREATE TEMP VIEW d AS
-SELECT o.*,
-       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,
-       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total,
-       CASE WHEN o.shipped_at >= o.approved_at
-            THEN extract(epoch FROM o.shipped_at - o.approved_at) / 86400 END AS days_seller,
-       CASE WHEN o.delivered_at >= o.shipped_at
-            THEN extract(epoch FROM o.delivered_at - o.shipped_at) / 86400 END AS days_carrier
-FROM core.orders o
-WHERE o.status = 'delivered'
-  AND o.delivered_at IS NOT NULL
-  AND o.purchased_at < '2018-09-01';
+SELECT *
+FROM mart.order_fulfillment
+WHERE status = 'delivered'
+  AND delivered_at IS NOT NULL
+  AND purchased_at < '2018-09-01';
 
-CREATE TEMP VIEW lr AS
-SELECT DISTINCT ON (order_id) order_id, score
-FROM core.order_reviews
-ORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST;
-
--- Пара заказ × продавец, только заказы с одним продавцом:
--- shipped_at в источнике один на весь заказ.
 CREATE TEMP VIEW os AS
-SELECT i.order_id, i.seller_id, max(i.shipping_limit_at) AS lim, o.shipped_at
-FROM core.order_items i
-JOIN core.orders o USING (order_id)
-WHERE o.shipped_at IS NOT NULL
-  AND o.purchased_at < '2018-09-01'
-  AND i.order_id IN (SELECT order_id FROM core.order_items
-                     GROUP BY 1 HAVING count(DISTINCT seller_id) = 1)
-GROUP BY i.order_id, i.seller_id, o.shipped_at;
+SELECT order_id, seller_id, shipping_limit_at AS lim, shipped_at
+FROM mart.seller_shipment
+WHERE shipped_at IS NOT NULL
+  AND purchased_at < '2018-09-01'
+  AND is_single_seller;
 """
 
 QUERIES = {
     "kpi": """
 SELECT json_build_object(
-  'orders',          (SELECT count(*) FROM core.orders WHERE purchased_at < '2018-09-01'),
+  'orders',          (SELECT count(*) FROM mart.order_fulfillment WHERE purchased_at < '2018-09-01'),
   'delivered',       (SELECT count(*) FROM d),
   'otd',             (SELECT round(avg(on_time::int), 4) FROM d),
   'otd_naive',       (SELECT round(avg((delivered_at <= estimated_delivery_date)::int), 4) FROM d),
@@ -79,36 +63,34 @@ SELECT json_build_object(
   'median_approve',  (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY extract(epoch FROM approved_at - purchased_at) / 86400)::numeric, 2) FROM d),
   'median_seller',   (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_seller)::numeric, 1) FROM d),
   'median_carrier',  (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_carrier)::numeric, 1) FROM d),
-  'cancel_rate',     (SELECT round(avg((status IN ('canceled', 'unavailable'))::int), 4) FROM core.orders WHERE purchased_at < '2018-09-01'),
-  'stuck',           (SELECT count(*) FROM core.orders WHERE status = 'shipped'
-                        AND estimated_delivery_date < (SELECT max(purchased_at)::date FROM core.orders)),
-  'avg_score',       (SELECT round(avg(score), 2) FROM d JOIN lr USING (order_id)),
+  'cancel_rate',     (SELECT round(avg((status IN ('canceled', 'unavailable'))::int), 4) FROM mart.order_fulfillment WHERE purchased_at < '2018-09-01'),
+  'stuck',           (SELECT count(*) FROM mart.order_fulfillment WHERE status = 'shipped'
+                        AND estimated_delivery_date < (SELECT max(purchased_at)::date FROM mart.order_fulfillment)),
+  'avg_score',       (SELECT round(avg(last_review_score), 2) FROM d WHERE last_review_score IS NOT NULL),
   'seller_on_time',  (SELECT round(avg((shipped_at <= lim)::int), 4) FROM os),
   'seller_pairs',    (SELECT count(*) FROM os),
   'sellers_100plus', (SELECT count(*) FROM (SELECT seller_id FROM os GROUP BY 1 HAVING count(*) >= 100) z)
 )""",
     # Цифры для раздела «Правила»: каждое правило подкреплено счётчиком.
+    # Дубли отзывов и их даты витрина не хранит (в ней только последний
+    # отзыв), поэтому три последних счётчика идут в core.order_reviews.
     "checks": """
 SELECT json_build_object(
-  'orders_with_items',       (SELECT count(DISTINCT order_id) FROM core.order_items),
-  'orders_without_items',    (SELECT count(*) FROM core.orders o
-                                WHERE NOT EXISTS (SELECT 1 FROM core.order_items i WHERE i.order_id = o.order_id)),
-  'multi_seller_orders',     (SELECT count(*) FROM (SELECT order_id FROM core.order_items
-                                GROUP BY 1 HAVING count(DISTINCT seller_id) > 1) x),
-  'order_seller_pairs',      (SELECT count(*) FROM (SELECT DISTINCT order_id, seller_id FROM core.order_items) x),
-  'multi_review_orders',     (SELECT count(*) FROM (SELECT order_id FROM core.order_reviews
-                                GROUP BY 1 HAVING count(*) > 1) x),
+  'orders_with_items',       (SELECT count(*) FROM mart.order_fulfillment WHERE units > 0),
+  'orders_without_items',    (SELECT count(*) FROM mart.order_fulfillment WHERE units = 0),
+  'multi_seller_orders',     (SELECT count(*) FROM mart.order_fulfillment WHERE sellers_cnt > 1),
+  'order_seller_pairs',      (SELECT count(*) FROM mart.seller_shipment),
+  'multi_review_orders',     (SELECT count(*) FROM mart.order_fulfillment WHERE reviews_cnt > 1),
   'diff_score_orders',       (SELECT count(*) FROM (SELECT order_id FROM core.order_reviews
                                 GROUP BY 1 HAVING count(DISTINCT score) > 1) x),
-  'no_review_orders',        (SELECT count(*) FROM core.orders o
-                                WHERE NOT EXISTS (SELECT 1 FROM core.order_reviews r WHERE r.order_id = o.order_id)),
-  'shipped_before_approved', (SELECT count(*) FROM core.orders WHERE shipped_at < approved_at),
-  'shipped_before_purchase', (SELECT count(*) FROM core.orders WHERE shipped_at < purchased_at),
-  'delivered_no_date',       (SELECT count(*) FROM core.orders WHERE status = 'delivered' AND delivered_at IS NULL),
-  'tail_orders',             (SELECT count(*) FROM core.orders WHERE purchased_at >= '2018-09-01'),
-  'tail_canceled',           (SELECT count(*) FROM core.orders WHERE purchased_at >= '2018-09-01' AND status = 'canceled'),
-  'review_before_delivery',  (SELECT count(*) FROM core.order_reviews r JOIN core.orders o USING (order_id)
-                                WHERE o.delivered_at IS NOT NULL AND r.created_at < o.delivered_at::date)
+  'no_review_orders',        (SELECT count(*) FROM mart.order_fulfillment WHERE reviews_cnt = 0),
+  'shipped_before_approved', (SELECT count(*) FROM mart.order_fulfillment WHERE shipped_at < approved_at),
+  'shipped_before_purchase', (SELECT count(*) FROM mart.order_fulfillment WHERE shipped_at < purchased_at),
+  'delivered_no_date',       (SELECT count(*) FROM mart.order_fulfillment WHERE status = 'delivered' AND delivered_at IS NULL),
+  'tail_orders',             (SELECT count(*) FROM mart.order_fulfillment WHERE purchased_at >= '2018-09-01'),
+  'tail_canceled',           (SELECT count(*) FROM mart.order_fulfillment WHERE purchased_at >= '2018-09-01' AND status = 'canceled'),
+  'review_before_delivery',  (SELECT count(*) FROM core.order_reviews r JOIN mart.order_fulfillment f USING (order_id)
+                                WHERE f.delivered_at IS NOT NULL AND r.created_at < f.delivered_at::date)
 )""",
     "monthly": """
 SELECT json_agg(t ORDER BY month) FROM (
@@ -134,13 +116,13 @@ SELECT json_agg(t ORDER BY ord) FROM (
          count(*) AS reviews,
          round(avg(score), 2) AS avg_score,
          round(avg((score <= 2)::int), 4) AS neg_share
-  FROM (SELECT lr.score,
+  FROM (SELECT last_review_score AS score,
                CASE WHEN delivered_at::date - estimated_delivery_date <= 0  THEN 1
                     WHEN delivered_at::date - estimated_delivery_date <= 3  THEN 2
                     WHEN delivered_at::date - estimated_delivery_date <= 7  THEN 3
                     WHEN delivered_at::date - estimated_delivery_date <= 14 THEN 4
                     ELSE 5 END AS ord
-        FROM d JOIN lr USING (order_id)) x
+        FROM d WHERE last_review_score IS NOT NULL) x
   GROUP BY ord) t""",
     "sellers": """
 SELECT json_agg(t ORDER BY on_time, shipments DESC) FROM (
@@ -175,6 +157,9 @@ def main():
         cur.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'core'")
         if cur.fetchone()[0] == 0:
             sys.exit("Схема core пустая. Сначала соберите модель: solution/build_core.sql")
+        cur.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'mart'")
+        if cur.fetchone()[0] == 0:
+            sys.exit("Схема mart пустая. Сначала соберите витрины: solution/build_mart.sql")
         cur.execute(BASE)
         for name, sql in QUERIES.items():
             cur.execute(sql)
