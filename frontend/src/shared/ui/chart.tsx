@@ -14,6 +14,8 @@ export interface ChartProps {
   formatValue?: ((n: number) => string) | undefined
   formatLabel?: ((value: unknown) => string) | undefined
   formatTick?: ((n: number) => string) | undefined
+  target?: number | undefined
+  targetLabel?: string | undefined
 }
 export function Chart({
   rows,
@@ -24,6 +26,8 @@ export function Chart({
   formatValue = number,
   formatLabel = cell,
   formatTick,
+  target,
+  targetLabel,
 }: ChartProps) {
   const tick = formatTick ?? formatValue
   const container = useRef<HTMLDivElement>(null)
@@ -41,7 +45,6 @@ export function Chart({
   const id = useId()
   const width = chartWidth,
     height = 260,
-    left = 72,
     right = 18,
     top = 14,
     bottom = 32
@@ -53,12 +56,14 @@ export function Chart({
         <EmptyState />
       </div>
     )
-  const dataMax = Math.max(...measured, 1)
+  const dataMax = Math.max(...measured, target ?? 0, 1e-9)
   const dataMin = Math.min(...measured, 0)
   const magnitude = 10 ** Math.floor(Math.log10((dataMax - dataMin) / 4))
   const step = Math.ceil((dataMax - dataMin) / 4 / magnitude) * magnitude
   const min = Math.floor(dataMin / step) * step
   const max = Math.ceil(dataMax / step) * step
+  const ticks = [0, 1, 2, 3, 4].map((i) => min + ((max - min) * i) / 4)
+  const left = Math.max(...ticks.map((n) => tick(n).length)) * 7.4 + 18
   const px = (i: number) => left + (i / Math.max(rows.length - 1, 1)) * (width - left - right)
   const py = (n: number) => height - bottom - ((n - min) / (max - min)) * (height - top - bottom)
   const segments: string[] = []
@@ -78,10 +83,9 @@ export function Chart({
         className="chart-svg"
       >
         <title id={id}>{label}</title>
-        {[0, 1, 2, 3, 4].map((i) => {
-          const n = min + ((max - min) * i) / 4
+        {ticks.map((n) => {
           return (
-            <g key={i}>
+            <g key={n}>
               <line x1={left} x2={width - right} y1={py(n)} y2={py(n)} className="chart-grid" />
               <text x={left - 12} y={py(n) + 4} textAnchor="end" className="chart-label">
                 {tick(n)}
@@ -127,7 +131,15 @@ export function Chart({
               />
             )
           })}
-        {type === "line" && <path d={segments.join(" ")} className="chart-line" />}
+        {target !== undefined && (
+          <g className="chart-target" pointerEvents="none">
+            <line x1={left} x2={width - right} y1={py(target)} y2={py(target)} />
+            <text x={width - right} y={py(target) - 6} textAnchor="end">
+              {targetLabel ?? tick(target)}
+            </text>
+          </g>
+        )}
+        {type === "line" && <path d={segments.join(" ")} className="chart-line" pathLength={1} />}
         {rows.map((item, i) => {
           const n = values[i]
           const showLabel =
@@ -141,8 +153,8 @@ export function Chart({
                   y={py(n)}
                   width={18}
                   height={height - bottom - py(n)}
-                  rx={3}
-                  className="chart-bar"
+                  rx={2}
+                  className={`chart-bar${active === i ? " active" : ""}`}
                 />
               )}
               {showLabel && (
@@ -188,7 +200,13 @@ export function Chart({
         )}
       </svg>
       {row && value !== null && value !== undefined && (
-        <div className="chart-tooltip">
+        <div
+          key={active}
+          className="chart-tooltip"
+          style={{
+            left: `clamp(8px, calc(${(px(active ?? 0) / width) * 100}% - 70px), calc(100% - 200px))`,
+          }}
+        >
           <span>{formatLabel(row[x])}</span>
           <strong>{formatValue(value)}</strong>
         </div>
