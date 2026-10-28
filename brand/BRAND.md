@@ -30,7 +30,7 @@
 | `favicon/apple-touch-icon.svg`, `apple-touch-icon.png` | 180 px, белый квадрат (iOS скругляет сам), знак 66 % |
 | `favicon/icon.svg`, `icon-192.png`, `icon-512.png` | PWA-иконки, белая плитка с радиусом 30 %, знак 70 % |
 | `favicon/maskable.svg`, `maskable-512.png` | maskable, белый фон в край, знак 56 % внутри безопасной зоны 80 % |
-| `og/og.svg`, `og/og.png` | соцкарточка 1200 × 630 в стиле обложки; в SVG шрифт Inter встроен base64, эталон для сетей это PNG |
+| `og/og.png`, `og/og-square.png`, `og/og-portrait.png` | соцкарточки 1200 × 630, 1080 × 1080, 1080 × 1350; исходник `og/src/og.html`, рендер `node brand/og/render.mjs`, альтернативы в `og/variants/` |
 | `animation/logo-animated.svg` | анимация локапа на CSS @keyframes, 1,55 с, без JS |
 | `animation/preview.html` | просмотр анимации крупно с кнопкой повтора |
 
