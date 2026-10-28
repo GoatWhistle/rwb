@@ -1,11 +1,32 @@
 import { ChevronDown, Download, FileText } from "lucide-react"
+import type { ReactNode } from "react"
+
 import Markdown from "react-markdown"
-import { cell, downloadCsv } from "@/shared/format"
+import { cell, downloadCsv, numeric } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { IconButton } from "@/shared/ui/controls"
 import { DataTable } from "@/shared/ui/data-table"
 import type { ChatMessage } from "./use-chat"
 
+function Disclosure({
+  className,
+  summary,
+  children,
+}: {
+  className: string
+  summary: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <details className={className}>
+      <summary className="disclosure-summary">
+        {summary}
+        <ChevronDown size={14} className="disclosure-chevron" />
+      </summary>
+      <div className="disclosure-body">{children}</div>
+    </details>
+  )
+}
 function Source({ source }: { source: Record<string, unknown> }) {
   if (source.type === "sql")
     return (
@@ -46,11 +67,7 @@ export function MessageDetails({
   const tables = Object.entries(message.tables)
   if (!details && !message.sources.length && !tables.length) return null
   return (
-    <details className="message-details">
-      <summary>
-        {ru.messageDetails}
-        <ChevronDown size={14} />
-      </summary>
+    <Disclosure className="message-details" summary={ru.messageDetails}>
       <div className="message-details-body">
         {details && (
           <div className="evidence-prose">
@@ -58,15 +75,19 @@ export function MessageDetails({
           </div>
         )}
         {tables.map(([id, table]) => (
-          <details className="chat-table" key={id}>
-            <summary>
-              <FileText size={14} />
-              {ru.results}
-              <span>
-                {table.rows.length} {ru.rows}
-              </span>
-              <ChevronDown size={14} />
-            </summary>
+          <Disclosure
+            className="chat-table"
+            key={id}
+            summary={
+              <>
+                <FileText size={14} />
+                {ru.results}
+                <span>
+                  {table.rows.length} {ru.rows}
+                </span>
+              </>
+            }
+          >
             <div className="chat-table-toolbar">
               <IconButton
                 label={ru.export}
@@ -80,10 +101,11 @@ export function MessageDetails({
               columns={table.columns.map((col) => ({
                 key: col.name,
                 label: columnLabels[col.name] ?? col.name,
+                numeric: table.rows.some((row) => numeric(row[col.name]) !== null),
               }))}
             />
             {table.truncated && <p className="footnote">{ru.truncated}</p>}
-          </details>
+          </Disclosure>
         ))}
         {message.sources.length > 0 && (
           <div className="evidence-sources">
@@ -94,6 +116,6 @@ export function MessageDetails({
           </div>
         )}
       </div>
-    </details>
+    </Disclosure>
   )
 }

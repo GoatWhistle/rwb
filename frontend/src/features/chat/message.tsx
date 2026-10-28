@@ -22,12 +22,23 @@ const columnLabels: Record<string, string> = {
   otd: ru.onTime,
   median_days: ru.deliveryTime,
 }
-export function Message({ message }: { message: ChatMessage }) {
-  if (message.role === "user") return <div className="user-message">{message.text}</div>
+export function Message({
+  message,
+  streaming = false,
+}: {
+  message: ChatMessage
+  streaming?: boolean
+}) {
+  if (message.role === "user")
+    return (
+      <div className="user-row">
+        <div className="user-message">{message.text}</div>
+      </div>
+    )
   const presentation = presentMessage(message.text, message.details)
   return (
     <div className="assistant-message">
-      <div className="answer-prose">
+      <div className={streaming && message.text ? "answer-prose is-streaming" : "answer-prose"}>
         <Markdown>{presentation.text}</Markdown>
       </div>
       {message.charts.map((chart) => {
