@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react"
 import type { CSSProperties } from "react"
 import { useState } from "react"
 import type { MetricResult } from "@/shared/api/metrics"
@@ -246,8 +247,10 @@ export function Categories({
         />
       )}
       {rows.length > limit && (
-        <Button className="os-more" onClick={() => setAll(!all)}>
-          {all ? ru.showLess : `${ru.showAll} · ${number(rows.length)}`}
+        <Button className="os-more" aria-expanded={all} onClick={() => setAll(!all)}>
+          <span>{all ? ru.showLess : ru.showAll}</span>
+          {!all && <span className="os-more-count">{number(rows.length)}</span>}
+          <ChevronDown size={16} className="os-more-chevron" aria-hidden="true" />
         </Button>
       )}
     </Card>
