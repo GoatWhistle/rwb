@@ -169,6 +169,7 @@ export function Chart({
                 width={Math.max((width - left - right) / Math.max(rows.length - 1, 1), 16)}
                 height={height - top - bottom}
                 fill="transparent"
+                className="chart-hit"
                 role="button"
                 tabIndex={0}
                 aria-label={`${formatLabel(item[x])}: ${n === null || n === undefined ? ru.noValue : formatValue(n)}`}

@@ -140,3 +140,10 @@
     animation: none;
   }
 }
+.chart-hit {
+  cursor: crosshair;
+}
+.chart-hit:focus,
+.chart-hit:focus-visible {
+  outline: none;
+}

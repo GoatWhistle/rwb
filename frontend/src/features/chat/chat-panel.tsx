@@ -1,9 +1,7 @@
 import {
   ArrowUpRight,
   CircleHelp,
-  Maximize2,
   MessageSquare,
-  Minimize2,
   Plus,
   TrendingUp,
   Truck,
@@ -27,8 +25,6 @@ export function ChatPanel({
   initialText,
   requestId,
   onClearContext,
-  expanded,
-  onExpand,
   onClose,
 }: {
   active: boolean
@@ -37,8 +33,6 @@ export function ChatPanel({
   initialText: string
   requestId: number
   onClearContext: () => void
-  expanded: boolean
-  onExpand: () => void
   onClose: () => void
 }) {
   const chat = useChat()
@@ -65,6 +59,9 @@ export function ChatPanel({
   }, [chat.messages])
   const [closing, setClosing] = useState(false)
   const close = () => setClosing(true)
+  useEffect(() => {
+    if (active) setClosing(false)
+  }, [active])
   const suggestions = [
     { text: ru.suggestion1, Icon: TrendingUp },
     { text: ru.suggestion2, Icon: Truck },
@@ -106,11 +103,6 @@ export function ChatPanel({
               disabled={chat.pending || voice.busy}
             >
               <Plus size={18} />
-            </IconButton>
-            <IconButton label={expanded ? ru.contract : ru.expand} onClick={onExpand}>
-              <span className="expand-chat-icon">
-                {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-              </span>
             </IconButton>
             <IconButton label={ru.closeChat} onClick={close}>
               <X size={18} />

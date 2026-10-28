@@ -15,7 +15,6 @@ export function App() {
   const [filters, setFilters] = useState<Filters>(initialFilters)
   const [chatOpen, setChatOpen] = useState(() => window.innerWidth > 768)
   const [chatWidth, setChatWidth] = useState(() => (window.innerWidth <= 1024 ? 360 : 400))
-  const [expanded, setExpanded] = useState(false)
   const [context, setContext] = useState<DashboardContext>({ filters })
   const [contextName, setContextName] = useState("")
   const [draft, setDraft] = useState({ text: "", id: 0 })
@@ -35,7 +34,7 @@ export function App() {
   }
   return (
     <div
-      className={`app-shell ${chatOpen ? "chat-open" : ""} ${expanded && chatOpen ? "chat-expanded" : ""}`}
+      className={`app-shell ${chatOpen ? "chat-open" : ""}`}
       style={{ "--chat-width": `${chatWidth}px` } as React.CSSProperties}
     >
       <a href="#main" className="skip-link">
@@ -66,14 +65,12 @@ export function App() {
           onKeyDown={(e) => {
             if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return
             e.preventDefault()
-            setExpanded(false)
             setChatWidth((n) =>
               Math.max(340, Math.min(800, n + (e.key === "ArrowLeft" ? 32 : -32))),
             )
           }}
           onPointerDown={(e) => {
             e.currentTarget.setPointerCapture(e.pointerId)
-            setExpanded(false)
           }}
           onPointerMove={(e) => {
             if (e.currentTarget.hasPointerCapture(e.pointerId))
@@ -102,8 +99,6 @@ export function App() {
             setContext({ filters })
             setContextName("")
           }}
-          expanded={expanded}
-          onExpand={() => setExpanded(!expanded)}
           onClose={() => setChatOpen(false)}
         />
       </div>
