@@ -1,5 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query"
-import { MessageSquare, RefreshCw } from "lucide-react"
+import { MessageSquare } from "lucide-react"
 import { useState } from "react"
 import { ChatPanel } from "@/features/chat/chat-panel"
 import { Dashboard } from "@/features/dashboard/dashboard"
@@ -13,7 +12,6 @@ import "@/shared/styles/dashboard.css"
 import "@/shared/styles/chat.css"
 
 export function App() {
-  const client = useQueryClient()
   const [filters, setFilters] = useState<Filters>(initialFilters)
   const [chatOpen, setChatOpen] = useState(() => window.innerWidth > 768)
   const [chatWidth, setChatWidth] = useState(() => (window.innerWidth <= 1024 ? 360 : 400))
@@ -44,26 +42,8 @@ export function App() {
         {ru.skip}
       </a>
       <header className="app-header shell-enter">
-        <a href="/" className="header-logo" aria-label={ru.product}>
+        <div className="header-logo" role="img" aria-label={ru.product}>
           <DatumLogo className="datum-logo-intro" />
-        </a>
-        <div className="header-actions">
-          <IconButton
-            className="refresh-button"
-            label={ru.refresh}
-            onClick={() => {
-              void client.invalidateQueries({ queryKey: ["metric"] })
-            }}
-          >
-            <RefreshCw size={18} />
-          </IconButton>
-          <IconButton
-            label={chatOpen ? ru.closeChat : ru.openChat}
-            aria-expanded={chatOpen}
-            onClick={() => setChatOpen(!chatOpen)}
-          >
-            <MessageSquare size={19} />
-          </IconButton>
         </div>
       </header>
       <main
@@ -126,6 +106,11 @@ export function App() {
           onClose={() => setChatOpen(false)}
         />
       </div>
+      {!chatOpen && (
+        <IconButton className="chat-fab" label={ru.openChat} onClick={() => setChatOpen(true)}>
+          <MessageSquare size={22} />
+        </IconButton>
+      )}
     </div>
   )
 }

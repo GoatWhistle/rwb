@@ -48,37 +48,34 @@
   outline: 2px solid #2348ff;
   outline-offset: 2px;
 }
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.app-header .icon-button {
-  width: 40px;
-  height: 40px;
-  border-radius: 13.3px;
-  color: #5e5e66;
+.chat-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 5;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #2348ff;
+  color: white;
+  box-shadow: 0 8px 24px rgb(35 72 255 / 0.28);
+  animation: chat-fab-in 200ms var(--ease-out) both;
   transition:
-    transform 160ms var(--ease-out),
-    background-color 160ms var(--ease-out),
-    color 160ms var(--ease-out);
+    transform 140ms var(--ease-out),
+    background-color 160ms var(--ease-out);
 }
-.app-header .icon-button:active {
+.chat-fab:active {
   transform: scale(0.97);
 }
-.app-header .icon-button:focus-visible {
+.chat-fab:focus-visible {
   outline: 2px solid #2348ff;
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
-.app-header .icon-button[aria-expanded="true"] {
-  color: #2348ff;
-  background: #f1f1f3;
-}
-.refresh-button svg {
-  transition: transform 320ms var(--ease-out);
-}
-.refresh-button:active svg {
-  transform: rotate(-90deg);
+@keyframes chat-fab-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.95);
+  }
 }
 .main-area {
   overflow: auto;
@@ -89,7 +86,7 @@
 }
 .datum-logo {
   display: block;
-  width: 120px;
+  width: 160px;
   height: auto;
   overflow: visible;
 }
@@ -149,12 +146,8 @@
   }
 }
 @media (hover: hover) and (pointer: fine) {
-  .app-header .icon-button:hover {
-    color: #1d1d1b;
-    background: #f1f1f3;
-  }
-  .app-header .icon-button[aria-expanded="true"]:hover {
-    color: #2348ff;
+  .chat-fab:hover {
+    background: #1a36cc;
   }
   .header-logo:hover .datum-logo-plate-middle {
     transform: translateY(-2px);
@@ -191,7 +184,7 @@
     padding: 0 16px;
   }
   .datum-logo {
-    width: 104px;
+    width: 128px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -199,14 +192,14 @@
   .datum-logo-cube,
   .datum-logo-glow,
   .datum-logo-word,
-  .app-header .icon-button,
-  .refresh-button svg {
+  .chat-fab {
     transition: none;
   }
   .shell-enter,
   .datum-logo-intro .datum-logo-plate,
   .datum-logo-intro .datum-logo-cube,
-  .datum-logo-intro .datum-logo-word {
+  .datum-logo-intro .datum-logo-word,
+  .chat-fab {
     animation: none;
   }
 }
