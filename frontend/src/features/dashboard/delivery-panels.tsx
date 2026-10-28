@@ -142,6 +142,7 @@ export function SellerDelivery({
       description={ru.sellerDeliveryNote}
       query={query}
       index={index}
+      className="fdb-sellers"
       actions={<CardTools rows={rows} filename="seller-on-time" png={false} />}
     >
       {rows.length ? (

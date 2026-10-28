@@ -1,0 +1,63 @@
+.dashboard .dash-card.fdb-scores .dcx-score {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 300px;
+  container-type: size;
+}
+.dashboard .dash-card.fdb-scores .dcx-score > :first-child {
+  flex: none;
+  margin-bottom: 4px;
+}
+.dashboard .dash-card.fdb-scores .dcx-score-row {
+  flex: 1 1 0;
+  min-height: 0;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 12px;
+}
+.dashboard .dash-card.fdb-scores .dcx-stars {
+  font-size: 14px;
+}
+.dashboard .dash-card.fdb-scores .dcx-score-bars {
+  gap: 4px;
+}
+.dashboard .dash-card.fdb-scores .dcx-score-bar {
+  height: clamp(16px, 4.6cqh, 26px);
+  gap: 8px;
+}
+.dashboard .dash-card.fdb-scores .dcx-score-bar span {
+  border-radius: 4px;
+}
+.dashboard .dash-card.fdb-scores .dcx-score-bar strong {
+  font-size: 12px;
+}
+.dashboard .dash-card.fdb-scores > .footnote {
+  flex: none;
+  margin: 0;
+}
+.dashboard .dash-card.fdb-sellers table {
+  table-layout: fixed;
+}
+.dashboard .dash-card.fdb-sellers th,
+.dashboard .dash-card.fdb-sellers td {
+  padding-inline: 8px;
+}
+.dashboard .dash-card.fdb-sellers th:first-child,
+.dashboard .dash-card.fdb-sellers td:first-child {
+  width: 34%;
+  padding-left: 0;
+}
+.dashboard .dash-card.fdb-sellers th:nth-child(2) {
+  width: 30%;
+}
+.dashboard .dash-card.fdb-sellers th:nth-child(3) {
+  width: 12%;
+}
+.dashboard .dash-card.fdb-sellers th:last-child,
+.dashboard .dash-card.fdb-sellers td:last-child {
+  padding-right: 0;
+}
+.dashboard .dash-card.fdb-sellers .dcx-more {
+  margin-left: -14px;
+}
