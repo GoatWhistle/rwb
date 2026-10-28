@@ -1,18 +1,9 @@
-import {
-  ArrowUpRight,
-  CircleHelp,
-  MessageSquare,
-  Plus,
-  TrendingUp,
-  Truck,
-  Wallet,
-  X,
-} from "lucide-react"
+import { CircleHelp, MessageSquare, Plus, X } from "lucide-react"
 import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import type { DashboardContext } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
-import { Button, IconButton } from "@/shared/ui/controls"
+import { IconButton } from "@/shared/ui/controls"
 import { ChatComposer } from "./chat-composer"
 import { Message } from "./message"
 import { useChat } from "./use-chat"
@@ -62,11 +53,7 @@ export function ChatPanel({
   useEffect(() => {
     if (active) setClosing(false)
   }, [active])
-  const suggestions = [
-    { text: ru.suggestion1, Icon: TrendingUp },
-    { text: ru.suggestion2, Icon: Truck },
-    { text: ru.suggestion3, Icon: Wallet },
-  ]
+  const suggestions = [ru.suggestion1, ru.suggestion2, ru.suggestion3]
   const send = (text = input) => {
     if (!text.trim() || chat.pending || voice.busy) return
     follow.current = true
@@ -122,23 +109,16 @@ export function ChatPanel({
               <h3 aria-label={ru.welcome}>
                 {ru.welcomeLead} <em className="accent-word">{ru.welcomeAccent}</em>?
               </h3>
-              <p>{ru.welcomeNote}</p>
-              <div className="suggestions">
-                {suggestions.map(({ text, Icon }, i) => (
-                  <Button
-                    key={text}
-                    className="suggestion-card"
-                    style={{ "--i": i } as CSSProperties}
-                    onClick={() => send(text)}
-                  >
-                    <span className="suggestion-icon">
-                      <Icon size={16} />
-                    </span>
-                    <span className="suggestion-text">{text}</span>
-                    <ArrowUpRight size={16} className="suggestion-arrow" />
-                  </Button>
+              <p className="suggestions-label">{ru.suggestionsLabel}</p>
+              <ul className="suggestion-list">
+                {suggestions.map((text, i) => (
+                  <li key={text} style={{ "--i": i } as CSSProperties}>
+                    <button type="button" className="suggestion-row" onClick={() => send(text)}>
+                      {text}
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           ) : (
             <div className="chat-messages">
