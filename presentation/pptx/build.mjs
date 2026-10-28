@@ -64,11 +64,12 @@ const fxName = (fx, label = "el", morph) => {
   if (fx) PLANS.at(-1).anims[name] = fx
   return name
 }
-const TEMPO = 0.45
+const TEMPO = 0.6
 const LOOP_KINDS = ["hover", "pulse", "breathe", "runner"]
 const fx = (kind, delayMs, durMs = 600, lt = false) => {
   const k = LOOP_KINDS.includes(kind) ? 1 : TEMPO
-  return `${kind}@${Math.round(delayMs * TEMPO)}@${Math.round(durMs * k)}${lt ? "|lt" : ""}`
+  const d = LOOP_KINDS.includes(kind) ? 700 + delayMs * 0.15 : 800 * (1 - Math.exp(-delayMs / 1400))
+  return `${kind}@${Math.round(d)}@${Math.round(durMs * k)}`
 }
 const and = (...parts) => parts.join(";")
 
@@ -332,53 +333,45 @@ const wordmark = (slide, x, y, h, base) => {
 {
   const slide = content("chrono")
   title(slide, "Хронология ", "и грязь")
-  const Y = 720
-  const xs = [200, 530, 870, 1200]
-  const labels = ["оформлен", "оплачен", "передан", "вручён"]
-  line(slide, 160, Y, 1240, Y, { color: K.strong, lw: 3, fx: fx("wiperight", 100, 700) })
-  xs.forEach((x, i) => {
-    box(slide, { shape: pres.shapes.OVAL, x: x - 18, y: Y - 18, w: 36, h: 36, fill: i === 3 ? K.cobalt : K.white, line: K.cobalt, lw: 3, fx: fx("pop", 200 + i * 160, 500) })
-    text(slide, labels[i], { x: x - 110, y: Y + 30, w: 220, h: 34, size: 24, bold: true, align: "center", fx: fx("rise", 250 + i * 160, 400) })
+  const xs = [220, 520, 820, 1120]
+  const TOP = 380
+  const BOT = 690
+  const stages = ["оформлен", "оплачен", "передан", "вручён"]
+  const actual = [0, 2, 1, 3]
+  text(slide, "как должно быть", { x: 120, y: TOP - 92, w: 600, h: 30, size: 21, bold: true, color: K.fg3, fx: fx("fade", 0, 400) })
+  text(slide, [{ text: "как в данных у " }, { text: "1 359", color: K.danger }, { text: " заказов" }], { x: 120, y: BOT + 62, w: 900, h: 34, size: 23, bold: true, color: K.fg2, fx: fx("fade", 600, 400) })
+  line(slide, 160, TOP, 1180, TOP, { color: K.strong, lw: 2.5, fx: fx("wiperight", 0, 500) })
+  line(slide, 160, BOT, 1180, BOT, { color: K.strong, lw: 2.5, fx: fx("wiperight", 300, 500) })
+  stages.forEach((s, i) => {
+    box(slide, { shape: pres.shapes.OVAL, x: xs[i] - 16, y: TOP - 16, w: 32, h: 32, fill: K.white, line: K.cobalt, lw: 3, fx: fx("pop", 100 + i * 90, 400) })
+    text(slide, s, { x: xs[i] - 110, y: TOP - 58, w: 220, h: 32, size: 22, bold: true, align: "center", fx: fx("fade", 100 + i * 90, 300) })
   })
-  const arc = (xa, xb, h, lw, d) => {
-    const top = Y - 20 - h
-    const x0 = Math.min(xa, xb)
-    slide.addShape(pres.shapes.CUSTOM_GEOMETRY, {
-      x: X(x0),
-      y: X(top),
-      w: X(Math.abs(xb - xa)),
-      h: X(h),
-      points: [
-        { x: X(xa - x0), y: X(h), moveTo: true },
-        { x: X(xb - x0), y: X(h), curve: { type: "cubic", x1: X(xa - x0), y1: X(-h * 0.33), x2: X(xb - x0), y2: X(-h * 0.33) } },
-      ],
-      fill: { type: "none" },
-      line: { color: K.danger, width: lw, endArrowType: "triangle" },
-      objectName: fxName(fx("wipeleft", d, 700), "arc"),
-    })
-  }
-  arc(870, 530, 170, 9, 900)
-  arc(870, 200, 300, 4.5, 1150)
-  arc(1200, 870, 120, 3.5, 1400)
-  const tag = (x, y, v, c, d) => {
-    text(slide, v, { x: x - 200, y, w: 400, h: 56, size: 48, bold: true, color: K.danger, align: "center", valign: "bottom", fx: fx("pop", d, 500) })
-    text(slide, c, { x: x - 200, y: y + 58, w: 400, h: 30, size: 19, color: K.fg2, align: "center", fx: fx("fade", d + 100, 400) })
-  }
-  tag(700, Y - 150, "1 359", "отгружены раньше оплаты", 1250)
-  tag(535, Y - 20 - 300 - 100, "166", "отгружены раньше оформления", 1450)
-  tag(1035, Y - 20 - 120 - 104, "23", "вручены раньше отгрузки", 1650)
-  pill(slide, "6 отменённых с датой вручения", { x: 1010, y: Y + 78, w: 380, size: 19, fill: K.dangerTint, color: K.danger, fx: fx("pop", 1800, 500) })
-  const sx = 1400
-  text(slide, "611", { x: sx, y: 300, w: 400, h: 70, size: 64, bold: true, valign: "bottom", fx: fx("rise", 500, 300, true) })
-  text(slide, "написаний городов у продавцов", { x: sx, y: 374, w: 400, h: 30, size: 20, color: K.fg3, fx: fx("fade", 600, 400) })
-  let cy = 420
-  for (const [i, [c, bad]] of [["auriflama/sp", false], ["rio de janeiro \\ rio de janeiro", false], ["04482255", true]].entries()) {
-    pill(slide, c, { x: sx, y: cy, size: 19, font: MONO, bold: false, fill: bad ? K.dangerTint : K.mist, color: bad ? K.danger : K.ink, fx: fx("slider", 700 + i * 120, 450), h: 40 })
-    cy += 48
-  }
-  text(slide, "1 139", { x: sx, y: 590, w: 400, h: 70, size: 64, bold: true, color: K.danger, valign: "bottom", fx: fx("rise", 1100, 300, true) })
-  text(slide, "заказов: платежи не бьются с суммой позиций", { x: sx, y: 664, w: 400, h: 60, size: 20, color: K.fg3, fx: fx("fade", 1200, 400), lh: 1.1 })
-  key(slide, "shield", "Вывод: ", "источникам доверять нельзя. Проверки живут в модели, а не в голове аналитика.", { x: 120, y: 900, w: 1680, h: 80, fx: fx("rise", 1900, 500) })
+  actual.forEach((src, pos) => {
+    const bad = src !== pos
+    line(slide, xs[src], TOP + 16, xs[pos], BOT - 16, { color: bad ? K.danger : K.strong, lw: bad ? 5 : 2, dash: bad ? "solid" : "dash", fx: fx("wipedown", 450 + src * 80, 600) })
+  })
+  actual.forEach((src, pos) => {
+    const bad = src !== pos
+    box(slide, { shape: pres.shapes.OVAL, x: xs[pos] - 16, y: BOT - 16, w: 32, h: 32, fill: bad ? K.danger : K.white, line: bad ? K.danger : K.cobalt, lw: 3, fx: fx("pop", 900 + pos * 60, 450) })
+    text(slide, stages[src], { x: xs[pos] - 110, y: BOT + 22, w: 220, h: 32, size: 22, bold: true, color: bad ? K.danger : K.ink, align: "center", fx: fx("fade", 950 + pos * 60, 300) })
+  })
+  box(slide, { shape: pres.shapes.OVAL, x: 670 - 70, y: (TOP + BOT) / 2 - 70, w: 140, h: 140, line: K.danger, lw: 2, dash: "dash", fx: and(fx("pop", 1300, 500), fx("pulse", 1500, 900)) })
+  const side = [
+    ["166", "отгружены раньше оформления"],
+    ["23", "вручены раньше отгрузки"],
+    ["6", "отменённых с датой вручения"],
+  ]
+  side.forEach(([v, c], i) => {
+    const y = 300 + i * 118
+    text(slide, v, { x: 1300, y, w: 160, h: 62, size: 52, bold: true, color: K.danger, align: "right", valign: "bottom", fx: fx("rise", 700 + i * 120, 400) })
+    text(slide, c, { x: 1480, y: y + 14, w: 330, h: 60, size: 21, color: K.fg2, valign: "middle", fx: fx("rise", 760 + i * 120, 400), lh: 1.1 })
+  })
+  line(slide, 1300, 660, 1800, 660, { color: K.line, lw: 1.5, fx: fx("wiperight", 1000, 400) })
+  text(slide, "611", { x: 1300, y: 676, w: 160, h: 62, size: 52, bold: true, align: "right", valign: "bottom", fx: fx("rise", 1100, 400) })
+  text(slide, "написаний городов, индекс вместо города", { x: 1480, y: 690, w: 330, h: 60, size: 21, color: K.fg2, valign: "middle", fx: fx("rise", 1150, 400), lh: 1.1 })
+  text(slide, "1 139", { x: 1300, y: 778, w: 160, h: 62, size: 52, bold: true, color: K.danger, align: "right", valign: "bottom", fx: fx("rise", 1250, 400) })
+  text(slide, "заказов: платежи не бьются с позициями", { x: 1480, y: 792, w: 330, h: 60, size: 21, color: K.fg2, valign: "middle", fx: fx("rise", 1300, 400), lh: 1.1 })
+  key(slide, "shield", "Вывод: ", "источникам доверять нельзя. Проверки живут в модели, а не в голове аналитика.", { x: 120, y: 900, w: 1680, h: 80, fx: fx("rise", 1500, 500) })
 }
 
 {
@@ -616,10 +609,33 @@ const wordmark = (slide, x, y, h, base) => {
   plan("morph")
   const slide = pres.addSlide({ masterName: "BARE" })
   slide.addNotes("Готовы к вашим вопросам.")
-  plateStack(slide, 640, 20, 640, { hover: 1200 })
-  wordmark(slide, 120, 70, 90, 900)
-  text(slide, [{ text: "Готовы к вашим ", bold: true }, { text: "вопросам", font: SERIF, italic: true, color: K.azure, size: 132 }], { x: 120, y: 680, w: 1680, h: 160, size: 116, align: "center", valign: "middle", fx: fx("rise", 1100, 420, true) })
-  text(slide, [{ text: "Team ", color: K.fg3 }, { text: "GoatWhistle", bold: true, color: K.ink }], { x: 120, y: 860, w: 1680, h: 50, size: 32, align: "center", fx: fx("fade", 2000, 700) })
+  const QR = JSON.parse(fs.readFileSync(path.join(HERE, "data", "qr.json"), "utf8"))
+  plateStack(slide, 230, 120, 560, { hover: 900 })
+  wordmark(slide, 120, 70, 84, 200)
+  text(slide, [{ text: "Готовы к вашим ", bold: true }, { text: "вопросам", font: SERIF, italic: true, color: K.azure, size: 98 }], { x: 120, y: 700, w: 1250, h: 120, size: 86, valign: "middle", fx: fx("rise", 500, 600) })
+  text(slide, [{ text: "Team ", color: K.fg3 }, { text: "GoatWhistle", bold: true, color: K.ink }], { x: 120, y: 840, w: 900, h: 50, size: 32, fx: fx("fade", 900, 500) })
+  const cx = 1400
+  const cy = 250
+  const cw = 400
+  box(slide, { x: cx, y: cy, w: cw, h: cw, r: 40, fill: K.white, line: K.line, lw: 1.5, shadow: true, fx: fx("pop", 300, 600) })
+  const qs = 330
+  const qx = cx + (cw - qs) / 2
+  const qy = cy + (cw - qs) / 2
+  const m = qs / QR.n
+  img(slide, "qr-data", { x: qx, y: qy, w: qs, h: qs, fx: fx("dissolve", 900, 900) })
+  ;[[0, 0], [0, QR.n - 7], [QR.n - 7, 0]].forEach(([r, c], i) => {
+    const x = qx + c * m
+    const y = qy + r * m
+    const f = fx("pop", 550 + i * 120, 500)
+    box(slide, { x, y, w: 7 * m, h: 7 * m, r: 2 * m, fill: K.ink, fx: f })
+    box(slide, { x: x + m, y: y + m, w: 5 * m, h: 5 * m, r: 1.4 * m, fill: K.white, fx: f })
+    box(slide, { x: x + 2 * m, y: y + 2 * m, w: 3 * m, h: 3 * m, r: m, fill: K.ink, fx: f })
+  })
+  const ps = 7.6 * m
+  box(slide, { x: qx + qs / 2 - ps / 2, y: qy + qs / 2 - ps / 2, w: ps, h: ps, r: 2 * m, fill: K.white, fx: and(fx("pop", 1700, 600), fx("breathe", 2600, 1400)) })
+  img(slide, "mark", { x: qx + qs / 2 - ps * 0.38, y: qy + qs / 2 - ps * 0.38, w: ps * 0.76, h: ps * 0.76, fx: fx("pop", 1800, 600) })
+  text(slide, "github.com/GoatWhistle/russwb", { x: cx - 40, y: cy + cw + 26, w: cw + 80, h: 36, size: 23, bold: true, font: MONO, align: "center", fx: fx("rise", 1300, 500) })
+  text(slide, "код модели, ответы и презентация", { x: cx - 40, y: cy + cw + 66, w: cw + 80, h: 32, size: 21, color: K.fg3, align: "center", fx: fx("fade", 1400, 500) })
 }
 
 const out = path.join(HERE, "out", "deck-raw.pptx")

@@ -1,5 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
+import QRCode from "qrcode"
 import { launch } from "../tools/browser.mjs"
 
 const HERE = import.meta.dirname
@@ -149,10 +150,28 @@ units.forEach((u, t) => {
 fs.writeFileSync(path.join(HERE, "data", "cells.json"), JSON.stringify(cellMeta))
 fs.writeFileSync(path.join(HERE, "data", "waffle.json"), JSON.stringify({ w: WW, h: WH, colors: tableColors }))
 
+{
+  const url = "https://github.com/GoatWhistle/russwb"
+  const code = QRCode.create(url, { errorCorrectionLevel: "H" })
+  const n = code.modules.size
+  const finder = (r, c) => (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7)
+  const mid = n / 2
+  const clear = (r, c) => Math.abs(r + 0.5 - mid) < 4.2 && Math.abs(c + 0.5 - mid) < 4.2
+  let rects = ""
+  for (let r = 0; r < n; r += 1) {
+    for (let c = 0; c < n; c += 1) {
+      if (!code.modules.get(r, c) || finder(r, c) || clear(r, c)) continue
+      rects += `<rect x="${c * 10 + 0.6}" y="${r * 10 + 0.6}" width="8.8" height="8.8" rx="2.6" fill="${C.ink}"/>`
+    }
+  }
+  add("qr-data", n * 10 * 2, n * 10 * 2, rects, `0 0 ${n * 10} ${n * 10}`)
+  fs.writeFileSync(path.join(HERE, "data", "qr.json"), JSON.stringify({ n, url }))
+}
+
 fs.mkdirSync(OUT, { recursive: true })
 const browser = await launch()
 const page = await browser.newPage({ deviceScaleFactor: 2 })
-for (const job of jobs.filter((j) => !process.argv.includes('--only-full') || j.name.endsWith('-full'))) {
+for (const job of jobs.filter((j) => !process.argv.includes('--only-full') || (j.name.endsWith('-full') || j.name.startsWith('qr')))) {
   await page.setViewportSize({ width: job.w, height: job.h })
   await page.setContent(`<html><body style="margin:0;background:transparent">${job.svg}</body></html>`)
   await page.screenshot({ path: path.join(OUT, `${job.name}.png`), omitBackground: true, clip: { x: 0, y: 0, width: job.w, height: job.h } })

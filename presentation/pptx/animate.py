@@ -13,7 +13,7 @@ NS = {
 }
 P = "{%s}" % NS["p"]
 
-WIPE = {"wiperight": ("right", 8), "wipeleft": ("left", 2), "wipeup": ("up", 4), "wipedown": ("down", 1)}
+WIPE = {"wiperight": ("left", 8), "wipeleft": ("right", 2), "wipeup": ("down", 4), "wipedown": ("up", 1)}
 LOOPS = {"hover", "pulse", "runner", "breathe"}
 
 
@@ -69,6 +69,8 @@ def entrance(ids: Ids, spid: str, kind: str, dur: int) -> tuple[int, int, str]:
         return 2, 1, body + effect(ids, spid, "fade", int(dur * 0.5)) + keys(ids, spid, "ppt_y", [(0, "#ppt_y-0.28"), (70000, "#ppt_y+0.008"), (100000, "#ppt_y")], dur)
     if kind == "slam":
         return 2, 1, body + effect(ids, spid, "fade", int(dur * 0.4)) + keys(ids, spid, "ppt_y", [(0, "#ppt_y-0.16"), (75000, "#ppt_y+0.006"), (100000, "#ppt_y")], dur)
+    if kind == "dissolve":
+        return 9, 0, body + effect(ids, spid, "dissolve", dur)
     if kind == "platein":
         return 9, 0, body + effect(ids, spid, "dissolve", int(dur * 0.8)) + keys(ids, spid, "ppt_y", [(0, "#ppt_y-0.07"), (75000, "#ppt_y+0.004"), (100000, "#ppt_y")], dur, False)
     if kind == "zoom":
@@ -117,7 +119,7 @@ def loop(ids: Ids, spid: str, kind: str, dur: int, path: str | None) -> tuple[in
 
 
 def iterate(by_letter: bool) -> str:
-    return '<p:iterate type="lt"><p:tmPct val="9000"/></p:iterate>' if by_letter else ""
+    return '<p:iterate type="lt"><p:tmPct val="4500"/></p:iterate>' if by_letter else ""
 
 
 def timing(items: list[dict]) -> str:
