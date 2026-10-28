@@ -5,6 +5,7 @@ import { EmptyState, Panel } from "@/shared/ui/controls"
 import { HBars } from "./bars"
 import { stateName } from "./states"
 import "@/shared/styles/delivery-customers.css"
+import "@/shared/styles/mobile-charts-b.css"
 
 export function CustomerProfile({
   returnedPct,

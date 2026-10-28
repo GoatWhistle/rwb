@@ -10,6 +10,7 @@ import { FillHistogram, FillStackedBars } from "./delivery-top-viz"
 import { stateName } from "./states"
 import "@/shared/styles/fill-delivery-bottom.css"
 import "@/shared/styles/fill-customers.css"
+import "@/shared/styles/mobile-charts-b.css"
 
 const t = ru.dc
 const days = (n: number) => `${number(n, 1)} дн.`
@@ -226,6 +227,8 @@ export function CustomerMap({ rows, query, index }: Props) {
 
 const ROW_MIN = 40
 const HEAD = 36
+const COMPACT = "(max-width: 900px)"
+const COMPACT_ROWS = 8
 
 function useFitRows(total: number) {
   const ref = useRef<HTMLDivElement>(null)
@@ -233,11 +236,19 @@ function useFitRows(total: number) {
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    const measure = () => setFit(Math.max(2, Math.floor((el.clientHeight - HEAD) / ROW_MIN)))
+    const media = window.matchMedia(COMPACT)
+    const measure = () =>
+      setFit(
+        media.matches ? COMPACT_ROWS : Math.max(2, Math.floor((el.clientHeight - HEAD) / ROW_MIN)),
+      )
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(el)
-    return () => observer.disconnect()
+    media.addEventListener("change", measure)
+    return () => {
+      observer.disconnect()
+      media.removeEventListener("change", measure)
+    }
   }, [])
   return [ref, Math.min(fit, total)] as const
 }
@@ -321,8 +332,8 @@ export function CustomerStates({ rows, query, index }: Props) {
                       { label: "Доля повторных", value: percent(line.repeat) },
                     ])}
                   >
-                    <td>{line.code ? line.name : `${line.name} штатов`}</td>
-                    <td>
+                    <td className="mcb-st-name">{line.code ? line.name : `${line.name} штатов`}</td>
+                    <td className="mcb-st-count">
                       <span className="fc-count">
                         <span className="fc-bar" aria-hidden="true">
                           <span
@@ -334,8 +345,12 @@ export function CustomerStates({ rows, query, index }: Props) {
                         {number(line.customers)}
                       </span>
                     </td>
-                    <td>{percent(total ? line.customers / total : 0)}</td>
-                    <td>{percent(line.repeat)}</td>
+                    <td className="mcb-st-share" data-label={t.share}>
+                      {percent(total ? line.customers / total : 0)}
+                    </td>
+                    <td className="mcb-st-repeat" data-label={t.repeatShare}>
+                      {percent(line.repeat)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
