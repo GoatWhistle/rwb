@@ -1,0 +1,139 @@
+[
+  {
+    "id": "dc.delivery_days",
+    "title": "Распределение срока доставки",
+    "sql": "SELECT json_agg(t ORDER BY days) FROM (\n  SELECT least(floor(days_total)::int, 60) AS days, count(*) AS orders\n  FROM d WHERE days_total >= 0 GROUP BY 1) t",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'"
+    },
+    "grain": "день срока доставки (60 = 60 и более)",
+    "units": "Сроки: дни; доли: 0–1; количества: шт.",
+    "definitions": {
+      "report": "Число доставленных заказов по целому числу дней от оформления до вручения",
+      "days": "Полных дней от purchased_at до delivered_at, 60 — хвост 60+",
+      "orders": "Доставленных заказов"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Только доставленные заказы с датой вручения, оформленные до 2018-09-01.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "backend/catalog/delivery_customers.json"
+  },
+  {
+    "id": "dc.stages",
+    "title": "Этапы доставки по месяцам",
+    "sql": "SELECT json_agg(t ORDER BY month) FROM (\n  SELECT to_char(date_trunc('month', purchased_at), 'YYYY-MM') AS month,\n         round(avg(extract(epoch FROM approved_at - purchased_at) / 86400)::numeric, 2) AS approve,\n         round(avg(CASE WHEN shipped_at >= approved_at THEN extract(epoch FROM shipped_at - approved_at) / 86400 END)::numeric, 2) AS seller,\n         round(avg(CASE WHEN delivered_at >= shipped_at THEN extract(epoch FROM delivered_at - shipped_at) / 86400 END)::numeric, 2) AS carrier,\n         count(*) AS delivered\n  FROM d WHERE purchased_at >= '2017-01-01' GROUP BY 1) t",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'"
+    },
+    "grain": "месяц оформления",
+    "units": "Сроки: дни; доли: 0–1; количества: шт.",
+    "definitions": {
+      "report": "Средняя длительность этапов доставки по месяцу оформления",
+      "approve": "Дней от оформления до подтверждения оплаты",
+      "seller": "Дней от подтверждения до передачи перевозчику",
+      "carrier": "Дней от передачи перевозчику до вручения"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Только доставленные заказы с датой вручения, оформленные до 2018-09-01.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Этапы с нарушенным порядком дат исключены из среднего."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "backend/catalog/delivery_customers.json"
+  },
+  {
+    "id": "dc.review_scores",
+    "title": "Оценки отзывов: вовремя и с опозданием",
+    "sql": "SELECT json_agg(t ORDER BY score) FROM (\n  SELECT lr.score, count(*) FILTER (WHERE on_time) AS on_time, count(*) FILTER (WHERE NOT on_time) AS late\n  FROM d JOIN lr USING (order_id) GROUP BY 1) t",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'",
+      "lr": "SELECT DISTINCT ON (order_id) order_id, score\nFROM core.order_reviews\nORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST"
+    },
+    "grain": "оценка отзыва 1–5",
+    "units": "Сроки: дни; доли: 0–1; количества: шт.",
+    "definitions": {
+      "report": "Число доставленных заказов по оценке последнего отзыва",
+      "on_time": "Доставлен не позже обещанной даты",
+      "late": "Доставлен позже обещанной даты"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Только доставленные заказы с датой вручения, оформленные до 2018-09-01.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Последний отзыв: created_at DESC, answered_at DESC NULLS LAST."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "backend/catalog/delivery_customers.json"
+  },
+  {
+    "id": "dc.customers_monthly",
+    "title": "Новые и вернувшиеся покупатели по месяцам",
+    "sql": "SELECT json_agg(t ORDER BY month) FROM (\n  SELECT month, count(*) FILTER (WHERE is_new) AS new_customers, count(*) FILTER (WHERE NOT is_new) AS returning\n  FROM cm WHERE month >= '2017-01' GROUP BY 1) t",
+    "dashboard_base": {
+      "cm": "SELECT to_char(date_trunc('month', purchased_at), 'YYYY-MM') AS month, customer_unique_id,\n       bool_or(purchased_at = first_at) AS is_new\nFROM (SELECT customer_unique_id, purchased_at,\n             min(purchased_at) OVER (PARTITION BY customer_unique_id) AS first_at\n      FROM core.orders WHERE purchased_at < '2018-09-01') x\nGROUP BY 1, 2"
+    },
+    "grain": "месяц оформления",
+    "units": "Сроки: дни; доли: 0–1; количества: шт.",
+    "definitions": {
+      "report": "Уникальные покупатели месяца: впервые или повторно",
+      "new_customers": "Первый заказ покупателя сделан в этом месяце",
+      "returning": "У покупателя были заказы раньше"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Человек = customer_unique_id; заказы вне выбранного периода и штатов не учитываются.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "backend/catalog/delivery_customers.json"
+  },
+  {
+    "id": "dc.orders_per_customer",
+    "title": "Сколько заказов делает покупатель",
+    "sql": "SELECT json_agg(t ORDER BY bucket) FROM (\n  SELECT CASE WHEN cnt >= 4 THEN '4+' ELSE cnt::text END AS bucket, count(*) AS customers\n  FROM pc GROUP BY 1) t",
+    "dashboard_base": {
+      "pc": "SELECT customer_unique_id, count(*) AS cnt\nFROM core.orders\nGROUP BY 1"
+    },
+    "grain": "число заказов на покупателя",
+    "units": "Сроки: дни; доли: 0–1; количества: шт.",
+    "definitions": {
+      "report": "Покупатели по числу оформленных заказов",
+      "bucket": "1, 2, 3 или 4+ заказа",
+      "customers": "Уникальных покупателей"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Человек = customer_unique_id; заказы вне выбранного периода и штатов не учитываются.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "backend/catalog/delivery_customers.json"
+  },
+  {
+    "id": "dc.customer_states",
+    "title": "Покупатели по штатам",
+    "sql": "SELECT json_agg(t ORDER BY customers DESC) FROM (\n  SELECT o.customer_state AS state, count(DISTINCT o.customer_unique_id) AS customers, count(*) AS orders,\n         round(avg((pc.cnt >= 2)::int), 4) AS repeat_share\n  FROM core.orders o JOIN pc USING (customer_unique_id) GROUP BY 1) t",
+    "dashboard_base": {
+      "pc": "SELECT customer_unique_id, count(*) AS cnt\nFROM core.orders\nGROUP BY 1"
+    },
+    "grain": "штат покупателя на момент заказа",
+    "units": "Сроки: дни; доли: 0–1; количества: шт.",
+    "definitions": {
+      "report": "Уникальные покупатели и заказы по штатам",
+      "customers": "Уникальных покупателей",
+      "orders": "Оформленных заказов",
+      "repeat_share": "Доля заказов от покупателей с 2+ заказами"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Человек = customer_unique_id; заказы вне выбранного периода и штатов не учитываются.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "backend/catalog/delivery_customers.json"
+  }
+]
