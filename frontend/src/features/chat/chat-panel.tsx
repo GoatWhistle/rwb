@@ -134,9 +134,6 @@ export function ChatPanel({
             send()
           }}
         >
-          <IconButton label={ru.newChat} onClick={chat.reset} disabled={chat.pending}>
-            <Plus size={21} />
-          </IconButton>
           <textarea
             ref={inputRef}
             value={input}
@@ -161,7 +158,6 @@ export function ChatPanel({
             {chat.pending ? <Square size={17} /> : <ArrowUp size={21} />}
           </IconButton>
         </form>
-        <p className="composer-hint">{ru.chatHint}</p>
       </div>
     </aside>
   )

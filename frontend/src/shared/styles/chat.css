@@ -190,10 +190,6 @@
 .chat-composer:focus-within {
   border-color: #c4c4ce;
 }
-.chat-composer > .icon-button:first-child {
-  color: #272725;
-  margin-bottom: 1px;
-}
 .chat-composer textarea {
   flex: 1;
   resize: none;
@@ -202,7 +198,7 @@
   min-height: 36px;
   max-height: 160px;
   field-sizing: content;
-  padding: 9px 4px;
+  padding: 9px 4px 9px 10px;
   font-size: 12px;
   line-height: 1.6;
   scrollbar-width: thin;
@@ -227,12 +223,6 @@
 .send-button.ready {
   background: #1d1d1b;
   color: white;
-}
-.composer-hint {
-  color: var(--muted);
-  font-size: 8px;
-  text-align: center;
-  padding-top: 8px;
 }
 .context-chip {
   display: flex;
