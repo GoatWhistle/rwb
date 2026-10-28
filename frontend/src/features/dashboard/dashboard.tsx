@@ -4,6 +4,7 @@ import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metri
 import { useMetric } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState } from "@/shared/ui/controls"
+import { ConstructorPage } from "../constructor/constructor-page"
 import { CustomerProfile } from "./customer-profile"
 import { DeliveryTrend, Geography, Lateness, SellerDelivery } from "./delivery-panels"
 import { FiltersBar } from "./filters"
@@ -13,7 +14,7 @@ import { Categories, SalesTrend, Sellers } from "./sales-panels"
 
 const rowsOf = (result: MetricResult | undefined) => result?.table.rows ?? []
 
-const TABS = ["overview", "sales", "delivery", "customers"] as const
+const TABS = ["overview", "sales", "delivery", "customers", "constructor"] as const
 export type DashboardTab = (typeof TABS)[number]
 export function Dashboard({
   filters,
@@ -57,6 +58,7 @@ export function Dashboard({
     sales: [monthly, avg, customers],
     delivery: [kpi],
     customers: [customers, avg],
+    constructor: [],
   }[tab]
   const kpiError = kpiQueries.some((q) => q.isError)
   const kpiLoading = kpiQueries.some((q) => q.isPending)
@@ -76,6 +78,7 @@ export function Dashboard({
     sales: salesMetrics,
     delivery: deliveryMetrics,
     customers: customerMetrics,
+    constructor: [],
   }[tab]
   return (
     <div className="dashboard">
@@ -127,6 +130,7 @@ export function Dashboard({
         )}
         <TabCards
           tab={tab}
+          filters={filters}
           q={{
             monthly,
             categories,
@@ -148,9 +152,11 @@ export function Dashboard({
 type Query = ReturnType<typeof useMetric>
 function TabCards({
   tab,
+  filters,
   q,
 }: {
   tab: DashboardTab
+  filters: Filters
   q: Record<
     | "monthly"
     | "categories"
@@ -164,6 +170,7 @@ function TabCards({
 }) {
   return (
     <>
+      {tab === "constructor" && <ConstructorPage filters={filters} />}
       {(tab === "overview" || tab === "sales") && (
         <SalesTrend result={q.monthly.data} query={q.monthly} index={4} />
       )}

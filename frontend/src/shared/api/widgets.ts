@@ -52,7 +52,10 @@ export function useRemoveWidget() {
     onMutate: (id) => {
       client.setQueryData<WidgetSpec[]>(WIDGETS, (old) => old?.filter((w) => w.id !== id))
       client.setQueryData<CustomDashboard[]>(DASHBOARDS, (old) =>
-        old?.map((d) => ({ ...d, items: d.items.filter((item) => item.widget_id !== id) })),
+        old?.map((d) => ({
+          ...d,
+          items: d.items.filter((item) => item.widget_id !== id),
+        })),
       )
     },
     onSettled: () => {

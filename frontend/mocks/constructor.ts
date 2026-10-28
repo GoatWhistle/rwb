@@ -1,6 +1,13 @@
 import type { IncomingMessage, ServerResponse } from "node:http"
 import type { MockFilters, Row } from "./data"
-import { categoriesFor, deliveryMonthlyFor, kpiFor, latenessFor, monthlyFor, statesFor } from "./data"
+import {
+  categoriesFor,
+  deliveryMonthlyFor,
+  kpiFor,
+  latenessFor,
+  monthlyFor,
+  statesFor,
+} from "./data"
 
 type Kind = "kpi" | "line" | "bar" | "hbar" | "table"
 type ColumnType = "text" | "number" | "money" | "percent" | "date"
@@ -60,7 +67,11 @@ const templates: Template[] = [
     ],
     x: "month",
     y: ["revenue"],
-    build: (f) => monthlyFor(f).map((r) => ({ month: `${String(r.month).slice(0, 7)}-01`, revenue: r.revenue ?? 0 })),
+    build: (f) =>
+      monthlyFor(f).map((r) => ({
+        month: `${String(r.month).slice(0, 7)}-01`,
+        revenue: r.revenue ?? 0,
+      })),
   },
   {
     keys: ["категор"],
@@ -74,7 +85,11 @@ const templates: Template[] = [
     ],
     x: "category",
     y: ["revenue"],
-    build: (f) => top(categoriesFor(f), "revenue", 10).map((r) => ({ category: r.category ?? "", revenue: r.revenue ?? 0 })),
+    build: (f) =>
+      top(categoriesFor(f), "revenue", 10).map((r) => ({
+        category: r.category ?? "",
+        revenue: r.revenue ?? 0,
+      })),
   },
   {
     keys: ["доставк", "вовремя", "срок"],
@@ -121,7 +136,11 @@ const templates: Template[] = [
     ],
     x: "bucket",
     y: ["avg_score"],
-    build: (f) => latenessFor(f).map((r) => ({ bucket: r.bucket ?? "", avg_score: r.avg_score ?? null })),
+    build: (f) =>
+      latenessFor(f).map((r) => ({
+        bucket: r.bucket ?? "",
+        avg_score: r.avg_score ?? null,
+      })),
   },
   {
     keys: [],
@@ -135,19 +154,26 @@ const templates: Template[] = [
     ],
     x: "month",
     y: ["otd"],
-    build: (f) => deliveryMonthlyFor(f).map((r) => ({ month: `${String(r.month)}-01`, otd: r.otd ?? null })),
+    build: (f) =>
+      deliveryMonthlyFor(f).map((r) => ({
+        month: `${String(r.month)}-01`,
+        otd: r.otd ?? null,
+      })),
   },
 ]
 
 const templateFor = (prompt: string) => {
   const text = prompt.toLowerCase()
-  return (
-    templates.find((t) => t.keys.some((key) => text.includes(key))) ??
-    templates[templates.length - 1]
-  ) as Template
+  return (templates.find((t) => t.keys.some((key) => text.includes(key))) ??
+    templates[templates.length - 1]) as Template
 }
 
-const draftFrom = (template: Template, filters: MockFilters, source: Draft["source"], prompt: string | null): Draft => ({
+const draftFrom = (
+  template: Template,
+  filters: MockFilters,
+  source: Draft["source"],
+  prompt: string | null,
+): Draft => ({
   title: template.title,
   description: template.description,
   kind: template.kind,
@@ -211,13 +237,25 @@ function send(res: ServerResponse, status: number, body?: unknown) {
   return res.end(JSON.stringify(body))
 }
 
-const notFound = (res: ServerResponse) => send(res, 404, { code: "not_found", message: "Не найдено" })
+const notFound = (res: ServerResponse) =>
+  send(res, 404, { code: "not_found", message: "Не найдено" })
 
-export async function constructorRoute(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
+async function constructorRoute(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
   const path = req.url?.split("?")[0] ?? ""
   const method = req.method ?? "GET"
   const parts = path.split("/").filter(Boolean)
-  if (parts[1] === "widgets") {
+  if (parts[1] === "widgets") return widgetsRoute(req, res, method, parts)
+  if (parts[1] === "dashboards") return dashboardsRoute(req, res, method, parts)
+  return false
+}
+
+async function widgetsRoute(
+  req: IncomingMessage,
+  res: ServerResponse,
+  method: string,
+  parts: string[],
+): Promise<boolean> {
+  {
     const id = parts[2]
     if (method === "POST" && id === "generate") {
       const body = await readJson(req)
@@ -231,7 +269,10 @@ export async function constructorRoute(req: IncomingMessage, res: ServerResponse
       })
       return true
     }
-    if (!id && method === "GET") return send(res, 200, { items: widgets }), true
+    if (!id && method === "GET") {
+      send(res, 200, { items: widgets })
+      return true
+    }
     if (!id && method === "POST") {
       const body = (await readJson(req)) as unknown as Draft
       const widget: Widget = { ...body, id: nextId("w"), created_at: now() }
@@ -240,7 +281,10 @@ export async function constructorRoute(req: IncomingMessage, res: ServerResponse
       return true
     }
     const index = widgets.findIndex((w) => w.id === id)
-    if (index < 0) return notFound(res), true
+    if (index < 0) {
+      notFound(res)
+      return true
+    }
     if (method === "DELETE" && parts.length === 3) {
       widgets.splice(index, 1)
       for (const d of dashboards) d.items = d.items.filter((item) => item.widget_id !== id)
@@ -252,21 +296,37 @@ export async function constructorRoute(req: IncomingMessage, res: ServerResponse
       const filters = (body.filters ?? {}) as MockFilters
       const current = widgets[index] as Widget
       const template = templates.find((t) => t.title === current.title)
-      const refreshed: Widget = { ...current, filters, rows: template ? template.build(filters) : current.rows }
+      const refreshed: Widget = {
+        ...current,
+        filters,
+        rows: template ? template.build(filters) : current.rows,
+      }
       widgets[index] = refreshed
       send(res, 200, refreshed)
       return true
     }
     return false
   }
-  if (parts[1] === "dashboards") {
+}
+
+async function dashboardsRoute(
+  req: IncomingMessage,
+  res: ServerResponse,
+  method: string,
+  parts: string[],
+): Promise<boolean> {
+  {
     const id = parts[2]
-    if (!id && method === "GET") return send(res, 200, { items: dashboards }), true
+    if (!id && method === "GET") {
+      send(res, 200, { items: dashboards })
+      return true
+    }
     if (!id && method === "POST") {
       const body = await readJson(req)
       const dashboard: Dashboard = {
         id: nextId("d"),
-        title: typeof body.title === "string" && body.title.trim() ? body.title.trim() : "Новый дашборд",
+        title:
+          typeof body.title === "string" && body.title.trim() ? body.title.trim() : "Новый дашборд",
         items: [],
         updated_at: now(),
       }
@@ -275,13 +335,18 @@ export async function constructorRoute(req: IncomingMessage, res: ServerResponse
       return true
     }
     const index = dashboards.findIndex((d) => d.id === id)
-    if (index < 0) return notFound(res), true
+    if (index < 0) {
+      notFound(res)
+      return true
+    }
     if (method === "PUT") {
       const body = (await readJson(req)) as unknown as Dashboard
       const updated: Dashboard = {
         id: id ?? "",
         title: String(body.title ?? ""),
-        items: Array.isArray(body.items) ? body.items.filter((item) => widgets.some((w) => w.id === item.widget_id)) : [],
+        items: Array.isArray(body.items)
+          ? body.items.filter((item) => widgets.some((w) => w.id === item.widget_id))
+          : [],
         updated_at: now(),
       }
       dashboards[index] = updated
@@ -295,4 +360,8 @@ export async function constructorRoute(req: IncomingMessage, res: ServerResponse
     }
   }
   return false
+}
+
+export async function constructorHandler(req: IncomingMessage, res: ServerResponse) {
+  if (!(await constructorRoute(req, res))) send(res, 404, { detail: "mock: endpoint not found" })
 }
