@@ -4,6 +4,7 @@ import type { Filters } from "@/shared/api/metrics"
 import type { WidgetDraft, WidgetKind, WidgetSpec } from "@/shared/api/widget-types"
 import { useGenerateWidget, useSaveWidget, widgetErrorCode } from "@/shared/api/widgets-generate"
 import { ru } from "@/shared/i18n/ru"
+import { GENERATOR_INPUT_ID } from "./empty-state"
 import { GeneratorPreview } from "./generator-preview"
 import { GeneratorProgress } from "./generator-progress"
 import "@/shared/styles/constructor-generator.css"
@@ -81,6 +82,7 @@ export function WidgetGenerator({
         }}
       >
         <textarea
+          id={GENERATOR_INPUT_ID}
           ref={inputRef}
           value={input}
           rows={2}

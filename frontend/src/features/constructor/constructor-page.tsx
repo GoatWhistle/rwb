@@ -1,13 +1,13 @@
 import {
   Check,
-  LayoutDashboard,
   Library as LibraryIcon,
+  MoreHorizontal,
   Pencil,
   Plus,
   Trash2,
   X,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { Filters } from "@/shared/api/metrics"
 import type {
   CustomDashboard,
@@ -27,6 +27,7 @@ import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState, IconButton } from "@/shared/ui/controls"
 import "@/shared/styles/constructor.css"
 import { Canvas } from "./canvas"
+import { CtorEmpty } from "./empty-state"
 import { WidgetGenerator } from "./generator"
 import { Library } from "./library"
 
@@ -45,6 +46,7 @@ export function ConstructorPage({ filters }: { filters: Filters }) {
   const create = useCreateDashboard()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [library, setLibrary] = useState(false)
+  const [toast, notify] = useToast()
   const list = dashboards.data ?? []
   const active = list.find((d) => d.id === activeId) ?? list[0] ?? null
   useEffect(() => {
@@ -52,12 +54,22 @@ export function ConstructorPage({ filters }: { filters: Filters }) {
   }, [active, activeId])
   const byId = useMemo(() => new Map((widgets.data ?? []).map((w) => [w.id, w])), [widgets.data])
 
-  const setItems = (dashboard: CustomDashboard, items: DashboardItem[]) =>
+  const setItems = (dashboard: CustomDashboard, items: DashboardItem[]) => {
+    if (items.length < dashboard.items.length) notify(ru.ctorToastRemoved)
     update.mutate({ ...dashboard, items })
+  }
   const addWidget = (widget: WidgetSpec) => {
     if (!active || active.items.some((item) => item.widget_id === widget.id)) return
-    setItems(active, [...active.items, { widget_id: widget.id, size: DEFAULT_SIZE[widget.kind] }])
+    update.mutate({
+      ...active,
+      items: [...active.items, { widget_id: widget.id, size: DEFAULT_SIZE[widget.kind] }],
+    })
+    notify(ru.ctorToastAdded)
   }
+  const createDashboard = () =>
+    create.mutate(ru.ctorNewDashboardTitle(list.length + 1), {
+      onSuccess: (d) => setActiveId(d.id),
+    })
 
   if (widgets.isError || dashboards.isError)
     return (
@@ -72,21 +84,23 @@ export function ConstructorPage({ filters }: { filters: Filters }) {
 
   return (
     <div className="ctor">
+      <header className="ctor-hero">
+        <h1>
+          {ru.ctorHeroLead} <em className="accent">{ru.ctorHeroAccent}</em>
+        </h1>
+        <p>{ru.ctorHeroHint}</p>
+      </header>
       <WidgetGenerator filters={filters} onCreated={addWidget} />
-      <div className={`ctor-layout${library ? " with-library" : ""}`}>
+      <div className="ctor-layout">
         <Switcher
           dashboards={list}
           activeId={active?.id ?? null}
           loading={loading}
           onSelect={setActiveId}
-          onCreate={() =>
-            create.mutate(ru.ctorNewDashboardTitle(list.length + 1), {
-              onSuccess: (d) => setActiveId(d.id),
-            })
-          }
+          onCreate={createDashboard}
           creating={create.isPending}
         />
-        <main className="ctor-main">
+        <section className="ctor-main" aria-label={ru.ctorDashboards}>
           {loading ? (
             <div className="canvas-grid" role="status" aria-label={ru.loading}>
               {[
@@ -102,24 +116,25 @@ export function ConstructorPage({ filters }: { filters: Filters }) {
               ))}
             </div>
           ) : !active ? (
-            <div className="canvas-empty">
-              <span className="canvas-empty-icon" aria-hidden="true">
-                <LayoutDashboard size={22} />
-              </span>
-              <h3>{ru.ctorNoDashboards}</h3>
-              <p>{ru.ctorNoDashboardsHint}</p>
-              <Button
-                className="primary"
-                onClick={() =>
-                  create.mutate(ru.ctorNewDashboardTitle(1), {
-                    onSuccess: (d) => setActiveId(d.id),
-                  })
-                }
-              >
-                <Plus size={15} />
-                {ru.ctorNewDashboard}
-              </Button>
-            </div>
+            <CtorEmpty
+              lead={ru.ctorEmptyLead}
+              accent={ru.ctorEmptyAccent}
+              hint={ru.ctorNoDashboardsHint}
+              action={
+                <Button
+                  className="primary"
+                  disabled={create.isPending}
+                  onClick={() =>
+                    create.mutate(ru.ctorNewDashboardTitle(1), {
+                      onSuccess: (d) => setActiveId(d.id),
+                    })
+                  }
+                >
+                  <Plus size={15} />
+                  {ru.ctorNewDashboard}
+                </Button>
+              }
+            />
           ) : (
             <>
               <div className="ctor-canvas-head">
@@ -146,16 +161,49 @@ export function ConstructorPage({ filters }: { filters: Filters }) {
               />
             </>
           )}
-        </main>
-        <Library
-          open={library}
-          widgets={widgets.data ?? []}
-          placed={new Set(active?.items.map((item) => item.widget_id) ?? [])}
-          canAdd={Boolean(active)}
-          onAdd={addWidget}
-          onClose={() => setLibrary(false)}
-        />
+        </section>
       </div>
+      <div
+        className={`ctor-backdrop${library ? " open" : ""}`}
+        aria-hidden="true"
+        onClick={() => setLibrary(false)}
+      />
+      <Library
+        open={library}
+        widgets={widgets.data ?? []}
+        placed={new Set(active?.items.map((item) => item.widget_id) ?? [])}
+        canAdd={Boolean(active)}
+        onAdd={addWidget}
+        onClose={() => setLibrary(false)}
+      />
+      <Toast toast={toast} />
+    </div>
+  )
+}
+
+type ToastState = { text: string; id: number } | null
+
+function useToast() {
+  const [toast, setToast] = useState<ToastState>(null)
+  const timer = useRef(0)
+  useEffect(() => () => window.clearTimeout(timer.current), [])
+  const notify = (text: string) => {
+    window.clearTimeout(timer.current)
+    setToast((current) => ({ text, id: (current?.id ?? 0) + 1 }))
+    timer.current = window.setTimeout(() => setToast(null), 2400)
+  }
+  return [toast, notify] as const
+}
+
+function Toast({ toast }: { toast: ToastState }) {
+  return (
+    <div className="ctor-toast-region" role="status" aria-live="polite">
+      {toast && (
+        <div key={toast.id} className="ctor-toast">
+          <Check size={15} aria-hidden="true" />
+          {toast.text}
+        </div>
+      )}
     </div>
   )
 }
@@ -180,6 +228,21 @@ function Switcher({
   const [editing, setEditing] = useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [confirm, setConfirm] = useState<string | null>(null)
+  const [menu, setMenu] = useState<string | null>(null)
+  useEffect(() => {
+    if (!menu) return
+    const close = (e: PointerEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent && e.key !== "Escape") return
+      if (e instanceof PointerEvent && (e.target as Element).closest(".switcher-menu-wrap")) return
+      setMenu(null)
+    }
+    document.addEventListener("pointerdown", close)
+    document.addEventListener("keydown", close)
+    return () => {
+      document.removeEventListener("pointerdown", close)
+      document.removeEventListener("keydown", close)
+    }
+  }, [menu])
   const save = (dashboard: CustomDashboard) => {
     const next = title.trim()
     if (next && next !== dashboard.title) update.mutate({ ...dashboard, title: next })
@@ -187,7 +250,6 @@ function Switcher({
   }
   return (
     <nav className="ctor-switcher" aria-label={ru.ctorDashboards}>
-      <span className="switcher-label">{ru.ctorDashboards}</span>
       <ul>
         {loading && ["a", "b"].map((id) => <li key={id} className="switcher-skeleton" />)}
         {dashboards.map((dashboard) => (
@@ -214,21 +276,19 @@ function Switcher({
             ) : confirm === dashboard.id ? (
               <div className="switcher-confirm" role="alert">
                 <span>{ru.ctorDeleteDashboardConfirm}</span>
-                <div>
-                  <IconButton
-                    label={ru.ctorDelete}
-                    className="danger"
-                    onClick={() => {
-                      remove.mutate(dashboard.id)
-                      setConfirm(null)
-                    }}
-                  >
-                    <Check size={14} />
-                  </IconButton>
-                  <IconButton label={ru.ctorCancel} onClick={() => setConfirm(null)}>
-                    <X size={14} />
-                  </IconButton>
-                </div>
+                <IconButton
+                  label={ru.ctorDelete}
+                  className="danger"
+                  onClick={() => {
+                    remove.mutate(dashboard.id)
+                    setConfirm(null)
+                  }}
+                >
+                  <Check size={14} />
+                </IconButton>
+                <IconButton label={ru.ctorCancel} onClick={() => setConfirm(null)}>
+                  <X size={14} />
+                </IconButton>
               </div>
             ) : (
               <>
@@ -242,26 +302,46 @@ function Switcher({
                     setEditing(dashboard.id)
                   }}
                 >
-                  <LayoutDashboard size={15} aria-hidden="true" />
                   <span>{dashboard.title}</span>
                   <small>{dashboard.items.length}</small>
                 </button>
-                <span className="switcher-tools">
+                <span className="switcher-menu-wrap">
                   <IconButton
-                    label={ru.ctorRename}
-                    onClick={() => {
-                      setTitle(dashboard.title)
-                      setEditing(dashboard.id)
-                    }}
+                    label={ru.ctorMore}
+                    className="switcher-more"
+                    aria-expanded={menu === dashboard.id}
+                    onClick={() => setMenu(menu === dashboard.id ? null : dashboard.id)}
                   >
-                    <Pencil size={13} />
+                    <MoreHorizontal size={15} />
                   </IconButton>
-                  <IconButton
-                    label={ru.ctorDeleteDashboard}
-                    onClick={() => setConfirm(dashboard.id)}
-                  >
-                    <Trash2 size={13} />
-                  </IconButton>
+                  {menu === dashboard.id && (
+                    <div className="tile-menu switcher-menu" role="menu">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setMenu(null)
+                          setTitle(dashboard.title)
+                          setEditing(dashboard.id)
+                        }}
+                      >
+                        <Pencil size={14} />
+                        {ru.ctorRename}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="danger"
+                        onClick={() => {
+                          setMenu(null)
+                          setConfirm(dashboard.id)
+                        }}
+                      >
+                        <Trash2 size={14} />
+                        {ru.ctorDeleteDashboard}
+                      </button>
+                    </div>
+                  )}
                 </span>
               </>
             )}
