@@ -23,11 +23,13 @@
 | `wordmark/unbounded.svg`, `wordmark/unbounded-white.svg` | надпись отдельно |
 | `logos.html` | все варианты знаков и шрифтов для сравнения |
 
-| `favicon/favicon.svg` | упрощённый знак для 16–48 px: одна плита (верх #3BC4EE, грани #7F57EB и #518FF2) и кубик #2348FF, прозрачный фон; он же `docs/brand/symbol.svg` |
-| `favicon/favicon-16.png`, `-32.png`, `-48.png` | растровые фавиконы |
-| `favicon/icon-tile.svg`, `apple-touch-icon.png` | плитка 180 px на градиенте sky-ink, кубик белый |
-| `favicon/icon-rounded.svg`, `icon-192.png`, `icon-512.png` | PWA-иконки, радиус = высота / 3 |
-| `favicon/maskable.svg`, `maskable-512.png` | maskable, знак внутри безопасной зоны 80 % |
+| `favicon/favicon.svg` | фавикон, сетка 32 px: скруглённая плитка (радиус 30 %) на градиенте sky-ink #226CF5 → #2348FF, на ней три плиты светлыми оттенками raw, core, mart (верхняя белая) и кубик #2348FF; он же `frontend/public/favicon.svg` |
+| `favicon/favicon-16.svg` | тот же знак, перерисованный под сетку 16 px (плиты толщиной 1 px, радиус 4 px), исходник для `favicon-16.png` |
+| `favicon/favicon-16.png`, `-32.png`, `-48.png` | растровые фавиконы; из них Pillow собирает `frontend/public/favicon.ico` (16, 32, 48) |
+| `favicon/options.png` | сравнение вариантов A–D на 16/32/48 px и в увеличении ×8, на светлой и тёмной вкладке; выбран A |
+| `favicon/apple-touch-icon.svg`, `apple-touch-icon.png` | 180 px, квадрат без скругления (iOS скругляет сам), знак занимает 62 % |
+| `favicon/icon.svg`, `icon-192.png`, `icon-512.png` | PWA-иконки, радиус 30 %, знак 66 % |
+| `favicon/maskable.svg`, `maskable-512.png` | maskable, фон в край, знак 50 % внутри безопасной зоны 80 % |
 | `og/og.svg`, `og/og.png` | соцкарточка 1200 × 630 в стиле обложки; в SVG шрифт Inter встроен base64, эталон для сетей это PNG |
 | `animation/logo-animated.svg` | анимация локапа на CSS @keyframes, 1,55 с, без JS |
 | `animation/preview.html` | просмотр анимации крупно с кнопкой повтора |
@@ -39,7 +41,7 @@ PNG собраны headless Chromium из SVG-исходников.
 ## Правила использования
 
 - **Охранное поле:** со всех сторон не меньше высоты кубика (в знаке 64 × 64 это 15 единиц, около 23 % высоты знака).
-- **Минимальные размеры:** знак «Слои» 24 px, локап 120 px по ширине. Меньше 24 px только `favicon/favicon.svg`.
+- **Минимальные размеры:** знак «Слои» 24 px, локап 120 px по ширине. Меньше 24 px только `favicon/favicon.svg` и `favicon-16.svg`, перерисованные под пиксельную сетку.
 - **Фон:** цветной знак на белом и светлом; на градиенте обложки и тёмном только белая версия.
 - **Анимация:** только `animation/logo-animated.svg`, один раз при загрузке; без зацикливания.
 
@@ -56,8 +58,8 @@ PNG собраны headless Chromium из SVG-исходников.
 
 1. [ ] Проверить глазами монохром и белый варианты «Слоёв» после перехода на маску с зазорами
    (32 и 16 px, печать одной краской).
-2. [x] Фавикон: упрощённый знак (одна плита и кубик), `favicon.svg`, PNG 16/32/48, apple-touch-icon,
-   icon-192/512, maskable, og-картинка. `.ico` собирает фронт (`npm run brand:assets`) из `docs/brand/symbol.svg`.
+2. [x] Фавикон: три плиты и кубик на плитке sky-ink, отдельные сетки 16, 32 и 48 px, `favicon.svg`, PNG 16/32/48,
+   `.ico`, apple-touch-icon, icon-192/512, maskable, og-картинка.
 3. [x] Охранное поле и минимальные размеры описаны выше. [ ] Вертикальный вариант локапа для квадратных мест.
 4. [ ] Переписать `NAMING.md` под Datum (сейчас там Tally) и удалить отклонённые варианты из `logo/`.
 5. [ ] Подключить логотип и фавиконы в `design/design-system.html` и во фронт (шаги в
