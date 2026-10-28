@@ -79,26 +79,30 @@ export function Dashboard({
   }[tab]
   return (
     <div className="dashboard">
-      <nav ref={tabsRef} className="dashboard-tabs" aria-label={ru.analytics}>
-        {indicator && (
-          <span
-            className="tabs-indicator"
-            aria-hidden="true"
-            style={{ transform: `translateX(${indicator.x}px) scaleX(${indicator.w})` }}
-          />
-        )}
-        {TABS.map((name) => (
-          <Button
-            key={name}
-            aria-current={tab === name ? "page" : undefined}
-            className={tab === name ? "active" : ""}
-            onClick={() => setTab(name)}
-          >
-            {ru[name]}
-          </Button>
-        ))}
-      </nav>
-      <FiltersBar value={filters} onChange={onFilters} />
+      <div className="dash-toolbar">
+        <nav ref={tabsRef} className="dashboard-tabs" aria-label={ru.analytics}>
+          {indicator && (
+            <span
+              className="tabs-indicator"
+              aria-hidden="true"
+              style={{
+                transform: `translateX(${indicator.x}px) scaleX(${indicator.w})`,
+              }}
+            />
+          )}
+          {TABS.map((name) => (
+            <Button
+              key={name}
+              aria-current={tab === name ? "page" : undefined}
+              className={tab === name ? "active" : ""}
+              onClick={() => setTab(name)}
+            >
+              {ru[name]}
+            </Button>
+          ))}
+        </nav>
+        <FiltersBar value={filters} onChange={onFilters} />
+      </div>
       <div key={tab} className="tab-panel">
         {kpiError ? (
           <ErrorState
@@ -123,7 +127,15 @@ export function Dashboard({
         )}
         <TabCards
           tab={tab}
-          q={{ monthly, categories, sellers, states, deliveryMonthly, lateness, sellerDelivery }}
+          q={{
+            monthly,
+            categories,
+            sellers,
+            states,
+            deliveryMonthly,
+            lateness,
+            sellerDelivery,
+          }}
         />
         {tab === "customers" && (
           <CustomerProfile returnedPct={returnedPct} states={rowsOf(states.data)} />

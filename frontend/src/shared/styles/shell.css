@@ -80,6 +80,7 @@
 }
 .main-area {
   overscroll-behavior: contain;
+  background: #f1f1f3;
   overflow: auto;
   grid-column: 2;
   grid-row: 2;

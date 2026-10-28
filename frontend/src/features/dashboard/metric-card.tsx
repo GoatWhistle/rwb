@@ -1,9 +1,9 @@
-import { ArrowDownRight, ArrowUpRight, MessageSquare, Minus } from "lucide-react"
+import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react"
 import type { ReactNode } from "react"
 import type { DashboardContext, Filters, MetricResult } from "@/shared/api/metrics"
 import { number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
-import { IconButton, Tip } from "@/shared/ui/controls"
+import { Tip } from "@/shared/ui/controls"
 import "@/shared/styles/overview-sales.css"
 
 export interface MetricSpec {
@@ -99,9 +99,6 @@ export function MetricCard({
           </svg>
         )}
       </div>
-      <IconButton label={ru.ask} className="metric-ask" onClick={ask}>
-        <MessageSquare size={14} />
-      </IconButton>
     </article>
   )
 }

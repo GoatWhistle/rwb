@@ -3,7 +3,7 @@ import { useId, useState } from "react"
 import type { Filters } from "@/shared/api/metrics"
 import { useMetric } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
-import { Button, Segmented } from "@/shared/ui/controls"
+import { Button } from "@/shared/ui/controls"
 import { MultiSelect } from "@/shared/ui/multi-select"
 import { Popover, useAutoFocus } from "@/shared/ui/popover"
 
@@ -51,37 +51,55 @@ export function FiltersBar({
         : `${ru.state}: ${picked.length}`
   return (
     <div className="filters-bar">
-      <Segmented
-        label={ru.period}
-        options={presets.map((p) => ({ value: p.label, label: p.label }))}
-        value={selected?.label}
-        onChange={(name) => {
-          const p = presets.find((item) => item.label === name)
-          if (p) onChange({ ...value, start_date: p.start, end_date: p.end })
-        }}
-      />
       <div className="filter-actions">
         <Popover
           label={ru.period}
           className="filter-popover"
           trigger={
             <>
-              <CalendarDays size={16} />
-              <span>{label}</span>
+              <small className="selector-label">{ru.periodShort}</small>
+              <CalendarDays size={14} />
+              <span>{selected?.label ?? label}</span>
               <ChevronDown size={14} className="popover-chevron" />
             </>
           }
         >
           {(close) => (
-            <DateForm
-              id={id}
-              initialStart={value.start_date ?? "2016-09-01"}
-              initialEnd={inclusive(value.end_date ?? "2018-09-01")}
-              onSubmit={(from, to) => {
-                onChange({ ...value, start_date: from, end_date: exclusive(to) })
-                close()
-              }}
-            />
+            <>
+              <div className="period-presets">
+                {presets.map((p) => (
+                  <button
+                    key={p.label}
+                    type="button"
+                    aria-pressed={selected?.label === p.label}
+                    onClick={() => {
+                      onChange({
+                        ...value,
+                        start_date: p.start,
+                        end_date: p.end,
+                      })
+                      close()
+                    }}
+                  >
+                    {p.label}
+                    {selected?.label === p.label && <Check size={14} />}
+                  </button>
+                ))}
+              </div>
+              <DateForm
+                id={id}
+                initialStart={value.start_date ?? "2016-09-01"}
+                initialEnd={inclusive(value.end_date ?? "2018-09-01")}
+                onSubmit={(from, to) => {
+                  onChange({
+                    ...value,
+                    start_date: from,
+                    end_date: exclusive(to),
+                  })
+                  close()
+                }}
+              />
+            </>
           )}
         </Popover>
         <Popover
@@ -89,7 +107,8 @@ export function FiltersBar({
           className="state-filter"
           trigger={
             <>
-              <SlidersHorizontal size={15} />
+              <small className="selector-label">{ru.statesShort}</small>
+              <SlidersHorizontal size={14} />
               <span>{stateLabel}</span>
               <ChevronDown size={14} className="popover-chevron" />
             </>
