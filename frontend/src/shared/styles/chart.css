@@ -10,24 +10,36 @@
   min-height: 0;
 }
 .chart-grid {
-  stroke: #efeff3;
+  stroke: #ececf0;
   stroke-width: 1;
-  stroke-dasharray: 3 4;
 }
 .chart-label {
-  font-size: 10px;
-  fill: #686873;
+  font-size: 12px;
+  fill: #5e5e66;
+  font-variant-numeric: tabular-nums;
+  font-family: Inter, sans-serif;
+}
+.chart-area {
+  fill: var(--brand);
+  opacity: 0.08;
+}
+.chart-gap {
+  fill: #f1f1f3;
+}
+.chart-gap-label {
+  font-size: 12px;
+  fill: #5e5e66;
   font-family: Inter, sans-serif;
 }
 .chart-line {
   fill: none;
   stroke: var(--brand);
-  stroke-width: 2.5;
+  stroke-width: 2.25;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .chart-bar {
-  fill: #6b83ff;
+  fill: var(--brand);
 }
 .chart-guide {
   stroke: #cbd3ff;
@@ -52,7 +64,8 @@
   align-items: center;
   gap: 12px;
   box-shadow: 0 3px 12px #1d1d1b16;
-  font-size: 11px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 .chart-tooltip span {
   color: #c9c9d0;
