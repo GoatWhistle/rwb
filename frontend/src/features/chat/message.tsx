@@ -46,7 +46,7 @@ function layout(message: ChatMessage, streaming: boolean) {
     reviewTables: tables.filter(([, table]) => isReviewTable(table)),
     plainTables: tables.filter(
       ([id, table]) =>
-        !charted.has(id) && !isReviewTable(table) && !orderTool && table.rows.length > 1,
+        !charted.has(id) && !isReviewTable(table) && !orderTool && table.rows.length > 0,
     ),
     done,
     empty: done && !message.text.trim() && !tables.length,
@@ -110,6 +110,7 @@ export function Message({
       {done && <SourceChips sources={message.sources} />}
       <MessageDetails
         message={message}
+        shown={plainTables.map(([id]) => id)}
         details={presentation.details}
         columnLabels={columnLabels}
         question={question}

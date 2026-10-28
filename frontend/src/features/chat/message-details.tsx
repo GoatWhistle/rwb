@@ -97,16 +97,18 @@ function Source({ source }: { source: Record<string, unknown> }) {
 }
 export function MessageDetails({
   message,
+  shown = [],
   details,
   columnLabels,
   question = "",
 }: {
   question?: string
   message: ChatMessage
+  shown?: string[]
   details: string
   columnLabels: Record<string, string>
 }) {
-  const tables = Object.entries(message.tables)
+  const tables = Object.entries(message.tables).filter(([id]) => !shown.includes(id))
   if (!details && !message.sources.length && !tables.length) return null
   return (
     <Disclosure className="message-details" summary={ru.messageDetails}>
