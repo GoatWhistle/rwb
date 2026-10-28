@@ -5,6 +5,16 @@ import { useMetric } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState } from "@/shared/ui/controls"
 import { CustomerProfile } from "./customer-profile"
+import {
+  CustomerMap,
+  CustomerStates,
+  CustomersMonthly,
+  DeliveryDays,
+  DeliveryStages,
+  OnTimeMap,
+  OrdersPerCustomer,
+  ReviewScores,
+} from "./dc-panels"
 import { DeliveryTrend, Geography, Lateness, SellerDelivery } from "./delivery-panels"
 import { FiltersBar } from "./filters"
 import { MetricCard } from "./metric-card"
@@ -59,6 +69,13 @@ export function Dashboard({
   const installments = useMetric("os.installments", filters, salesTab)
   const statesRevenue = useMetric("os.states_revenue", filters, overview)
   const statusMix = useMetric("os.status_mix", filters, overview)
+  const customersTab = tab === "customers"
+  const deliveryDays = useMetric("dc.delivery_days", filters, delivery)
+  const stages = useMetric("dc.stages", filters, delivery)
+  const scores = useMetric("dc.review_scores", filters, delivery)
+  const customersMonthly = useMetric("dc.customers_monthly", filters, customersTab)
+  const perCustomer = useMetric("dc.orders_per_customer", filters, customersTab)
+  const customerStates = useMetric("dc.customer_states", filters, customersTab)
   const kpiQueries = {
     overview: [monthly, avg, kpi],
     sales: [monthly, avg, customers],
@@ -149,6 +166,12 @@ export function Dashboard({
             installments,
             statesRevenue,
             statusMix,
+            deliveryDays,
+            stages,
+            scores,
+            customersMonthly,
+            perCustomer,
+            customerStates,
           }}
         />
         {tab === "customers" && (
@@ -178,7 +201,13 @@ function TabCards({
     | "payments"
     | "installments"
     | "statesRevenue"
-    | "statusMix",
+    | "statusMix"
+    | "deliveryDays"
+    | "stages"
+    | "scores"
+    | "customersMonthly"
+    | "perCustomer"
+    | "customerStates",
     Query
   >
 }) {
@@ -225,24 +254,76 @@ function TabCards({
         </div>
       )}
       {tab === "delivery" && (
-        <>
-          <DeliveryTrend
-            rows={rowsOf(q.deliveryMonthly.data)}
-            query={q.deliveryMonthly}
-            index={4}
-          />
-          <div className="detail-grid">
-            <Geography rows={rowsOf(q.states.data)} query={q.states} index={5} />
-            <div className="panel-stack">
-              <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={6} />
+        <div className="dcx-wrap">
+          <div className="dcx-grid">
+            <div className="dcx-wide">
+              <DeliveryDays rows={rowsOf(q.deliveryDays.data)} query={q.deliveryDays} index={4} />
+            </div>
+            <div>
+              <OnTimeMap rows={rowsOf(q.states.data)} query={q.states} index={5} />
+            </div>
+            <div className="dcx-wide">
+              <DeliveryStages rows={rowsOf(q.stages.data)} query={q.stages} index={6} />
+            </div>
+            <div>
+              <ReviewScores rows={rowsOf(q.scores.data)} query={q.scores} index={7} />
+            </div>
+            <div className="dcx-wide">
+              <DeliveryTrend
+                rows={rowsOf(q.deliveryMonthly.data)}
+                query={q.deliveryMonthly}
+                index={8}
+              />
+            </div>
+            <div>
+              <Lateness rows={rowsOf(q.lateness.data)} query={q.lateness} index={9} />
+            </div>
+            <div>
+              <Geography rows={rowsOf(q.states.data)} query={q.states} index={10} />
+            </div>
+            <div className="dcx-wide">
               <SellerDelivery
                 rows={rowsOf(q.sellerDelivery.data)}
                 query={q.sellerDelivery}
-                index={7}
+                index={11}
               />
             </div>
           </div>
-        </>
+        </div>
+      )}
+      {tab === "customers" && (
+        <div className="dcx-wrap">
+          <div className="dcx-grid">
+            <div className="dcx-wide">
+              <CustomersMonthly
+                rows={rowsOf(q.customersMonthly.data)}
+                query={q.customersMonthly}
+                index={6}
+              />
+            </div>
+            <div>
+              <OrdersPerCustomer
+                rows={rowsOf(q.perCustomer.data)}
+                query={q.perCustomer}
+                index={7}
+              />
+            </div>
+            <div>
+              <CustomerMap
+                rows={rowsOf(q.customerStates.data)}
+                query={q.customerStates}
+                index={8}
+              />
+            </div>
+            <div className="dcx-wide">
+              <CustomerStates
+                rows={rowsOf(q.customerStates.data)}
+                query={q.customerStates}
+                index={9}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </>
   )

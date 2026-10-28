@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http"
 import type { Plugin } from "vite"
+import dcReports from "../../backend/catalog/delivery_customers.json" with { type: "json" }
 import overviewSales from "../../backend/catalog/overview_sales.json" with { type: "json" }
 import reports from "../../backend/catalog/reports.json" with { type: "json" }
 import { scenarioFor } from "./chat"
@@ -19,6 +20,7 @@ import {
   sellersFor,
   statesFor,
 } from "./data"
+import { deliveryCustomerBuilders } from "./delivery-customers"
 import {
   heatmapFor,
   installmentsFor,
@@ -37,7 +39,7 @@ interface Report {
   units: string
   limitations: string[]
 }
-const catalog = [...reports, ...overviewSales] as unknown as Report[]
+const catalog = [...reports, ...overviewSales, ...dcReports] as unknown as Report[]
 const builders: Record<string, (filters: MockFilters) => Row[]> = {
   "block_a.1": monthlyFor,
   "block_a.2": sellersFor,
@@ -56,6 +58,7 @@ const builders: Record<string, (filters: MockFilters) => Row[]> = {
   "os.installments": installmentsFor,
   "os.states_revenue": statesRevenueFor,
   "os.status_mix": statusMixFor,
+  ...deliveryCustomerBuilders,
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
