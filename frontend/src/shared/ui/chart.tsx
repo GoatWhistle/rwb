@@ -274,10 +274,22 @@ function useWidth(container: RefObject<HTMLDivElement | null>) {
   }, [container])
   return width
 }
-function XLabel({ show, x, y, text }: { show: boolean; x: number; y: number; text: string }) {
+function XLabel({
+  show,
+  x,
+  y,
+  text,
+  anchor = "middle",
+}: {
+  show: boolean
+  x: number
+  y: number
+  text: string
+  anchor?: "start" | "middle" | "end"
+}) {
   if (!show) return null
   return (
-    <text x={x} y={y} textAnchor="middle" className="chart-label">
+    <text x={x} y={y} textAnchor={anchor} className="chart-label">
       {text}
     </text>
   )
@@ -285,6 +297,23 @@ function XLabel({ show, x, y, text }: { show: boolean; x: number; y: number; tex
 function labelEvery(i: number, count: number, width: number) {
   const step = Math.ceil(count / Math.max(2, Math.floor(width / 120)))
   return i === count - 1 || (i % step === 0 && count - 1 - i >= step * 0.6)
+}
+function tickText(
+  narrow: boolean,
+  left: number,
+  y: number,
+): { x: number; y: number; textAnchor: "start" | "end"; className: string } {
+  return narrow
+    ? { x: left, y: y - 6, textAnchor: "start", className: "chart-label chart-label-inline" }
+    : { x: left - 8, y: y + 4, textAnchor: "end", className: "chart-label" }
+}
+function frame(narrow: boolean) {
+  return narrow ? { height: 232, right: 4, top: 22 } : { height: 260, right: 18, top: 18 }
+}
+function edgeAnchor(inline: boolean, i: number, count: number) {
+  if (!inline) return "middle"
+  if (i === 0) return "start"
+  return i === count - 1 ? "end" : "middle"
 }
 function describe(n: number | null, format: (n: number) => string) {
   return n === null ? ru.noValue : format(n)
@@ -352,10 +381,9 @@ export function Chart({
   const chartWidth = useWidth(container)
   const [active, setActive] = useState<number | null>(null)
   const id = useId()
+  const narrow = chartWidth < 480
+  const { height, right, top } = frame(narrow)
   const width = chartWidth,
-    height = 260,
-    right = 18,
-    top = 18,
     bottom = 28
   const values = rows.map((row) => numeric(row[y]))
   const measured = values.filter((n): n is number => n !== null)
@@ -369,7 +397,8 @@ export function Chart({
     )
   const { min, max } = domain([...measured, ...priorMeasured], target, fixedMin, fixedMax)
   const ticks = [0, 1, 2, 3, 4].map((i) => min + ((max - min) * i) / 4)
-  const left = Math.max(...ticks.map((n) => tick(n).length)) * 6.8 + 16
+  const left = narrow ? 2 : Math.max(...ticks.map((n) => tick(n).length)) * 6.8 + 16
+  const edge = (i: number) => edgeAnchor(narrow && type === "line", i, rows.length)
   const plotWidth = width - left - right
   const { px, slot, hitWidth, showValues } = columns(type, rows.length, left, plotWidth)
   const clamp = (n: number) => Math.min(max, Math.max(min, n))
@@ -396,9 +425,7 @@ export function Chart({
         {ticks.map((n) => (
           <g key={n}>
             <line x1={left} x2={width - right} y1={py(n)} y2={py(n)} className="chart-grid" />
-            <text x={left - 8} y={py(n) + 4} textAnchor="end" className="chart-label">
-              {tick(n)}
-            </text>
+            <text {...tickText(narrow, left, py(n))}>{tick(n)}</text>
           </g>
         ))}
         <line
@@ -443,6 +470,7 @@ export function Chart({
                 x={px(i)}
                 y={height - 8}
                 text={formatLabel(item[x])}
+                anchor={edge(i)}
               />
             </g>
           )

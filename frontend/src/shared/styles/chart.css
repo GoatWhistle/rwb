@@ -224,3 +224,9 @@
 .chart-tooltip-row > strong {
   margin-left: 12px;
 }
+.chart-label-inline {
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
