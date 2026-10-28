@@ -157,6 +157,7 @@ p {
   font-size: 11px;
 }
 .table-scroll {
+  position: relative;
   overflow: auto;
   max-height: 405px;
 }

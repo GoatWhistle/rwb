@@ -106,6 +106,13 @@ export function ChatPanel({
         >
           {chat.messages.length === 0 ? (
             <div className="chat-welcome">
+              <img
+                className="welcome-mark"
+                src="/brand/01-strata-sign.svg"
+                alt={ru.product}
+                width={64}
+                height={64}
+              />
               <h3 aria-label={ru.welcome}>
                 {ru.welcomeLead} <em className="accent-word">{ru.welcomeAccent}</em>?
               </h3>
