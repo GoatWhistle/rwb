@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { Filters } from "./metrics"
 import type {
   WidgetDraft,
@@ -50,7 +50,14 @@ export function useGenerateWidget() {
 }
 
 export function useSaveWidget() {
-  return useMutation({ mutationFn: saveWidget })
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: saveWidget,
+    onSuccess: (widget) =>
+      client.setQueryData<WidgetSpec[]>(["widgets"], (old) =>
+        old?.some((w) => w.id === widget.id) ? old : [widget, ...(old ?? [])],
+      ),
+  })
 }
 
 export function widgetErrorCode(error: unknown): string {
