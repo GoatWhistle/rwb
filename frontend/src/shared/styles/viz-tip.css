@@ -64,3 +64,16 @@
     transition: none;
   }
 }
+.viz-tip-host .vx-stack-col.viz-tip-on,
+.viz-tip-host .fs-inst-col.viz-tip-on {
+  box-shadow: none;
+  transform: none;
+}
+.viz-tip-host .vx-stack-bar,
+.viz-tip-host .fs-inst-track span {
+  transition: opacity 0.12s ease-out;
+}
+.viz-tip-host:has(.viz-tip-on) .vx-stack-col:not(.viz-tip-on) .vx-stack-bar,
+.viz-tip-host:has(.viz-tip-on) .fs-inst-col:not(.viz-tip-on) .fs-inst-track span {
+  opacity: 0.4;
+}
