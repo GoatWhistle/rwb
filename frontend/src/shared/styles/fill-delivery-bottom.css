@@ -36,3 +36,28 @@
   flex: none;
   margin: 0;
 }
+.dashboard .dash-card.fdb-sellers table {
+  table-layout: fixed;
+}
+.dashboard .dash-card.fdb-sellers th,
+.dashboard .dash-card.fdb-sellers td {
+  padding-inline: 8px;
+}
+.dashboard .dash-card.fdb-sellers th:first-child,
+.dashboard .dash-card.fdb-sellers td:first-child {
+  width: 34%;
+  padding-left: 0;
+}
+.dashboard .dash-card.fdb-sellers th:nth-child(2) {
+  width: 30%;
+}
+.dashboard .dash-card.fdb-sellers th:nth-child(3) {
+  width: 12%;
+}
+.dashboard .dash-card.fdb-sellers th:last-child,
+.dashboard .dash-card.fdb-sellers td:last-child {
+  padding-right: 0;
+}
+.dashboard .dash-card.fdb-sellers .dcx-more {
+  margin-left: -14px;
+}
