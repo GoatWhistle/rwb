@@ -208,6 +208,7 @@ export const ru = {
   chatExpand: "Развернуть",
   chatCopy: "Копировать",
   chatCopied: "Скопировано",
+  chatWrap: "Перенос",
   chatMetric: "Метрика",
   chatPeriod: "Период",
   chatFilters: "Фильтры",

@@ -16,3 +16,16 @@ export function formatCell(name: string, value: unknown): string {
     return moneyFormat.format(n)
   return plain(Number.isInteger(n) ? 0 : 2).format(n)
 }
+
+const compactFormat = new Intl.NumberFormat("ru-RU", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+})
+
+export function formatTick(name: string, value: number): string {
+  if (/(_pct|pct_)/.test(name)) return `${plain(0).format(value)} %`
+  if (/(share|otd|rate)/.test(name) && Math.abs(value) <= 1)
+    return `${plain(0).format(value * 100)} %`
+  if (Math.abs(value) >= 10000) return compactFormat.format(value)
+  return plain(Number.isInteger(value) ? 0 : 1).format(value)
+}
