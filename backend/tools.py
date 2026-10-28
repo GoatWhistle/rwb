@@ -13,6 +13,37 @@ from .sql_guard import validate_sql
 from . import reviews
 
 
+GRAINS = {
+    "orders":"order_id", "order_items":"order_id + item_no (одна единица товара)",
+    "order_payments":"order_id + payment_no", "order_reviews":"review_id + order_id",
+    "customers":"customer_unique_id (человек)", "products":"product_id", "sellers":"seller_id"}
+RULES = ["Выручка: price, delivered, без freight.","Чек: среднее суммы price+freight по доставленному заказу.",
+    "Историческая география: core.orders.customer_state/city.","Платежи, позиции и отзывы агрегировать до JOIN: иначе суммы размножатся.",
+    "Штат — двухбуквенный код Бразилии; категории — португальские коды, переводы в product_categories.",
+    "Для сценария review.md последний отзыв: answered_at DESC NULLS LAST, created_at DESC, review_id; у дашборда своё правило."]
+
+
+def scoped_sql(sql: str, filters: Filters | None, row_limit: int) -> tuple[str, dict | None]:
+    safe = validate_sql(sql)
+    params = None
+    if filters is not None and filters.model_dump(exclude_defaults=True):
+        tree = sqlglot.parse_one(safe, read="postgres")
+        reserved = {"_agent_orders","_agent_items","_agent_metric_items"}
+        if any(c.alias in reserved for c in tree.find_all(exp.CTE)):
+            raise ValueError("Имена CTE _agent_* зарезервированы")
+        for table in tree.find_all(exp.Table):
+            if table.db == "core" and table.name in {"orders","order_items"}:
+                alias = table.alias_or_name
+                table.set("this", exp.to_identifier("_agent_orders" if table.name == "orders" else "_agent_metric_items"))
+                table.set("db", None)
+                if not table.alias:
+                    table.set("alias", exp.TableAlias(this=exp.to_identifier(alias)))
+        prefix, params = scope_sql(filters, name_prefix="_agent_")
+        safe = tree.sql(dialect="postgres")
+        safe = f"WITH {prefix}, " + safe[5:] if safe.startswith("WITH ") else f"WITH {prefix} {safe}"
+    return f"SELECT * FROM ({safe}) AS _agent_result LIMIT {row_limit + 1}", params
+
+
 @dataclass
 class ToolContext:
     dashboard: DashboardContext | None
@@ -61,14 +92,7 @@ async def describe_dataset(ctx: RunContextWrapper[ToolContext], metric_id: str |
         data = catalog()
         for report in data["reports"]:
             report.pop("sql", None)
-        return {"schema":schema,"catalog":data,"grains":{
-            "orders":"order_id", "order_items":"order_id + item_no (одна единица товара)",
-            "order_payments":"order_id + payment_no", "order_reviews":"review_id + order_id",
-            "customers":"customer_unique_id (человек)", "products":"product_id", "sellers":"seller_id"},
-            "rules":["Выручка: price, delivered, без freight.","Чек: среднее суммы price+freight по доставленному заказу.",
-            "Историческая география: core.orders.customer_state/city.","Платежи, позиции и отзывы агрегировать до JOIN: иначе суммы размножатся.",
-            "Штат — двухбуквенный код Бразилии; категории — португальские коды, переводы в product_categories.",
-            "Для сценария review.md последний отзыв: answered_at DESC NULLS LAST, created_at DESC, review_id; у дашборда своё правило."]}
+        return {"schema":schema,"catalog":data,"grains":GRAINS,"rules":RULES}
     return await ctx.context.call("describe_dataset", {"metric_id":metric_id}, run)
 
 
@@ -104,26 +128,8 @@ async def get_order(ctx: RunContextWrapper[ToolContext], order_id: str) -> dict:
 async def execute_sql(ctx: RunContextWrapper[ToolContext], sql: str, apply_dashboard_filters: bool = True) -> dict:
     """Run one read-only PostgreSQL SELECT on core/mart. Inherits dashboard filters by default; item filters select matching positions. For whole-order check use query_metrics. Set apply_dashboard_filters=false only when the question requests a different scope, and put those filters explicitly in SQL. Always inspect truncation."""
     async def run():
-        safe = validate_sql(sql)
-        params = None
         filters = ctx.context.filters(None)
-        if apply_dashboard_filters and filters.model_dump(exclude_defaults=True):
-            tree = sqlglot.parse_one(safe, read="postgres")
-            reserved = {"_agent_orders","_agent_items","_agent_metric_items"}
-            if any(c.alias in reserved for c in tree.find_all(exp.CTE)):
-                raise ValueError("Имена CTE _agent_* зарезервированы")
-            for table in tree.find_all(exp.Table):
-                if table.db == "core" and table.name in {"orders","order_items"}:
-                    alias = table.alias_or_name
-                    table.set("this", exp.to_identifier("_agent_orders" if table.name == "orders" else "_agent_metric_items"))
-                    table.set("db", None)
-                    if not table.alias:
-                        table.set("alias", exp.TableAlias(this=exp.to_identifier(alias)))
-            prefix, params = scope_sql(filters, name_prefix="_agent_")
-            safe = tree.sql(dialect="postgres")
-            safe = f"WITH {prefix}, " + safe[5:] if safe.startswith("WITH ") else f"WITH {prefix} {safe}"
-        # Bound transferred rows on the server as well as in the Python cursor.
-        safe = f"SELECT * FROM ({safe}) AS _agent_result LIMIT {settings().sql_row_limit + 1}"
+        safe, params = scoped_sql(sql, filters if apply_dashboard_filters else None, settings().sql_row_limit)
         return {"table":await db.query(safe, params),"sql":safe,
                 "parameters":serializable(params or {}),
                 "filters":filters.model_dump(mode="json") if apply_dashboard_filters else {"scope":"explicit SQL only"}}
