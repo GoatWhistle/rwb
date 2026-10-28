@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from "node:http"
 import type { Plugin } from "vite"
 import reports from "../../backend/catalog/reports.json" with { type: "json" }
 import { scenarioFor } from "./chat"
+import { constructorRoute } from "./constructor"
 import type { MockFilters, Row } from "./data"
 import {
   avgCheckFor,
@@ -207,6 +208,7 @@ export function mockApi(): Plugin {
         const route = routes[`${req.method} ${req.url.split("?")[0]}`]
         try {
           if (route) return await route(req, res)
+          if (await constructorRoute(req, res)) return undefined
           return send(res, 404, { detail: "mock: endpoint not found" })
         } catch {
           if (!res.destroyed && !res.writableEnded) res.destroy()
