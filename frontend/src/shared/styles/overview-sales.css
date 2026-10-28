@@ -773,3 +773,66 @@ fieldset.os-seg {
   border: 0;
   min-width: 0;
 }
+.dashboard .metric-grid > * {
+  container-type: inline-size;
+}
+.dashboard .metric-grid .metric-card {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(56px, 1fr);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    "label label"
+    "value spark"
+    "meta meta";
+  column-gap: 20px;
+  row-gap: 4px;
+  height: 100%;
+}
+.dashboard .metric-grid .metric-card .metric-bottom {
+  display: contents;
+}
+.dashboard .metric-grid .metric-card .metric-label {
+  grid-area: label;
+}
+.dashboard .metric-grid .metric-card .metric-value {
+  grid-area: value;
+  white-space: nowrap;
+}
+.dashboard .metric-grid .metric-card .sparkline {
+  grid-area: spark;
+  justify-self: end;
+  align-self: center;
+  width: 100%;
+  max-width: 180px;
+  height: 36px;
+}
+.dashboard .metric-grid .metric-card .metric-meta {
+  grid-area: meta;
+  align-self: end;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 8px;
+}
+.dashboard .metric-grid .metric-card .metric-delta {
+  align-self: center;
+  white-space: nowrap;
+}
+@container (max-width: 250px) {
+  .dashboard .metric-grid .metric-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "label"
+      "value"
+      "spark"
+      "meta";
+  }
+  .dashboard .metric-grid .metric-card .sparkline {
+    justify-self: stretch;
+    max-width: none;
+    height: 28px;
+    margin-top: 4px;
+  }
+}
