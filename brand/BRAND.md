@@ -20,6 +20,7 @@
 | `logo/01-strata-sign-white.svg` | белый знак на плашке с градиентом обложки |
 | `logo/01-strata-lockup.svg` | знак и надпись, тёмная надпись на светлом |
 | `logo/01-strata-lockup-white.svg` | знак и надпись белым на градиенте обложки |
+| `logo/01-strata-lockup-mono-white.svg` | знак и надпись белым на прозрачном фоне, для тёмной темы (README на GitHub) |
 | `wordmark/unbounded.svg`, `wordmark/unbounded-white.svg` | надпись отдельно |
 | `logos.html` | все варианты знаков и шрифтов для сравнения |
 
