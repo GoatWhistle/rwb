@@ -1,13 +1,15 @@
+import { useLayoutEffect, useRef, useState } from "react"
 import type { Row } from "@/shared/format"
 import { number, numeric, percent } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
-import { DataTable } from "@/shared/ui/data-table"
+import { tipAttrs, VizTip } from "@/shared/ui/viz-tip"
 import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import { DeliveryTileMap, ScoreBars, StackedBars } from "./dc-viz"
 import { FillHistogram, FillStackedBars } from "./delivery-top-viz"
 import { stateName } from "./states"
 import "@/shared/styles/fill-delivery-bottom.css"
+import "@/shared/styles/fill-customers.css"
 
 const t = ru.dc
 const days = (n: number) => `${number(n, 1)} дн.`
@@ -163,6 +165,7 @@ export function OrdersPerCustomer({ rows, query, index }: Props) {
       query={query}
       index={index}
       actions={tools(rows, "orders-per-customer", false)}
+      className="fc-opc-card"
     >
       <div className="dcx-opc">
         <div className="dcx-opc-split" aria-hidden="true">
@@ -208,6 +211,7 @@ export function CustomerMap({ rows, query, index }: Props) {
       query={query}
       index={index}
       actions={tools(rows, "customers-map", false)}
+      className="fc-map-card"
     >
       <DeliveryTileMap
         rows={rows}
@@ -220,8 +224,63 @@ export function CustomerMap({ rows, query, index }: Props) {
   )
 }
 
+const ROW_MIN = 40
+const HEAD = 36
+
+function useFitRows(total: number) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [fit, setFit] = useState(10)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const measure = () => setFit(Math.max(2, Math.floor((el.clientHeight - HEAD) / ROW_MIN)))
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return [ref, Math.min(fit, total)] as const
+}
+
+interface StateLine {
+  key: string
+  name: string
+  code?: string
+  customers: number
+  orders: number
+  repeat: number
+}
+
+function stateLines(rows: Row[], fit: number): StateLine[] {
+  const lines = rows.map((row) => ({
+    key: String(row.state),
+    name: stateName(row.state),
+    code: String(row.state),
+    customers: numeric(row.customers) ?? 0,
+    orders: numeric(row.orders) ?? 0,
+    repeat: numeric(row.repeat_share) ?? 0,
+  }))
+  if (fit >= lines.length) return lines
+  const head = lines.slice(0, fit - 1)
+  const rest = lines.slice(fit - 1)
+  const orders = rest.reduce((sum, line) => sum + line.orders, 0)
+  return [
+    ...head,
+    {
+      key: "rest",
+      name: `Остальные ${rest.length}`,
+      customers: rest.reduce((sum, line) => sum + line.customers, 0),
+      orders,
+      repeat: orders ? rest.reduce((sum, line) => sum + line.repeat * line.orders, 0) / orders : 0,
+    },
+  ]
+}
+
 export function CustomerStates({ rows, query, index }: Props) {
   const total = rows.reduce((sum, row) => sum + (numeric(row.customers) ?? 0), 0)
+  const [ref, fit] = useFitRows(rows.length)
+  const lines = stateLines(rows, fit)
+  const max = Math.max(...lines.filter((line) => line.code).map((line) => line.customers), 1)
   return (
     <Card
       title={t.statesTitle}
@@ -232,40 +291,58 @@ export function CustomerStates({ rows, query, index }: Props) {
       index={index}
       actions={tools(rows, "customer-states", false)}
     >
-      <DataTable
-        rows={rows.slice(0, 8).map((row) => ({
-          ...row,
-          name: stateName(row.state),
-          share: total ? (numeric(row.customers) ?? 0) / total : 0,
-        }))}
-        columns={[
-          { key: "name", label: ru.region },
-          {
-            key: "customers",
-            label: t.customers,
-            numeric: true,
-            format: (v) => number(Number(v)),
-          },
-          {
-            key: "share",
-            label: t.share,
-            numeric: true,
-            format: (v) => percent(Number(v)),
-          },
-          {
-            key: "orders",
-            label: t.orders,
-            numeric: true,
-            format: (v) => number(Number(v)),
-          },
-          {
-            key: "repeat_share",
-            label: t.repeatShare,
-            numeric: true,
-            format: (v) => percent(Number(v)),
-          },
-        ]}
-      />
+      <div ref={ref} className="fc-states">
+        {rows.length > 0 && (
+          <VizTip>
+            <table>
+              <caption className="sr-only">{t.statesTitle}</caption>
+              <colgroup>
+                <col className="fc-name" />
+                <col />
+                <col className="fc-share" />
+                <col className="fc-repeat" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">{ru.region}</th>
+                  <th scope="col">{t.customers}</th>
+                  <th scope="col">{t.share}</th>
+                  <th scope="col">{t.repeatShare}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lines.map((line) => (
+                  <tr
+                    key={line.key}
+                    className={line.code ? "" : "fc-rest"}
+                    {...tipAttrs(line.code ? `${line.name}, ${line.code}` : `${line.name} штатов`, [
+                      { label: t.customers, value: number(line.customers) },
+                      { label: t.orders, value: number(line.orders) },
+                      { label: "Доля повторных", value: percent(line.repeat) },
+                    ])}
+                  >
+                    <td>{line.code ? line.name : `${line.name} штатов`}</td>
+                    <td>
+                      <span className="fc-count">
+                        <span className="fc-bar" aria-hidden="true">
+                          <span
+                            style={{
+                              width: `${Math.min((line.customers / max) * 100, 100)}%`,
+                            }}
+                          />
+                        </span>
+                        {number(line.customers)}
+                      </span>
+                    </td>
+                    <td>{percent(total ? line.customers / total : 0)}</td>
+                    <td>{percent(line.repeat)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </VizTip>
+        )}
+      </div>
     </Card>
   )
 }
