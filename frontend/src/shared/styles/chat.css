@@ -1666,3 +1666,23 @@ details[open] > .disclosure-summary > .disclosure-chevron {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+.chat-block-head .chat-block-count,
+.chat-show-all .chat-block-count {
+  display: inline-block;
+  min-width: 22px;
+  height: 20px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 6.7px;
+  background: #f1f1f3;
+  color: #5e5e66;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.chat-show-all {
+  display: inline-flex;
+  align-items: center;
+}

@@ -78,7 +78,7 @@ export function Geography({
     <Card
       title={ru.geography}
       accent="опаздывает"
-      description={`Доля доставок вовремя по штатам, ${limit} худших · шкала 70–100 %`}
+      description={`${limit} худших штатов по доле доставок вовремя, шкала 70–100 %`}
       query={query}
       index={index}
     >

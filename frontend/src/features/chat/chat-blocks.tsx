@@ -219,9 +219,7 @@ export function TableBlock({ id = "result", ...props }: BlockProps & { id?: stri
       <header className="chat-block-head">
         <figcaption>
           {ru.results}
-          <span className="chat-block-count">
-            · {table.rows.length} {ru.rows}
-          </span>
+          <span className="chat-block-count">{number(table.rows.length)}</span>
         </figcaption>
         <span className="chat-block-actions">
           <button
@@ -242,7 +240,8 @@ export function TableBlock({ id = "result", ...props }: BlockProps & { id?: stri
       )}
       {table.rows.length > ROW_LIMIT && (
         <button type="button" className="chat-show-all" onClick={() => setAll(!all)}>
-          {all ? ru.chatCollapse : `${ru.chatShowAll} · ${table.rows.length}`}
+          <span>{all ? ru.chatCollapse : ru.chatShowAll}</span>
+          {!all && <span className="chat-block-count">{number(table.rows.length)}</span>}
         </button>
       )}
       {table.truncated && <p className="footnote">{ru.truncated}</p>}

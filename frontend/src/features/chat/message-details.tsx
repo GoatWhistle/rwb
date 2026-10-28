@@ -37,7 +37,7 @@ function filterText(filters: Record<string, unknown>) {
     .map((key) => filters[key])
     .filter((value): value is unknown[] => Array.isArray(value) && value.length > 0)
     .map((value) => value.join(", "))
-  return parts.join(" · ") || ru.chatNoFilters
+  return parts.join("; ") || ru.chatNoFilters
 }
 function SqlMeta({ source }: { source: Record<string, unknown> }) {
   const filters =
