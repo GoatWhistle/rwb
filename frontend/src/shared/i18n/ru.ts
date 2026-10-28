@@ -60,6 +60,7 @@ export const ru = {
   from: "С",
   to: "По",
   apply: "Применить",
+  done: "Готово",
   reset: "Сбросить",
   filters: "Фильтры",
   state: "Штат покупателя",

@@ -10,6 +10,7 @@ import { DatumLogo } from "@/shared/ui/datum-logo"
 import "@/shared/styles/shell.css"
 import "@/shared/styles/dashboard.css"
 import "@/shared/styles/chat.css"
+import "@/shared/styles/mobile-shell.css"
 
 export function App() {
   const [filters, setFilters] = useState<Filters>(initialFilters)
