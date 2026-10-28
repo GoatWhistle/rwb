@@ -135,7 +135,6 @@ export const ru = {
   running: "Проверяю данные…",
   context: "Контекст дашборда",
   removeContext: "Убрать метрику из контекста",
-  chatHint: "Enter: отправить, Shift + Enter: новая строка",
   chatError: "Не удалось завершить ответ. Попробуйте ещё раз.",
   interrupted: "Ответ остановлен",
   sources: "Источники",

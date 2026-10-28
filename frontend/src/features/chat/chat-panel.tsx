@@ -100,6 +100,13 @@ export function ChatPanel({
       >
         {chat.messages.length === 0 ? (
           <div className="chat-welcome">
+            <img
+              className="welcome-mark"
+              src="/brand/01-strata-sign.svg"
+              alt={ru.product}
+              width={64}
+              height={64}
+            />
             <h3>{ru.welcome}</h3>
             <p>{ru.welcomeNote}</p>
             <div className="suggestions">
@@ -145,7 +152,6 @@ export function ChatPanel({
           onReset={chat.reset}
           voice={voice}
         />
-        <p className="composer-hint">{ru.chatHint}</p>
       </div>
     </aside>
   )
