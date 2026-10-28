@@ -94,7 +94,7 @@ def entrance(ids: Ids, spid: str, kind: str, dur: int) -> tuple[int, int, str]:
         _, dx, dy = kind.split("_")
         dx, dy = float(dx), float(dy)
         path = f"M {dx:.4f} {dy:.4f} C {dx * 0.2:.4f} {dy * 1.1:.4f} {dx * 0.05:.4f} {dy * 0.3:.4f} 0 0 E"
-        spin = f'<p:animRot by="{int(-5400000 if dx > 0 else 5400000)}"><p:cBhvr><p:cTn id="{ids.next()}" dur="{dur}" fill="hold" decel="100000"/>{tgt(spid)}<p:attrNameLst><p:attrName>r</p:attrName></p:attrNameLst></p:cBhvr></p:animRot>'
+        spin = f'<p:animRot from="{int(5400000 if dx > 0 else -5400000)}" to="0"><p:cBhvr><p:cTn id="{ids.next()}" dur="{dur}" fill="hold" decel="100000"/>{tgt(spid)}<p:attrNameLst><p:attrName>r</p:attrName></p:attrNameLst></p:cBhvr></p:animRot>'
         return 2, 4, body + effect(ids, spid, "fade", int(dur * 0.45)) + motion(ids, spid, path, dur) + spin
     if kind.startswith("fly_"):
         _, dx, dy = kind.split("_")
