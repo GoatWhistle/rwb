@@ -13,6 +13,7 @@ import "@/shared/styles/fill-pay-cat.css"
 import "@/shared/styles/fill-heat-geo.css"
 import "@/shared/styles/fill-overview-top.css"
 import "@/shared/styles/fill-sales.css"
+import "@/shared/styles/mobile-charts-a.css"
 
 const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 const ordersWord = (n: number) => {
@@ -290,7 +291,7 @@ export function PaymentsMix({
                 ))}
               </div>
               <small>
-                {String(r.month).slice(5, 7) === "01" || i === 0 ? String(r.month).slice(2, 7) : ""}
+                {String(r.month).slice(5, 7) === "01" || i === 0 ? String(r.month).slice(0, 4) : ""}
               </small>
             </div>
           ))}
