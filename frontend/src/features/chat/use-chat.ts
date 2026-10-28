@@ -12,6 +12,22 @@ export interface ChatChart {
   x: string
   y: string[]
 }
+export interface ChatStep {
+  id: string
+  name: string
+  status: "running" | "ok" | "error"
+  elapsed?: number
+  error?: string
+}
+export interface ChatOrder {
+  found: boolean
+  order_id: string
+  order?: Record<string, unknown>
+  items?: DataTable
+  payments?: DataTable
+  reviews?: DataTable
+  totals?: DataTable
+}
 export interface ChatMessage {
   id: string
   role: "user" | "assistant"
@@ -20,6 +36,9 @@ export interface ChatMessage {
   charts: ChatChart[]
   sources: Record<string, unknown>[]
   details?: string
+  steps?: ChatStep[]
+  orders?: ChatOrder[]
+  question?: string
   error?: string
   stopped?: boolean
 }
@@ -39,6 +58,36 @@ function readSaved(): { session: string; messages: ChatMessage[] } {
   } catch {}
   return { session: crypto.randomUUID(), messages: [] }
 }
+function startStep(message: ChatMessage, data: Record<string, unknown>): ChatMessage {
+  return {
+    ...message,
+    steps: [
+      ...(message.steps ?? []),
+      { id: String(data.call_id ?? ""), name: String(data.name ?? ""), status: "running" },
+    ],
+  }
+}
+function finishStep(message: ChatMessage, data: Record<string, unknown>): ChatMessage {
+  const result = data.result
+  const order =
+    data.name === "get_order" && result && typeof result === "object"
+      ? (result as unknown as ChatOrder)
+      : null
+  return {
+    ...message,
+    steps: (message.steps ?? []).map((step) =>
+      step.id === data.call_id
+        ? {
+            ...step,
+            status: data.ok ? "ok" : "error",
+            ...(typeof data.elapsed_ms === "number" ? { elapsed: data.elapsed_ms } : {}),
+            ...(typeof data.error === "string" ? { error: data.error } : {}),
+          }
+        : step,
+    ),
+    orders: order ? [...(message.orders ?? []), order] : (message.orders ?? []),
+  }
+}
 function updateEvent(message: ChatMessage, { event, data }: StreamEvent): ChatMessage {
   switch (event) {
     case "text_delta":
@@ -47,6 +96,10 @@ function updateEvent(message: ChatMessage, { event, data }: StreamEvent): ChatMe
       return { ...message, text: typeof data.text === "string" ? data.text : message.text }
     case "error":
       return { ...message, error: ru.chatError }
+    case "tool_started":
+      return startStep(message, data)
+    case "tool_finished":
+      return finishStep(message, data)
     case "table": {
       if (
         typeof data.table_id !== "string" ||
@@ -118,7 +171,7 @@ export function useChat() {
       setMessages((current) => [
         ...current,
         make("user", text),
-        { ...make("assistant", ""), id: assistantId },
+        { ...make("assistant", ""), id: assistantId, question: text },
       ])
       const patch = (transform: (message: ChatMessage) => ChatMessage) =>
         setMessages((current) =>
@@ -157,6 +210,10 @@ export function useChat() {
     if (mutation.isPending || controller.current || !text.trim()) return
     mutation.mutate({ text: text.trim(), context })
   }
+  const retry = (context: DashboardContext) => {
+    const last = [...messages].reverse().find((message) => message.role === "user")
+    if (last) send(last.text, context)
+  }
   const reset = () => {
     if (mutation.isPending) return
     session.current = crypto.randomUUID()
@@ -166,6 +223,7 @@ export function useChat() {
     messages,
     send,
     reset,
+    retry,
     pending: mutation.isPending,
     working,
     stop: () => controller.current?.abort(),

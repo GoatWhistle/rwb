@@ -129,6 +129,11 @@ export function ChatPanel({
                   key={message.id}
                   message={message}
                   streaming={chat.pending && i === chat.messages.length - 1}
+                  onRetry={
+                    !chat.pending && i === chat.messages.length - 1
+                      ? () => chat.retry(context)
+                      : undefined
+                  }
                 />
               ))}
               {chat.pending && <ThinkingStatus working={chat.working} />}
