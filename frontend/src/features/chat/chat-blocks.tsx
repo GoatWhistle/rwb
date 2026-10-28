@@ -2,6 +2,7 @@ import {
   AlertCircle,
   Check,
   ChevronDown,
+  Download,
   LayoutDashboard,
   Loader2,
   Package,
@@ -11,9 +12,10 @@ import {
 import { useEffect, useState } from "react"
 import type { DataTable } from "@/shared/api/metrics"
 import type { WidgetKind } from "@/shared/api/widget-types"
-import { cell, number, numeric } from "@/shared/format"
+import { cell, downloadCsv, number, numeric } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
+import { formatCell } from "./chat-format"
 import { buildDraft, saveWidget } from "./save-widget"
 import type { ChatChart, ChatOrder, ChatStep } from "./use-chat"
 
@@ -152,14 +154,65 @@ export function ChartBlock({ chart, ...props }: BlockProps & { chart: ChatChart 
   )
 }
 
-export function TableBlock(props: BlockProps) {
-  const [all, setAll] = useState(false)
-  const { table, labels } = props
+function KpiTiles({ table, labels }: { table: DataTable; labels: Record<string, string> }) {
+  const row = table.rows[0] ?? {}
+  return (
+    <div className="chat-kpis">
+      {table.columns.map((col) => (
+        <div key={col.name} className="chat-kpi">
+          <span>{labels[col.name] ?? col.name}</span>
+          <strong>{formatCell(col.name, row[col.name])}</strong>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Grid({
+  table,
+  labels,
+  rows,
+}: {
+  table: DataTable
+  labels: Record<string, string>
+  rows: DataTable["rows"]
+}) {
   const numericColumns = new Set(
     table.columns
       .filter((col) => table.rows.some((row) => numeric(row[col.name]) !== null))
       .map((col) => col.name),
   )
+  return (
+    <div className="chat-table-scroll">
+      <table className="chat-grid">
+        <thead>
+          <tr>
+            {table.columns.map((col) => (
+              <th key={col.name} className={numericColumns.has(col.name) ? "is-num" : ""}>
+                {labels[col.name] ?? col.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={JSON.stringify(row)}>
+              {table.columns.map((col) => (
+                <td key={col.name} className={numericColumns.has(col.name) ? "is-num" : ""}>
+                  {formatCell(col.name, row[col.name])}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export function TableBlock({ id = "result", ...props }: BlockProps & { id?: string }) {
+  const [all, setAll] = useState(false)
+  const { table, labels } = props
   const rows = all ? table.rows : table.rows.slice(0, ROW_LIMIT)
   return (
     <figure className="chat-block">
@@ -167,35 +220,26 @@ export function TableBlock(props: BlockProps) {
         <figcaption>
           {ru.results}
           <span className="chat-block-count">
-            {table.rows.length} {ru.rows}
+            · {table.rows.length} {ru.rows}
           </span>
         </figcaption>
-        <SaveAction build={draftBuilder(props, props.question, "table", null, [])} />
+        <span className="chat-block-actions">
+          <button
+            type="button"
+            className="chat-block-action"
+            onClick={() => downloadCsv(table.rows, `datum-${id}.csv`)}
+          >
+            <Download size={13} />
+            CSV
+          </button>
+          <SaveAction build={draftBuilder(props, props.question, "table", null, [])} />
+        </span>
       </header>
-      <div className="chat-table-scroll">
-        <table className="chat-grid">
-          <thead>
-            <tr>
-              {table.columns.map((col) => (
-                <th key={col.name} className={numericColumns.has(col.name) ? "is-num" : ""}>
-                  {labels[col.name] ?? col.name}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={JSON.stringify(row)}>
-                {table.columns.map((col) => (
-                  <td key={col.name} className={numericColumns.has(col.name) ? "is-num" : ""}>
-                    {cell(row[col.name])}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {table.rows.length === 1 ? (
+        <KpiTiles table={table} labels={labels} />
+      ) : (
+        <Grid table={table} labels={labels} rows={rows} />
+      )}
       {table.rows.length > ROW_LIMIT && (
         <button type="button" className="chat-show-all" onClick={() => setAll(!all)}>
           {all ? ru.chatCollapse : `${ru.chatShowAll} · ${table.rows.length}`}

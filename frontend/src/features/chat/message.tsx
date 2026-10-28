@@ -112,6 +112,7 @@ export function Message({
         message={message}
         details={presentation.details}
         columnLabels={columnLabels}
+        question={question}
       />
       {empty && <Notice text={ru.chatNoAnswer} onRetry={onRetry} />}
       {message.error && <Notice tone="error" text={message.error} onRetry={onRetry} />}
