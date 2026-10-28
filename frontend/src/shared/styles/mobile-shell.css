@@ -418,3 +418,11 @@
     white-space: nowrap;
   }
 }
+@media (max-width: 640px) {
+  .app-shell .dashboard .metric-grid .metric-card .metric-label {
+    min-height: 36px;
+  }
+  .app-shell .dashboard .dash-card.fc-map-card .dcx-tile span {
+    display: none;
+  }
+}

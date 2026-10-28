@@ -25,6 +25,17 @@ function useBoxWidth(active: boolean, fallback = 640) {
   return [ref, width] as const
 }
 
+function niceStep(x: number) {
+  const p = 10 ** Math.floor(Math.log10(x))
+  const m = x / p
+  const nice = m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10
+  return nice * p
+}
+
+function niceTop(v: number) {
+  return niceStep(v / 4) * 4
+}
+
 export function Histogram({
   rows,
   x,
@@ -157,7 +168,7 @@ export function StackedBars({
   const H = 260
   const pad = { l: 44, r: 8, t: 10, b: 26 }
   const totals = rows.map((row) => series.reduce((sum, s) => sum + num(row[s.key]), 0))
-  const maxY = Math.max(...totals, 1e-9) * 1.08
+  const maxY = niceTop(Math.max(...totals, 1e-9))
   const step = (W - pad.l - pad.r) / rows.length
   const bw = Math.min(step * 0.72, 34)
   const sy = (v: number) => (v / maxY) * (H - pad.t - pad.b)

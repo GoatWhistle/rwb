@@ -368,7 +368,7 @@ function ScoreVertical({ items, W, H }: { items: ScoreItem[]; W: number; H: numb
 }
 
 function ScoreHorizontal({ items, W, H }: { items: ScoreItem[]; W: number; H: number }) {
-  const pad = { l: 76, r: 40, t: 4, b: 4 }
+  const pad = { l: 104, r: 40, t: 4, b: 4 }
   const step = (H - pad.t - pad.b) / items.length
   const bh = Math.min(step * 0.5, 26)
   const sx = (v: number) => (v / 5) * (W - pad.l - pad.r)
