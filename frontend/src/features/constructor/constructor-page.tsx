@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import type { Filters } from "@/shared/api/metrics"
 import type {
   CustomDashboard,
@@ -26,6 +27,7 @@ import {
 import { ru } from "@/shared/i18n/ru"
 import { Button, ErrorState, IconButton } from "@/shared/ui/controls"
 import "@/shared/styles/constructor.css"
+import "@/shared/styles/ctor-clean.css"
 import { Canvas } from "./canvas"
 import { CtorEmpty } from "./empty-state"
 import { WidgetGenerator } from "./generator"
@@ -84,14 +86,8 @@ export function ConstructorPage({ filters }: { filters: Filters }) {
 
   return (
     <div className="ctor">
-      <header className="ctor-hero">
-        <h1>
-          {ru.ctorHeroLead} <em className="accent">{ru.ctorHeroAccent}</em>
-        </h1>
-        <p>{ru.ctorHeroHint}</p>
-      </header>
-      <WidgetGenerator filters={filters} onCreated={addWidget} />
-      <div className="ctor-layout">
+      <h1 className="sr-only">{ru.constructor}</h1>
+      <div className="ctor-bar">
         <Switcher
           dashboards={list}
           activeId={active?.id ?? null}
@@ -100,83 +96,73 @@ export function ConstructorPage({ filters }: { filters: Filters }) {
           onCreate={createDashboard}
           creating={create.isPending}
         />
-        <section className="ctor-main" aria-label={ru.ctorDashboards}>
-          {loading ? (
-            <div className="canvas-grid" role="status" aria-label={ru.loading}>
-              {[
-                ["a", 6],
-                ["b", 6],
-                ["c", 12],
-              ].map(([id, span]) => (
-                <div
-                  key={id}
-                  className="panel ctor-tile tile-skeleton"
-                  style={{ gridColumn: `span ${String(span)}` }}
-                />
-              ))}
-            </div>
-          ) : !active ? (
-            <CtorEmpty
-              lead={ru.ctorEmptyLead}
-              accent={ru.ctorEmptyAccent}
-              hint={ru.ctorNoDashboardsHint}
-              action={
-                <Button
-                  className="primary"
-                  disabled={create.isPending}
-                  onClick={() =>
-                    create.mutate(ru.ctorNewDashboardTitle(1), {
-                      onSuccess: (d) => setActiveId(d.id),
-                    })
-                  }
-                >
-                  <Plus size={15} />
-                  {ru.ctorNewDashboard}
-                </Button>
-              }
-            />
-          ) : (
-            <>
-              <div className="ctor-canvas-head">
-                <div>
-                  <h2>{active.title}</h2>
-                  <p>{ru.ctorWidgetCount(active.items.length)}</p>
-                </div>
-                <Button
-                  className={library ? "active" : ""}
-                  aria-expanded={library}
-                  onClick={() => setLibrary(!library)}
-                >
-                  <LibraryIcon size={15} />
-                  {ru.ctorLibrary}
-                </Button>
-              </div>
-              <Canvas
-                key={active.id}
-                items={active.items}
-                widgets={byId}
-                filters={filters}
-                onChange={(items) => setItems(active, items)}
-                onOpenLibrary={() => setLibrary(true)}
-              />
-            </>
-          )}
-        </section>
+        <Button
+          className={`ctor-library-toggle${library ? " active" : ""}`}
+          aria-expanded={library}
+          onClick={() => setLibrary(!library)}
+        >
+          <LibraryIcon size={15} />
+          {ru.ctorLibrary}
+        </Button>
       </div>
-      <div
-        className={`ctor-backdrop${library ? " open" : ""}`}
-        aria-hidden="true"
-        onClick={() => setLibrary(false)}
-      />
-      <Library
-        open={library}
-        widgets={widgets.data ?? []}
-        placed={new Set(active?.items.map((item) => item.widget_id) ?? [])}
-        canAdd={Boolean(active)}
-        onAdd={addWidget}
-        onClose={() => setLibrary(false)}
-      />
-      <Toast toast={toast} />
+      <section className="ctor-board" aria-label={active?.title ?? ru.ctorDashboards}>
+        <WidgetGenerator filters={filters} onCreated={addWidget} />
+        {loading ? (
+          <div className="canvas-grid" role="status" aria-label={ru.loading}>
+            {[
+              ["a", 6],
+              ["b", 6],
+              ["c", 12],
+            ].map(([id, span]) => (
+              <div
+                key={id}
+                className="panel ctor-tile tile-skeleton"
+                style={{ gridColumn: `span ${String(span)}` }}
+              />
+            ))}
+          </div>
+        ) : active ? (
+          <Canvas
+            key={active.id}
+            items={active.items}
+            widgets={byId}
+            filters={filters}
+            onChange={(items) => setItems(active, items)}
+            onOpenLibrary={() => setLibrary(true)}
+          />
+        ) : (
+          <CtorEmpty
+            lead={ru.ctorEmptyLead}
+            accent={ru.ctorEmptyAccent}
+            hint={ru.ctorNoDashboardsHint}
+            action={
+              <Button className="primary" disabled={create.isPending} onClick={createDashboard}>
+                <Plus size={15} />
+                {ru.ctorNewDashboard}
+              </Button>
+            }
+          />
+        )}
+      </section>
+      {createPortal(
+        <div className="ctor ctor-layer">
+          <div
+            className={`ctor-backdrop${library ? " open" : ""}`}
+            aria-hidden="true"
+            onClick={() => setLibrary(false)}
+          />
+          <Library
+            open={library}
+            widgets={widgets.data ?? []}
+            placed={new Set(active?.items.map((item) => item.widget_id) ?? [])}
+            canAdd={Boolean(active)}
+            onAdd={addWidget}
+            onClose={() => setLibrary(false)}
+          />
+          <Toast toast={toast} />
+        </div>,
+        document.body,
+      )}
     </div>
   )
 }

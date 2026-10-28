@@ -721,25 +721,6 @@ fieldset.tile-sizes {
   font-weight: 400;
   color: #328ef9;
 }
-.ctor-hero {
-  display: grid;
-  gap: 6px;
-  padding-top: 8px;
-  animation: ctor-rise 0.48s cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-.ctor-hero h1 {
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.035em;
-  color: #1d1d1b;
-}
-.ctor-hero p {
-  max-width: 560px;
-  font-size: 14px;
-  line-height: 1.45;
-  color: #5e5e66;
-}
 .ctor-layout,
 .ctor-layout.with-library {
   grid-template-columns: minmax(0, 1fr);
@@ -988,7 +969,6 @@ fieldset.tile-sizes {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ctor-hero,
   .ctor-tile,
   .canvas-empty,
   .switcher-menu,
