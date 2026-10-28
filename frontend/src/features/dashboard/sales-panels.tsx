@@ -9,11 +9,17 @@ import { Chart } from "@/shared/ui/chart"
 import { Button, EmptyState } from "@/shared/ui/controls"
 import { DataTable } from "@/shared/ui/data-table"
 import { Money } from "@/shared/ui/money"
+import { tipAttrs, VizTip } from "@/shared/ui/viz-tip"
 import type { CardQuery } from "./card"
 import { Card, CardTools } from "./card"
 import "@/shared/styles/fill-pay-cat.css"
+import "@/shared/styles/fill-sales.css"
 
 const shareFormat = new Intl.NumberFormat("ru-RU", { style: "percent", maximumFractionDigits: 1 })
+const roundCompact = new Intl.NumberFormat("ru-RU", {
+  notation: "compact",
+  maximumFractionDigits: 0,
+})
 const priorLabel = "Год назад"
 
 function withPriorYear(rows: Row[], key: string): Row[] {
@@ -307,6 +313,61 @@ export function Categories({
     </Card>
   )
 }
+function sellerTip(row: Row, total: number) {
+  const revenue = numeric(row.revenue) ?? 0
+  const orders = numeric(row.orders_cnt)
+  return tipAttrs(String(row.seller), [
+    { label: ru.revenue, value: money(revenue), color: "var(--viz-1)" },
+    { label: "Доля в топ-10", value: total > 0 ? shareFormat.format(revenue / total) : ru.noValue },
+    { label: ru.orders, value: orders === null ? ru.noValue : number(orders) },
+    {
+      label: "Средний чек",
+      value: orders ? money(revenue / orders) : ru.noValue,
+    },
+    { label: "Город", value: String(row.place) },
+  ])
+}
+
+function SellerList({ rows, total }: { rows: Row[]; total: number }) {
+  const max = Math.max(1, ...rows.map((row) => numeric(row.revenue) ?? 0))
+  return (
+    <VizTip className="fs-grow">
+      <ol className="fs-sellers">
+        <li className="fs-sellers-head" aria-hidden="true">
+          <span>Продавец</span>
+          <span>{ru.revenue}, R$</span>
+          <span>{ru.orders}</span>
+          <span>Доля</span>
+        </li>
+        {rows.map((row, i) => {
+          const revenue = numeric(row.revenue) ?? 0
+          const orders = numeric(row.orders_cnt)
+          return (
+            <li
+              key={String(row.seller_id ?? i)}
+              style={{ "--w": revenue / max, "--i": i } as CSSProperties}
+              {...sellerTip(row, total)}
+            >
+              <span className="fs-seller">
+                <b>{String(row.seller)}</b>
+                <small className="fs-seller-place">{String(row.place)}</small>
+              </span>
+              <span className="fs-seller-rev">
+                <span className="fs-seller-bar">
+                  <i />
+                </span>
+                <strong>{roundCompact.format(revenue)}</strong>
+              </span>
+              <span>{orders === null ? ru.noValue : number(orders)}</span>
+              <span>{total > 0 ? shareFormat.format(revenue / total) : ru.noValue}</span>
+            </li>
+          )
+        })}
+      </ol>
+    </VizTip>
+  )
+}
+
 export function Sellers({
   rows,
   query,
@@ -317,7 +378,11 @@ export function Sellers({
   index?: number
 }) {
   const [view, setView] = useState<"chart" | "table">("chart")
-  const labelled = rows.map((row) => ({ ...row, place: place(row) || ru.noValue }))
+  const labelled = rows.map((row, i) => ({
+    ...row,
+    seller: `Продавец #${i + 1}`,
+    place: place(row) || ru.noValue,
+  }))
   const total = rows.reduce((sum, row) => sum + (numeric(row.revenue) ?? 0), 0)
   return (
     <Card
@@ -335,19 +400,13 @@ export function Sellers({
       {rows.length === 0 ? (
         <EmptyState />
       ) : view === "chart" ? (
-        <BarList
-          rows={labelled}
-          label={(row) => String(row.place)}
-          value="revenue"
-          total={total}
-          format={(n) => money(n, true)}
-        />
+        <SellerList rows={labelled} total={total} />
       ) : (
         <DataTable
           rows={labelled}
-          searchable
           filename="datum-sellers.csv"
           columns={[
+            { key: "seller", label: "Продавец" },
             { key: "place", label: "Город, штат" },
             {
               key: "orders_cnt",

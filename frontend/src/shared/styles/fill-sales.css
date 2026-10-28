@@ -1,0 +1,248 @@
+.dashboard .dash-card .fs-grow {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.fs-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: #5e5e66;
+  font-variant-numeric: tabular-nums;
+}
+.fs-caption b {
+  font-weight: 600;
+  color: #1d1d1b;
+}
+.fs-caption em {
+  font-style: normal;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: #f1f1f3;
+}
+.fs-caption-mean {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 2px;
+}
+.fs-caption-mean i {
+  width: 16px;
+  border-top: 1.5px dashed #5e5e66;
+}
+
+.fs-inst {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 8px;
+  min-height: 120px;
+}
+.fs-inst-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  border-radius: 6px;
+}
+.fs-inst-track {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-end;
+  padding-top: 20px;
+}
+.fs-inst-track > span {
+  position: relative;
+  width: 100%;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  background: var(--viz-1, #2348ff);
+}
+.fs-inst-track em {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translate(-50%, -4px);
+  font-style: normal;
+  font-size: 11px;
+  line-height: 14px;
+  color: #5e5e66;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.fs-inst-col small {
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  color: #5e5e66;
+}
+.viz-tip-host .fs-inst-col.viz-tip-on {
+  transform: none;
+  box-shadow: none;
+}
+.fs-inst-col.viz-tip-on .fs-inst-track > span {
+  background: var(--viz-7, #2068f5);
+}
+.fs-inst-col.viz-tip-on > small,
+.fs-inst-col.viz-tip-on .fs-inst-track em {
+  color: #1d1d1b;
+}
+
+.fs-avg {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 190px;
+}
+.fs-avg > .fs-avg-host {
+  position: absolute;
+  inset: 0;
+}
+.fs-avg svg {
+  display: block;
+  overflow: visible;
+}
+.fs-avg-grid {
+  stroke: #e2e2e7;
+  stroke-width: 1;
+}
+.fs-avg-tick {
+  font-size: 11px;
+  fill: #5e5e66;
+  font-variant-numeric: tabular-nums;
+}
+.fs-avg-mean {
+  stroke: #5e5e66;
+  stroke-width: 1.25;
+  stroke-dasharray: 4 4;
+  opacity: 0.7;
+}
+.fs-avg-line {
+  fill: none;
+  stroke: var(--viz-1, #2348ff);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.fs-avg-mark circle {
+  fill: var(--viz-1, #2348ff);
+  stroke: #fff;
+  stroke-width: 2;
+}
+.fs-avg-mark text {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #1d1d1b;
+  font-variant-numeric: tabular-nums;
+}
+.viz-tip-host .fs-avg-hit rect {
+  fill: transparent;
+}
+.fs-avg-guide {
+  stroke: #5e5e66;
+  stroke-width: 1;
+  opacity: 0;
+}
+.fs-avg-dot {
+  fill: #fff;
+  stroke: var(--viz-1, #2348ff);
+  stroke-width: 2;
+  opacity: 0;
+}
+.fs-avg-hit.viz-tip-on .fs-avg-guide {
+  opacity: 0.35;
+}
+.fs-avg-hit.viz-tip-on .fs-avg-dot {
+  opacity: 1;
+}
+
+.fs-sellers {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0 -8px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.fs-sellers > li {
+  display: grid;
+  grid-template-columns: minmax(136px, 0.55fr) minmax(0, 1.45fr) 48px 44px;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 40px;
+  padding: 0 8px;
+  border-radius: 8px;
+}
+.fs-sellers > li > :nth-child(n + 3) {
+  text-align: right;
+  color: #5e5e66;
+}
+.fs-sellers > .fs-sellers-head {
+  flex: 0 0 auto;
+  min-height: 22px;
+  font-size: 12px;
+  color: #5e5e66;
+}
+.fs-sellers > .fs-sellers-head > :nth-child(2) {
+  text-align: right;
+}
+.fs-seller {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.fs-seller b {
+  font-weight: 500;
+  color: #1d1d1b;
+  white-space: nowrap;
+}
+.fs-seller-place {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #5e5e66;
+}
+.fs-seller-rev {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.fs-seller-rev strong {
+  min-width: 56px;
+  text-align: right;
+  font-weight: 600;
+  color: #1d1d1b;
+}
+.fs-seller-bar {
+  display: block;
+  height: 8px;
+  border-radius: 3px;
+  background: #f1f1f3;
+  overflow: hidden;
+}
+.fs-seller-bar i {
+  display: block;
+  height: 100%;
+  width: calc(var(--w, 0) * 100%);
+  border-radius: 3px;
+  background: var(--viz-1, #2348ff);
+}
+.viz-tip-host .fs-sellers > li.viz-tip-on {
+  transform: none;
+  box-shadow: none;
+  background: #f1f1f3;
+}
+.fs-sellers > li.viz-tip-on .fs-seller-bar {
+  background: #e2e2e7;
+}
