@@ -1,0 +1,24 @@
+export function AssistantIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      className="assistant-icon"
+      viewBox="0 0 32 32"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <g className="assistant-icon-base">
+        <path d="M3 16L16 22.5V25.5L3 19Z" fill="#3A70DE" />
+        <path d="M16 22.5L29 16V19L16 25.5Z" fill="#2C5BC8" />
+        <path d="M6 20L11 22.5L4 27Z" fill="#3A70DE" />
+        <path d="M16 9.5L29 16L16 22.5L3 16Z" fill="#93BBFF" />
+      </g>
+      <g className="assistant-icon-top">
+        <path d="M3 10L16 16.5V19.5L3 13Z" fill="#2AA3D3" />
+        <path d="M16 16.5L29 10V13L16 19.5Z" fill="#1F8BBE" />
+        <path d="M16 3.5L29 10L16 16.5L3 10Z" fill="#8FE6FB" />
+      </g>
+    </svg>
+  )
+}

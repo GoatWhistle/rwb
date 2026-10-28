@@ -1,9 +1,10 @@
-import { CircleHelp, Plus, Sparkles, X } from "lucide-react"
+import { CircleHelp, Plus, X } from "lucide-react"
 import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import type { DashboardContext } from "@/shared/api/metrics"
 import { ru } from "@/shared/i18n/ru"
 import { IconButton } from "@/shared/ui/controls"
+import { AssistantIcon } from "./assistant-icon"
 import { ChatComposer } from "./chat-composer"
 import { Message } from "./message"
 import { useChat } from "./use-chat"
@@ -78,7 +79,7 @@ export function ChatPanel({
         <div className="chat-heading">
           <div className={`chat-title ${chat.pending ? "is-thinking" : ""}`}>
             <span className="assistant-avatar">
-              <Sparkles size={17} strokeWidth={2} />
+              <AssistantIcon />
             </span>
             <h2>{ru.chat}</h2>
           </div>
@@ -105,13 +106,6 @@ export function ChatPanel({
         >
           {chat.messages.length === 0 ? (
             <div className="chat-welcome">
-              <img
-                className="welcome-mark"
-                src="/brand/01-strata-sign.svg"
-                alt={ru.product}
-                width={64}
-                height={64}
-              />
               <h3 aria-label={ru.welcome}>
                 {ru.welcomeLead} <em className="accent-word">{ru.welcomeAccent}</em>?
               </h3>
