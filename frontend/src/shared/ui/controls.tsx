@@ -1,7 +1,8 @@
-import { CircleHelp, MessageSquare, RefreshCw } from "lucide-react"
-import type { ButtonHTMLAttributes, ReactNode } from "react"
+import { CircleAlert, CircleHelp, MessageSquare, RefreshCw } from "lucide-react"
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react"
 import { useId } from "react"
 import { ru } from "../i18n/ru"
+import "../styles/controls.css"
 
 export function Button({
   children,
@@ -75,23 +76,68 @@ export function Panel({
     </section>
   )
 }
-export function ErrorState({ retry }: { retry: () => void }) {
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+  label,
+}: {
+  options: { value: T; label: string }[]
+  value: T | undefined
+  onChange: (value: T) => void
+  label: string
+}) {
+  const index = options.findIndex((o) => o.value === value)
+  return (
+    <fieldset
+      className="segmented-control"
+      style={{ "--count": options.length, "--index": Math.max(index, 0) } as CSSProperties}
+    >
+      <legend className="sr-only">{label}</legend>
+      <span className="segmented-indicator" data-hidden={index < 0} aria-hidden="true" />
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          aria-pressed={o.value === value}
+          className="segmented-option"
+          onClick={() => onChange(o.value)}
+        >
+          {o.label}
+        </button>
+      ))}
+    </fieldset>
+  )
+}
+function StateHeading({ text, accent }: { text: string; accent?: string | undefined }) {
+  if (!accent || !text.includes(accent)) return <strong className="data-state-title">{text}</strong>
+  const [before, after] = text.split(accent)
+  return (
+    <strong className="data-state-title">
+      {before}
+      <em>{accent}</em>
+      {after}
+    </strong>
+  )
+}
+export function ErrorState({ retry, accent }: { retry: () => void; accent?: string }) {
   return (
     <div className="data-state" role="alert">
-      <CircleHelp size={28} />
-      <strong>{ru.error}</strong>
+      <CircleAlert size={48} strokeWidth={1.5} className="data-state-icon" aria-hidden="true" />
+      <StateHeading text={ru.error} accent={accent} />
       <p>{ru.errorHint}</p>
-      <Button onClick={retry}>
+      <Button className="primary" onClick={retry}>
         <RefreshCw size={15} />
         {ru.retry}
       </Button>
     </div>
   )
 }
-export function EmptyState() {
+export function EmptyState({ accent }: { accent?: string }) {
   return (
     <div className="data-state">
-      <strong>{ru.empty}</strong>
+      <span className="data-state-icon data-state-empty" aria-hidden="true" />
+      <StateHeading text={ru.empty} accent={accent} />
       <p>{ru.emptyHint}</p>
     </div>
   )
