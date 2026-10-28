@@ -15,6 +15,12 @@ SQL-запросами на вопросы аналитиков.
 [solution/dashboard.html](solution/dashboard.html), его данные собирает
 `solution/build_dashboard.py`.
 
+## Полный запуск с агентом и Codex
+
+Пошаговая инструкция: [docs/RUN_WITH_CODEX.md](docs/RUN_WITH_CODEX.md).
+Первый запуск: `bash scripts/bootstrap-demo.sh`, затем `bash scripts/run-demo.sh`.
+Фронтенд: http://127.0.0.1:5173.
+
 ## Быстрый старт
 
 ```bash
@@ -94,7 +100,7 @@ http://localhost:8080). В настройках подключения внут�
 Ветка `feature/ai-agent` также содержит `design/` и `brand/`, перенесённые
 из `origin/frontend` (`de327aa`). Каталог дизайн-системы —
 [design/design-system.html](design/design-system.html), бренд Datum —
-[brand/BRAND.md](brand/BRAND.md). Параллельный frontend развивается отдельно.
+[brand/BRAND.md](brand/BRAND.md). Готовый фронтенд находится в [frontend/](frontend/README.md).
 
 Стек: Python 3.12+, FastAPI, OpenAI Agents SDK, PostgreSQL/pgvector.
 История чатов и журнал инструментов сохраняются отдельно в SQLite:
@@ -125,11 +131,13 @@ LLM задаётся через `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`. На
 
 ```bash
 .venv/bin/pip install -e '.[gateway]'
-.venv/bin/python -m uvicorn gateway:app --app-dir .local/codex_gateway --host 127.0.0.1 --port 8091
+.venv/bin/python -m uvicorn backend.codex_gateway:app --host 127.0.0.1 --port 8091
 ```
 
-По договорённости код gateway хранится только локально и не передаётся с Git.
-При клонировании подключите свой Responses-совместимый endpoint через `.env`.
+Переносимый адаптер включён в `backend/codex_gateway.py`. Он использует локальную
+авторизацию Codex; ключи и история в Git не передаются. SDK использует свой
+закреплённый runtime; при необходимости путь к установленному CLI задаётся через
+`GATEWAY_CODEX_BIN`. Также можно подключить Responses-совместимый endpoint через `.env`.
 Сам backend использует обычный OpenAI SDK, поддерживает function calling и SSE;
 gateway не требуется на машине проверяющего при наличии обычного API-ключа OpenAI.
 

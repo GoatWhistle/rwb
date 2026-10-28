@@ -1,0 +1,169 @@
+import {
+  ArrowUp,
+  ArrowUpRight,
+  CircleHelp,
+  Maximize2,
+  MessageSquare,
+  Minimize2,
+  PanelRightClose,
+  Plus,
+  Square,
+  X,
+} from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import type { DashboardContext } from "@/shared/api/metrics"
+import { ru } from "@/shared/i18n/ru"
+import { Button, IconButton } from "@/shared/ui/controls"
+import { Message } from "./message"
+import { useChat } from "./use-chat"
+
+export function ChatPanel({
+  context,
+  contextName,
+  initialText,
+  requestId,
+  onClearContext,
+  expanded,
+  onExpand,
+  onClose,
+}: {
+  context: DashboardContext
+  contextName: string
+  initialText: string
+  requestId: number
+  onClearContext: () => void
+  expanded: boolean
+  onExpand: () => void
+  onClose: () => void
+}) {
+  const chat = useChat()
+  const [input, setInput] = useState("")
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const follow = useRef(true)
+  const lastRequest = useRef(0)
+  useEffect(() => {
+    if (requestId === lastRequest.current) return
+    lastRequest.current = requestId
+    setInput(initialText)
+    inputRef.current?.focus()
+  }, [initialText, requestId])
+  useEffect(() => {
+    if (chat.messages.length && follow.current && scrollRef.current)
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [chat.messages])
+  const send = (text = input) => {
+    if (!text.trim() || chat.pending) return
+    follow.current = true
+    chat.send(text, context)
+    setInput("")
+    inputRef.current?.focus()
+  }
+  return (
+    <aside className="chat-panel" aria-label={ru.chat}>
+      <div className="chat-heading">
+        <div className="chat-title">
+          <MessageSquare size={18} />
+          <div>
+            <h2>{ru.chat}</h2>
+            <p>{ru.chatDescription}</p>
+          </div>
+        </div>
+        <div className="chat-heading-actions">
+          <IconButton label={ru.newChat} onClick={chat.reset} disabled={chat.pending}>
+            <Plus size={18} />
+          </IconButton>
+          <IconButton label={expanded ? ru.contract : ru.expand} onClick={onExpand}>
+            <span className="expand-chat-icon">
+              {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            </span>
+          </IconButton>
+          <IconButton label={ru.closeChat} onClick={onClose}>
+            <PanelRightClose size={18} />
+          </IconButton>
+        </div>
+      </div>
+      <div
+        className="chat-scroll"
+        ref={scrollRef}
+        onScroll={(e) => {
+          const el = e.currentTarget
+          follow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+        }}
+      >
+        {chat.messages.length === 0 ? (
+          <div className="chat-welcome">
+            <h3>{ru.welcome}</h3>
+            <p>{ru.welcomeNote}</p>
+            <div className="suggestions">
+              {[ru.suggestion1, ru.suggestion2, ru.suggestion3].map((text) => (
+                <Button key={text} onClick={() => send(text)}>
+                  {text}
+                  <ArrowUpRight size={16} />
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="chat-messages">
+            {chat.messages.map((message) => (
+              <Message key={message.id} message={message} />
+            ))}
+            {chat.pending && (
+              <div className="chat-status" role="status">
+                <span className="thinking-dot" />
+                {chat.working ? ru.running : ru.thinking}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="chat-composer-area">
+        {contextName && (
+          <div className="context-chip">
+            <CircleHelp size={13} />
+            <span>{contextName}</span>
+            <IconButton label={ru.removeContext} onClick={onClearContext}>
+              <X size={12} />
+            </IconButton>
+          </div>
+        )}
+        <form
+          className="chat-composer"
+          onSubmit={(e) => {
+            e.preventDefault()
+            send()
+          }}
+        >
+          <IconButton label={ru.newChat} onClick={chat.reset} disabled={chat.pending}>
+            <Plus size={21} />
+          </IconButton>
+          <textarea
+            ref={inputRef}
+            value={input}
+            rows={1}
+            maxLength={20000}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={ru.placeholder}
+            aria-label={ru.placeholder}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                e.preventDefault()
+                send()
+              }
+            }}
+          />
+          <IconButton
+            label={chat.pending ? ru.stop : ru.send}
+            className={`send-button ${input.trim() || chat.pending ? "ready" : ""}`}
+            onClick={() => (chat.pending ? chat.stop() : send())}
+            disabled={!chat.pending && !input.trim()}
+          >
+            {chat.pending ? <Square size={17} /> : <ArrowUp size={21} />}
+          </IconButton>
+        </form>
+        <p className="composer-hint">{ru.chatHint}</p>
+      </div>
+    </aside>
+  )
+}

@@ -52,4 +52,5 @@ class ChartSpec(BaseModel):
 
 class AgentAnswer(BaseModel):
     text: str
+    details: str = ""
     charts: list[ChartSpec] = Field(default_factory=list)

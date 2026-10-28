@@ -1,0 +1,64 @@
+.chart-wrap {
+  position: relative;
+  padding: 0 20px 16px 8px;
+}
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  min-height: 0;
+}
+.chart-grid {
+  stroke: #efeff3;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.chart-label {
+  font-size: 10px;
+  fill: #686873;
+  font-family: Inter, sans-serif;
+}
+.chart-line {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chart-bar {
+  fill: #6b83ff;
+}
+.chart-guide {
+  stroke: #cbd3ff;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.chart-point {
+  fill: var(--brand);
+  stroke: white;
+  stroke-width: 3;
+}
+.chart-tooltip {
+  position: absolute;
+  top: 3px;
+  left: 48%;
+  pointer-events: none;
+  padding: 9px 12px;
+  background: #1d1d1b;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 3px 12px #1d1d1b16;
+  font-size: 11px;
+}
+.chart-tooltip span {
+  color: #c9c9d0;
+}
+@media (max-width: 768px) {
+  .chart-svg {
+    min-height: 0;
+  }
+}

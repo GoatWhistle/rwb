@@ -17,6 +17,15 @@ def test_structured_text_stream_handles_escapes():
     assert visible == text
 
 
+def test_structured_text_stream_keeps_details_out_of_visible_answer():
+    answer = AgentAnswer(text="Найден пример, не общая статистика.",
+                         details='Цитата: "original". review_id: review-1')
+    decoder = TextFieldStream()
+    visible = ''.join(decoder.feed(char) for char in answer.model_dump_json())
+    assert visible == answer.text
+    assert "review-1" not in visible
+
+
 def test_sse_contract_and_sqlite_history(monkeypatch,tmp_path):
     monkeypatch.setattr(storage,"LOCAL_DB",tmp_path/"chat.sqlite3")
     async def fake_run(message,context,session):
