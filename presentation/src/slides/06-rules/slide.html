@@ -1,0 +1,47 @@
+<section class="slide" id="rules" data-title="Правила переноса">
+  <h2 class="title a">Правила переноса <em>в core</em></h2>
+  <div class="rules-flow">
+    <span class="dz-pill is-lilac rules-end s" style="--d:0.25s">raw: всё text</span>
+    <svg viewBox="0 0 1180 40" aria-hidden="true"><path class="dz-flow" style="--d:0.5s" d="M0 20 H1180"/></svg>
+    <span class="dz-pill is-brand rules-end s" style="--d:0.6s">core: типы, ключи, правила</span>
+  </div>
+  <div class="body grid is-3 rules-grid">
+    <div class="card rule a" style="--d:0.90s">
+      <span class="rule-ico"><span class="ico " data-icon="code"></span></span>
+      <h3>Типы на входе</h3>
+      <code class="dz-code">::timestamp, ::numeric</code>
+      <p>мусор валит сборку, а не прячется в отчёте</p>
+    </div>
+    <div class="card rule a" style="--d:1.00s">
+      <span class="rule-ico"><span class="ico " data-icon="filter"></span></span>
+      <h3>Пустое это NULL</h3>
+      <code class="dz-code">NULLIF(trim(x), '')</code>
+      <p>пустая строка из CSV значит «данных нет»</p>
+    </div>
+    <div class="card rule a" style="--d:1.10s">
+      <span class="rule-ico"><span class="ico " data-icon="key"></span></span>
+      <h3>Ключи и связи</h3>
+      <code class="dz-code">PRIMARY KEY, REFERENCES</code>
+      <p>позиция с несуществующим товаром не запишется</p>
+    </div>
+    <div class="card rule a" style="--d:1.20s">
+      <span class="rule-ico"><span class="ico " data-icon="shield"></span></span>
+      <h3>CHECK-правила</h3>
+      <code class="dz-code">score BETWEEN 1 AND 5</code>
+      <p>статус из списка, цена от нуля, оценка 1–5</p>
+    </div>
+    <div class="card rule a" style="--d:1.30s">
+      <span class="rule-ico"><span class="ico " data-icon="users"></span></span>
+      <h3>Дедупликация</h3>
+      <code class="dz-code">DISTINCT ON (unique_id)</code>
+      <p>один человек это одна строка</p>
+    </div>
+    <div class="card rule a" style="--d:1.40s">
+      <span class="rule-ico"><span class="ico " data-icon="refresh"></span></span>
+      <h3>Пересборка с нуля</h3>
+      <code class="dz-code">DROP SCHEMA; BEGIN … COMMIT</code>
+      <p>наполовину собранной модели не бывает</p>
+    </div>
+  </div>
+  <div class="foot"><p class="dz-key a" style="--d:1.7s"><span class="ico " data-icon="file"></span><span>Один скрипт <b class="dz-code">build_core.sql</b> собирает модель на чистой базе целиком, сколько угодно раз.</span></p></div>
+</section>

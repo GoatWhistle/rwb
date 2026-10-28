@@ -1,0 +1,11 @@
+<section class="slide" id="why" data-title="Почему так">
+  <h2 class="title a">Почему <em>именно так</em></h2>
+  <div class="body is-tall dz-rows why-rows">
+    <div class="dz-row is-head f" style="--d:0.2s"><span>Решение</span><span>Что было бы иначе</span><span>Проверка</span></div>
+    <div class="dz-row a" style="--d:0.35s"><b>Человек = customer_unique_id</b><span class="why-bad"><span class="ico is-sm" data-icon="x"></span>99 441 «покупатель» и ноль повторных</span><span class="dz-pill is-ok pop" style="--d:0.75s"><span class="ico is-sm" data-icon="check"></span>96 096 и 3.12%</span></div>
+    <div class="dz-row a" style="--d:0.49s"><b>География: снимок в заказе</b><span class="why-bad"><span class="ico is-sm" data-icon="x"></span>старым заказам достался бы новый адрес</span><span class="dz-pill is-ok pop" style="--d:0.89s"><span class="ico is-sm" data-icon="check"></span>регионы не плывут</span></div>
+    <div class="dz-row a" style="--d:0.63s"><b>Категории собраны из товаров</b><span class="why-bad"><span class="ico is-sm" data-icon="x"></span>INNER JOIN выбросил бы pc_gamer и ещё одну</span><span class="dz-pill is-ok pop" style="--d:1.03s"><span class="ico is-sm" data-icon="check"></span>74 категории</span></div>
+    <div class="dz-row a" style="--d:0.77s"><b>«(без категории)» строкой</b><span class="why-bad"><span class="ico is-sm" data-icon="x"></span>минус 170 726.63 выручки</span><span class="dz-pill is-ok pop" style="--d:1.17s"><span class="ico is-sm" data-icon="check"></span>13 221 498.11</span></div>
+    <div class="dz-row a" style="--d:0.91s"><b>LEFT JOIN, где пары может не быть</b><span class="why-bad"><span class="ico is-sm" data-icon="x"></span>обычный JOIN удалил бы 775 заказов</span><span class="dz-pill is-ok pop" style="--d:1.31s"><span class="ico is-sm" data-icon="check"></span>заказы на месте</span></div>
+  </div>
+</section>

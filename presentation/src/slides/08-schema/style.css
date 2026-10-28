@@ -1,0 +1,7 @@
+#schema .er-wrap { top: 290px; }
+#schema .er-box rect { fill: var(--dz-mist); }
+#schema .er-box:nth-child(9) rect, #schema .er-box:nth-child(12) rect { fill: var(--dz-lilac); }
+#schema .er-name { font-size: 30px; font-weight: 700; fill: var(--deck-fg); }
+#schema .er-pk { font-family: var(--font-code); font-size: 21px; fill: var(--deck-accent) !important; }
+#schema .er-note { font-size: 20px; fill: var(--deck-fg-2) !important; }
+#schema .er-dot { fill: var(--deck-accent); }

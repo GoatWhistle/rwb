@@ -1,0 +1,6 @@
+#final .fn-lockup { position: absolute; left: 0; right: 0; top: 230px; display: flex; justify-content: center; align-items: center; gap: 64px; }
+#final .fn-wm { color: var(--dz-on-brand); }
+#final .fn-title { position: absolute; left: 0; right: 0; top: 620px; text-align: center; font-size: 104px; font-weight: 700; letter-spacing: -0.03em; color: var(--dz-on-brand); }
+#final .fn-title em { color: var(--dz-on-brand); }
+#final .fn-sub { position: absolute; left: 0; right: 0; top: 800px; text-align: center; font-size: 30px; color: var(--dz-on-brand); }
+#final .fn-pix-r svg { transform: scale(-1, -1); }

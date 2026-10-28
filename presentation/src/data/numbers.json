@@ -1,0 +1,110 @@
+{
+  "raw_rows": {
+    "value": 550759,
+    "source": "README.md",
+    "digits": 0,
+    "unit": ""
+  },
+  "accounts": {
+    "value": 99441,
+    "source": "model-report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "people": {
+    "value": 96096,
+    "source": "model-report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "review_rows": {
+    "value": 99224,
+    "source": "model-report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "review_ids": {
+    "value": 98410,
+    "source": "model-report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "no_cat": {
+    "value": 610,
+    "source": "model-report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "no_items": {
+    "value": 775,
+    "source": "model-report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "nov_orders": {
+    "value": 0,
+    "source": "docs/tasks.md",
+    "digits": 0,
+    "unit": ""
+  },
+  "shipped_nodate": {
+    "value": 1107,
+    "source": "report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "no_pay": {
+    "value": 1,
+    "source": "model-report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "cities": {
+    "value": 611,
+    "source": "report.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "fulfil_rows": {
+    "value": 99441,
+    "source": "solution/dashboard.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "shipment_rows": {
+    "value": 100010,
+    "source": "solution/dashboard.html",
+    "digits": 0,
+    "unit": ""
+  },
+  "avg_order": {
+    "value": 159.88,
+    "source": "model-report.html",
+    "digits": 2,
+    "unit": ""
+  },
+  "avg_row": {
+    "value": 139.97,
+    "source": "model-report.html",
+    "digits": 2,
+    "unit": ""
+  },
+  "otd": {
+    "value": 93.2,
+    "source": "solution/dashboard.html",
+    "digits": 1,
+    "unit": "%"
+  },
+  "median_days": {
+    "value": 10.2,
+    "source": "solution/dashboard.html",
+    "digits": 1,
+    "unit": ""
+  },
+  "stuck": {
+    "value": 1107,
+    "source": "solution/dashboard.html",
+    "digits": 0,
+    "unit": ""
+  }
+}

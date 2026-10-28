@@ -1,0 +1,8 @@
+#sources .src-grid { display: grid; grid-template-columns: 1fr 520px; gap: 56px; }
+#sources .dz-row { --cols: 520px 1fr 130px; min-height: 66px; padding-block: 10px; }
+#sources .dz-row b { display: block; }
+#sources .src-what { display: block; font-size: 19px; color: var(--deck-fg-3); }
+#sources .src-side { display: grid; gap: 28px; align-content: start; }
+#sources .card.is-brand { gap: 8px; padding: 44px; }
+#sources .card.is-brand .dz-big { color: var(--dz-on-brand); font-size: 120px; }
+#sources .src-cap { font-size: 24px; opacity: 0.9; }

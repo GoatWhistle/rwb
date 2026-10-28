@@ -1,0 +1,25 @@
+<section class="slide" id="mart" data-title="Витрины">
+  <h2 class="title a">Витрины mart: <em>один SELECT</em></h2>
+  <div class="body grid is-2 mart-grid">
+    <article class="card mart-card a" style="--d:0.3s">
+      <header><code class="dz-code">order_fulfillment</code><span class="dz-pill is-brand">1 строка = 1 заказ</span></header>
+      <span class="dz-big num count" data-num="fulfil_rows"></span>
+      <ul>
+        <li class="a" style="--d:0.8s"><span class="dz-dot"></span><span>этапы в днях: подтверждение, продавец, перевозчик</span></li>
+        <li class="a" style="--d:0.9s"><span class="dz-dot"></span><span><b class="dz-code">on_time</b> вручён не позже обещанного</span></li>
+        <li class="a" style="--d:1s"><span class="dz-dot"></span><span>суммы позиций, доставка, последний отзыв</span></li>
+        <li class="a" style="--d:1.1s"><span class="dz-dot is-violet"></span><span>нарушенная хронология в NULL, медианы не портятся</span></li>
+      </ul>
+    </article>
+    <article class="card mart-card is-lilac a" style="--d:0.5s">
+      <header><code class="dz-code">seller_shipment</code><span class="dz-pill is-brand">1 строка = заказ × продавец</span></header>
+      <span class="dz-big num count" data-num="shipment_rows"></span>
+      <ul>
+        <li class="a" style="--d:1s"><span class="dz-dot"></span><span>срок отгрузки пары: максимум по её позициям</span></li>
+        <li class="a" style="--d:1.1s"><span class="dz-dot"></span><span><b class="dz-code">shipped_on_time</b> успел ли продавец</span></li>
+        <li class="a" style="--d:1.2s"><span class="dz-dot is-violet"></span><span><b class="dz-code">is_single_seller</b>: рейтинг честен только для одиночных</span></li>
+      </ul>
+    </article>
+  </div>
+  <div class="foot"><p class="dz-key a" style="--d:1.5s"><span class="ico " data-icon="target"></span><span><b>Зачем:</b> вопрос «как исполняется заказ» это один SELECT без join. Ошибиться уровнем и посчитать заказ трижды нельзя.</span></p></div>
+</section>

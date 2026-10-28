@@ -1,0 +1,32 @@
+<section class="slide" id="dashboard" data-title="Дашборд">
+  <h2 class="title a">Дашборд: <em>исполнение заказа</em></h2>
+  <div class="body is-tall db-grid">
+    <div class="db-kpis">
+      <div class="card db-kpi db-otd a" style="--d:0.3s">
+        <div class="db-ring-wrap"><svg class="db-ring" viewBox="0 0 240 240" aria-hidden="true"><circle class="db-ring-bg" cx="120" cy="120" r="100"/><circle class="db-ring-val" pathLength="1" cx="120" cy="120" r="100"/></svg>
+        <span class="db-ring-num num count" data-num="otd"></span></div>
+        <p>вручено в обещанный срок, OTD</p>
+      </div>
+      <div class="card db-kpi a" style="--d:0.45s">
+        <span class="dz-big num count" data-num="median_days"></span>
+        <p>медиана доставки в днях</p>
+        <div class="db-cmp"><i class="dz-bar" style="--w:0.425;--d:0.9s"></i><i class="dz-bar is-muted" style="--w:1;--d:1s"></i></div>
+        <span class="dz-note">обещали 24 дня</span>
+      </div>
+      <div class="card db-kpi a" style="--d:0.6s">
+        <span class="dz-big db-split">1.8 <small>/</small> 7.1</span>
+        <p>дни продавца и перевозчика</p>
+        <div class="db-stack"><i class="db-seg is-seller" style="--d:1.1s"></i><i class="db-seg is-carrier" style="--d:1.25s"></i></div>
+      </div>
+      <div class="card db-kpi is-lilac a" style="--d:0.75s">
+        <span class="dz-big num count" data-num="stuck"></span>
+        <p>заказов застряли в пути дольше обещания</p>
+      </div>
+    </div>
+    <div class="db-side">
+      <div class="card a" style="--d:1s"><h3><span class="ico is-sm" data-icon="users"></span> Кто решает</h3><p>Операционный директор и логистика: где теряем срок, каким штатам менять обещание, каких продавцов подтягивать (90.9% отгрузок в срок).</p></div>
+      <div class="card a" style="--d:1.2s"><h3><span class="ico is-sm" data-icon="alert"></span> Что нельзя складывать</h3><p>Медианы и доли (OTD, p90) по месяцам и штатам не суммируются: каждый срез пересчитываем из витрины.</p></div>
+      <p class="dz-note a" style="--d:1.4s">Срезы: месяц, штат покупателя, продавец. Источник: mart.order_fulfillment и mart.seller_shipment, период до августа 2018.</p>
+    </div>
+  </div>
+</section>

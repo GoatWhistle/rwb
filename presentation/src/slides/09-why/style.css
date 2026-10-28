@@ -1,0 +1,5 @@
+#why .dz-row { --cols: 1fr 1.15fr 360px; min-height: 104px; }
+#why .dz-row b { font-size: 28px; }
+#why .why-bad { display: flex; gap: 14px; align-items: center; color: var(--deck-fg-2); }
+#why .why-bad .ico { color: var(--deck-danger); }
+#why .dz-pill { justify-self: start; font-size: 22px; padding: 10px 20px; }

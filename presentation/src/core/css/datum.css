@@ -1,0 +1,575 @@
+:root {
+  --fs-title: 68px;
+  --fs-lead: 36px;
+  --fs-body: 30px;
+  --fs-caption: 25px;
+  --fs-micro: 21px;
+  --weight-strong: 700;
+  --tracking-title: -0.02em;
+  --font-code: "Cascadia Mono", Consolas, "JetBrains Mono", ui-monospace, monospace;
+  --shadow-raised: none;
+}
+
+.slide em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.128em;
+  letter-spacing: 0;
+  color: var(--dz-azure);
+}
+
+.title {
+  font-weight: 700;
+}
+
+.num {
+  font-family: var(--font-sans);
+  font-weight: inherit;
+}
+
+.chrome-brand {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--deck-fg);
+  letter-spacing: -0.01em;
+}
+
+.chrome-brand .mark {
+  width: 38px;
+}
+
+.chrome-num {
+  right: 72px;
+  bottom: 48px;
+  min-width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  background: var(--dz-mist);
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--deck-fg);
+}
+
+.slide.is-current .chrome-num {
+  animation: dz-num-in 0.6s var(--ease-out) 0.1s both;
+}
+
+.slide.is-current .chrome-brand {
+  animation: deck-fade 0.6s var(--ease-out) 0s both;
+}
+
+@keyframes dz-num-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.8);
+  }
+}
+
+.card {
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--dz-mist);
+  padding: 32px 36px;
+}
+
+.card.is-accent {
+  box-shadow: 0 0 0 3px var(--deck-accent);
+  background: var(--deck-bg);
+}
+
+.card.is-lilac {
+  background: var(--dz-lilac);
+}
+
+.card.is-brand {
+  background: var(--dz-grad-ink);
+  color: var(--dz-on-brand);
+}
+
+.card.is-brand h3,
+.card.is-brand p,
+.card.is-brand b {
+  color: var(--dz-on-brand);
+}
+
+.card h3 {
+  font-size: 30px;
+}
+
+.dz-choice {
+  position: absolute;
+  top: -18px;
+  right: 28px;
+  padding: 6px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--dz-grad-cover);
+  color: var(--dz-on-brand);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.dz-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  background: var(--dz-mist);
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  color: var(--deck-fg);
+  white-space: nowrap;
+}
+
+.dz-pill.is-brand {
+  background: var(--deck-accent);
+  color: var(--dz-on-brand);
+}
+
+.dz-pill.is-lilac {
+  background: var(--dz-lilac);
+}
+
+.dz-pill.is-ok {
+  background: color-mix(in oklab, var(--deck-success) 14%, var(--deck-bg));
+  color: var(--deck-success);
+}
+
+.dz-pill.is-warn {
+  background: color-mix(in oklab, var(--deck-warning) 14%, var(--deck-bg));
+  color: var(--deck-warning);
+}
+
+.dz-pill.is-bad {
+  background: color-mix(in oklab, var(--deck-danger) 12%, var(--deck-bg));
+  color: var(--deck-danger);
+}
+
+.dz-code {
+  font-family: var(--font-code);
+  font-size: 0.86em;
+  color: var(--deck-accent);
+}
+
+.dz-rows {
+  display: grid;
+  gap: 12px;
+}
+
+.dz-row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  align-items: center;
+  gap: 24px;
+  min-height: 72px;
+  padding: 14px 28px;
+  border-radius: 18px;
+  background: var(--dz-mist);
+  font-size: var(--fs-caption);
+  line-height: 1.25;
+  color: var(--deck-fg-2);
+}
+
+.dz-row b {
+  color: var(--deck-fg);
+}
+
+.dz-row.is-head {
+  min-height: 0;
+  padding-block: 0 4px;
+  background: none;
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  color: var(--deck-fg-3);
+}
+
+.dz-row.is-ours {
+  background: var(--deck-bg);
+  box-shadow: 0 0 0 3px var(--deck-accent);
+  color: var(--deck-fg);
+}
+
+.dz-row .r {
+  text-align: right;
+  font-weight: 700;
+  color: var(--deck-fg);
+  white-space: nowrap;
+}
+
+.dz-bar {
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--dz-grad-sky);
+  transform: scaleX(var(--w, 1));
+  transform-origin: left;
+}
+
+.dz-bar.is-muted {
+  background: var(--deck-line-strong);
+}
+
+.dz-bar.is-rail {
+  background: var(--dz-grad-rail-x);
+}
+
+.play .dz-bar {
+  animation: deck-grow var(--t, 1s) var(--ease-out) var(--d, 0s) both;
+}
+
+.dz-col {
+  width: 100%;
+  border-radius: 18px 18px 6px 6px;
+  background: var(--dz-grad-sky);
+  height: calc(var(--h, 0.5) * 100%);
+  transform-origin: bottom;
+}
+
+.dz-col.is-muted {
+  background: var(--deck-line-strong);
+}
+
+.play .dz-col {
+  animation: dz-grow-y var(--t, 1s) var(--ease-out) var(--d, 0s) both;
+}
+
+@keyframes dz-grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+.dz-dot {
+  display: inline-block;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--dz-grad-dot);
+}
+
+.dz-dot.is-violet {
+  background: var(--dz-grad-dot-violet);
+}
+
+.dz-big {
+  font-size: 112px;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--deck-fg);
+  white-space: nowrap;
+}
+
+.dz-big.is-brand {
+  background: var(--dz-grad-cover);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dz-note {
+  font-size: var(--fs-micro);
+  line-height: 1.3;
+  color: var(--deck-fg-3);
+}
+
+.dz-key {
+  display: flex;
+  gap: 20px;
+  align-items: baseline;
+  padding: 22px 30px;
+  border-radius: var(--radius-md);
+  background: var(--dz-lilac);
+  font-size: var(--fs-caption);
+  line-height: 1.3;
+  color: var(--deck-fg);
+}
+
+.dz-key b {
+  flex: none;
+}
+
+.dz-key .ico {
+  align-self: center;
+  color: var(--dz-violet);
+}
+
+.dz-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.dz-svg text {
+  font-family: var(--font-sans);
+  fill: var(--deck-fg);
+}
+
+.dz-wire {
+  fill: none;
+  stroke: var(--deck-line-strong);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dz-wire.is-accent {
+  stroke: var(--deck-accent);
+  stroke-width: 4;
+}
+
+.dz-wire.is-violet {
+  stroke: var(--dz-violet);
+  stroke-width: 4;
+}
+
+.dz-flow {
+  fill: none;
+  stroke: var(--deck-accent);
+  stroke-width: 4;
+  stroke-dasharray: 10 14;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+.play .dz-flow {
+  animation:
+    deck-fade 0.5s var(--ease-out) var(--d, 0s) both,
+    dz-dash 1.2s linear var(--d, 0s) infinite;
+}
+
+.dz-flow.is-violet {
+  stroke: var(--dz-violet);
+}
+
+.is-reduced .dz-flow {
+  opacity: 1;
+}
+
+@keyframes dz-dash {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+.ok {
+  color: var(--deck-success);
+}
+
+.bad {
+  color: var(--deck-danger);
+}
+
+.warn {
+  color: var(--deck-warning);
+}
+
+.dz-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.play .dz-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in oklab, var(--dz-white) 55%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: dz-shine 1.4s var(--ease-in-out) calc(var(--d, 0s) + 0.6s) both;
+  pointer-events: none;
+}
+
+@keyframes dz-shine {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+.is-reduced .dz-shine::after {
+  display: none;
+}
+
+.dz-hot {
+  position: relative;
+}
+
+.play .dz-hot::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 3px var(--deck-accent);
+  opacity: 0;
+  animation: dz-pulse 2.4s var(--ease-out) calc(var(--d, 0s) + 1s) infinite;
+  pointer-events: none;
+}
+
+@keyframes dz-pulse {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
+.is-reduced .dz-hot::before {
+  display: none;
+}
+
+.mark .mark-base,
+.mark .mark-accent {
+  fill: initial;
+}
+
+.play .is-assemble .mark-base {
+  animation: none;
+}
+
+.mark-layer {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.play .is-assemble .mark-l0 {
+  animation: dz-layer 0.9s var(--ease-out) var(--mark-d, 0.1s) both;
+}
+
+.play .is-assemble .mark-l1 {
+  animation: dz-layer 0.9s var(--ease-out) calc(var(--mark-d, 0.1s) + 0.22s) both;
+}
+
+.play .is-assemble .mark-l2 {
+  animation: dz-layer 0.9s var(--ease-out) calc(var(--mark-d, 0.1s) + 0.44s) both;
+}
+
+.play .is-assemble .mark-accent {
+  animation: dz-cube 1s var(--ease-out) calc(var(--mark-d, 0.1s) + 0.8s) both;
+}
+
+.play .is-assemble.is-idle .mark-accent {
+  animation:
+    dz-cube 1s var(--ease-out) calc(var(--mark-d, 0.1s) + 0.8s) both,
+    mark-hover 3.2s var(--ease-in-out) calc(var(--mark-d, 0.1s) + 2s) infinite;
+}
+
+@keyframes dz-layer {
+  from {
+    opacity: 0;
+    transform: translateY(-40%) scale(0.9);
+  }
+}
+
+@keyframes dz-cube {
+  from {
+    opacity: 0;
+    transform: translateY(-260%) rotate(-90deg) scale(0.5);
+  }
+}
+
+.wordmark {
+  font-family: "Unbounded", var(--font-sans);
+}
+
+.dz-cover {
+  background: var(--dz-grad-cover);
+  color: var(--dz-on-brand);
+}
+
+.dz-cover .dz-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 80% at 85% 20%, color-mix(in oklab, var(--dz-sky) 45%, transparent), transparent 70%);
+  opacity: 0;
+}
+
+.play .dz-glow {
+  animation: deck-fade 2s var(--ease-out) 0.2s both;
+}
+
+.dz-appicon {
+  display: grid;
+  place-items: center;
+  width: var(--icon-size, 220px);
+  aspect-ratio: 1;
+  border-radius: 28%;
+  background: var(--dz-white);
+  box-shadow: 0 40px 80px -30px color-mix(in oklab, var(--neutral-950) 45%, transparent);
+}
+
+.dz-appicon .mark {
+  width: 72%;
+}
+
+.play .dz-appicon {
+  animation: dz-icon-in 0.9s var(--ease-out) var(--d, 0s) both;
+}
+
+@keyframes dz-icon-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.6) rotate(-8deg);
+  }
+}
+
+.wm {
+  display: block;
+  height: var(--wm-h, 120px);
+  width: auto;
+  overflow: visible;
+  fill: currentColor;
+}
+
+.wm-l {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.play .wm-l {
+  animation: dz-letter 0.8s var(--ease-out) calc(var(--wm-d, 0.9s) + var(--i) * 0.09s) both;
+}
+
+@keyframes dz-letter {
+  from {
+    opacity: 0;
+    transform: translateY(60%) scaleY(0.4);
+    filter: blur(6px);
+  }
+}
+
+.dz-pixels {
+  position: absolute;
+  color: var(--dz-white);
+  opacity: 0.9;
+}
+
+.dz-pixels svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dz-pixels rect {
+  opacity: 0;
+}
+
+.play .dz-pixels rect {
+  animation: deck-fade 0.25s steps(1) calc(var(--d, 0s) + var(--k, 0) * 0.025s) both;
+}
+
+.is-reduced .dz-pixels rect {
+  opacity: 1;
+}
+
+.body.grid {
+  height: auto;
+}

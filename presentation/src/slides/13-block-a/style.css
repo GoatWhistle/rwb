@@ -1,0 +1,6 @@
+#block-a .dz-row { --cols: 400px 1fr 1fr 48px; min-height: 108px; }
+#block-a .ba-q { display: flex; gap: 18px; align-items: center; font-weight: 700; color: var(--deck-fg); }
+#block-a .ba-q i { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--dz-grad-sky); color: var(--dz-on-brand); font-style: normal; font-size: 22px; }
+#block-a .ba-v { display: block; font-size: 38px; letter-spacing: -0.02em; }
+#block-a .ba-s { font-size: 20px; color: var(--deck-fg-3); }
+#block-a .rec-ok { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--deck-success); color: var(--dz-on-brand); }

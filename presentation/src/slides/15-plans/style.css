@@ -1,0 +1,13 @@
+#plans .pl-card { gap: 26px; padding: 40px; }
+#plans .pl-card header { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+#plans .pl-card header code { font-size: 20px; }
+#plans .pl-card h3 { font-size: 32px; margin-top: 6px; }
+#plans .pl-joins { display: flex; align-items: baseline; gap: 8px; padding: 8px 22px; border-radius: var(--radius-pill); background: color-mix(in oklab, var(--deck-danger) 12%, var(--deck-bg)); color: var(--deck-danger); font-size: 22px; font-weight: 700; white-space: nowrap; }
+#plans .pl-joins b { font-size: 40px; }
+#plans .pl-joins.is-zero { background: color-mix(in oklab, var(--deck-success) 14%, var(--deck-bg)); color: var(--deck-success); }
+#plans .pl-tree { display: grid; gap: 12px; }
+#plans .pl-node { position: relative; display: flex; gap: 14px; align-items: center; margin-left: calc(var(--lvl) * 34px); padding: 12px 20px; border-radius: 16px; background: var(--deck-bg); font-family: var(--font-code); font-size: 21px; color: var(--deck-fg); }
+#plans .pl-node.is-join { box-shadow: 0 0 0 2px var(--deck-danger); }
+#plans .pl-dot { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--dz-grad-dot); }
+#plans .pl-node.is-join .pl-dot { background: var(--deck-danger); }
+#plans .dz-note { font-size: 22px; }

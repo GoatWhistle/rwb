@@ -1,0 +1,26 @@
+<section class="slide" id="plans" data-title="План запроса">
+  <h2 class="title a">Чем выше слой, <em>тем проще план</em></h2>
+  <div class="body is-tall grid is-2 pl-grid">
+    <div class="card pl-card a" style="--d:0.2s">
+      <header><span><code class="dz-code">EXPLAIN ANALYZE</code><h3>Топ продавцов из core</h3></span><span class="pl-joins"><b>2</b> join</span></header>
+      <ul class="pl-tree">
+          <li class="pl-node a" style="--lvl:0;--d:0.50s"><span class="pl-dot"></span>Limit 10</li>
+          <li class="pl-node a" style="--lvl:1;--d:0.62s"><span class="pl-dot"></span>Sort top-N по выручке</li>
+          <li class="pl-node a" style="--lvl:2;--d:0.74s"><span class="pl-dot"></span>GroupAggregate: 2 970 продавцов</li>
+          <li class="pl-node is-join a" style="--lvl:3;--d:0.86s"><span class="pl-dot"></span>Hash Join по seller_id</li>
+          <li class="pl-node is-join a" style="--lvl:4;--d:0.98s"><span class="pl-dot"></span>Hash Join по order_id</li>
+          <li class="pl-node a" style="--lvl:5;--d:1.10s"><span class="pl-dot"></span>Seq Scan items: 112 650</li>
+          <li class="pl-node a" style="--lvl:5;--d:1.22s"><span class="pl-dot"></span>Seq Scan orders: filter delivered, −2 963</li>
+      </ul>
+    </div>
+    <div class="card pl-card is-lilac a" style="--d:0.4s">
+      <header><span><code class="dz-code">EXPLAIN ANALYZE</code><h3>OTD по месяцам из mart</h3></span><span class="pl-joins is-zero"><b>0</b> join</span></header>
+      <ul class="pl-tree">
+          <li class="pl-node a" style="--lvl:0;--d:0.90s"><span class="pl-dot"></span>GroupAggregate: 23 месяца</li>
+          <li class="pl-node a" style="--lvl:1;--d:1.02s"><span class="pl-dot"></span>Sort по месяцу</li>
+          <li class="pl-node a" style="--lvl:2;--d:1.14s"><span class="pl-dot"></span>Seq Scan order_fulfillment: 96 470 строк</li>
+      </ul>
+      <p class="dz-note a" style="--d:1.5s">on_time и дни уже лежат в витрине, один проход по таблице.</p>
+    </div>
+  </div>
+</section>

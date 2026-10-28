@@ -1,0 +1,37 @@
+<section class="slide" id="grain" data-title="Грануляция">
+  <h2 class="title a">Уровень решает: <em>159.88 или 139.97</em></h2>
+  <div class="body is-tall gr-grid">
+    <div class="card gr-left">
+      <h3 class="a" style="--d:0.2s">Фан-аут: два товара и два платежа</h3>
+      <svg class="gr-viz" viewBox="0 0 760 420" aria-hidden="true">
+        <rect class="gr-order s" style="--d:0.35s" x="10" y="170" width="170" height="80" rx="22"/>
+        <text x="95" y="219" text-anchor="middle" class="gr-t is-on">заказ</text>
+        <path class="dz-wire dr" pathLength="1" style="--d:0.6s" d="M180 210 C240 210 240 80 300 80"/>
+        <path class="dz-wire dr" pathLength="1" style="--d:0.65s" d="M180 210 C240 210 240 340 300 340"/>
+        <rect class="gr-item s" style="--d:0.8s" x="300" y="44" width="150" height="72" rx="18"/>
+        <rect class="gr-item s" style="--d:0.85s" x="300" y="304" width="150" height="72" rx="18"/>
+        <text x="375" y="88" text-anchor="middle" class="gr-t">2 товара</text>
+        <text x="375" y="348" text-anchor="middle" class="gr-t">2 платежа</text>
+        <path class="trace is-danger dr" pathLength="1" style="--d:1.1s" d="M450 80 C520 80 520 160 580 160"/>
+        <path class="trace is-danger dr" pathLength="1" style="--d:1.15s" d="M450 80 C520 80 520 260 580 260"/>
+        <path class="trace is-danger dr" pathLength="1" style="--d:1.2s" d="M450 340 C520 340 520 160 580 160"/>
+        <path class="trace is-danger dr" pathLength="1" style="--d:1.25s" d="M450 340 C520 340 520 260 580 260"/>
+        <g class="pop" style="--d:1.6s"><rect class="gr-bad" x="580" y="120" width="170" height="180" rx="24"/><text x="665" y="205" text-anchor="middle" class="gr-big">×2</text><text x="665" y="250" text-anchor="middle" class="gr-t is-on">4 строки</text></g>
+      </svg>
+      <p class="a" style="--d:1.8s">Ни один GROUP BY это не исправит: агрегируем до соединения.</p>
+    </div>
+    <div class="gr-right">
+      <div class="gr-bar a" style="--d:0.5s">
+        <div class="gr-head"><span>Средний чек по заказам</span><span class="dz-pill is-ok"><span class="ico is-sm" data-icon="check"></span>верно</span></div>
+        <span class="dz-big num count" data-num="avg_order"></span>
+        <i class="dz-bar" style="--w:1;--d:0.8s"></i>
+      </div>
+      <div class="gr-bar a" style="--d:0.8s">
+        <div class="gr-head"><span>Среднее по строкам</span><span class="dz-pill is-bad"><span class="ico is-sm" data-icon="x"></span>неверно</span></div>
+        <span class="dz-big num count gr-muted" data-num="avg_row"></span>
+        <i class="dz-bar is-muted" style="--w:0.875;--d:1.1s"></i>
+      </div>
+      <p class="dz-key a" style="--d:1.6s"><span class="ico " data-icon="alert"></span><span><b>12.5% разницы.</b> Ни одно число не выглядит подозрительно, поэтому неверное живёт в отчётах годами.</span></p>
+    </div>
+  </div>
+</section>

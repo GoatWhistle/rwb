@@ -1,0 +1,15 @@
+#identity .id-card { align-content: start; gap: 18px; position: relative; }
+#identity .id-viz { width: 100%; height: 200px; overflow: visible; }
+#identity .id-acc { fill: var(--deck-bg); stroke: var(--deck-line-strong); stroke-width: 2; }
+#identity .id-rev { fill: var(--dz-violet); }
+#identity .id-person { fill: var(--deck-accent); }
+#identity .id-person-ico { position: absolute; left: calc(36px + 395 / 480 * (100% - 72px) - 28px); top: calc(32px + 72px); color: var(--dz-on-brand); }
+#identity .id-t { font-size: 19px; font-weight: 700; fill: var(--deck-fg-2); }
+#identity .id-t.is-on { fill: var(--dz-on-brand); }
+#identity .id-nums { display: flex; align-items: baseline; gap: 20px; margin-top: 8px; }
+#identity .id-nums s { font-size: 34px; font-weight: 700; color: var(--deck-fg-3); text-decoration-thickness: 3px; text-decoration-color: var(--deck-danger); }
+#identity .dz-big { font-size: 84px; }
+#identity .id-pair { font-size: 54px; letter-spacing: -0.02em; color: var(--deck-accent); }
+#identity .id-seq { display: flex; gap: 12px; align-items: center; height: 200px; }
+#identity .id-seq .dz-pill { font-size: 26px; padding: 14px 24px; }
+#identity .card p { font-size: 23px; }

@@ -1,0 +1,59 @@
+<section class="slide" id="sources" data-title="Источники">
+  <h2 class="title a">Что приехало <em>от источников</em></h2>
+  <div class="body is-tall src-grid">
+    <div class="dz-rows src-rows">
+      <div class="dz-row is-head f" style="--d:0.25s"><span>Таблица raw</span><span>Строк</span><span class="r"></span></div>
+    <div class="dz-row a" style="--d:0.35s">
+      <span><b class="dz-code">orders</b><span class="src-what">статусы и вся хронология заказа</span></span>
+      <i class="dz-bar" style="--w:0.883;--d:0.55s"></i>
+      <span class="r">99 441</span>
+    </div>
+    <div class="dz-row a" style="--d:0.44s">
+      <span><b class="dz-code">order_items</b><span class="src-what">цена, доставка, срок отгрузки</span></span>
+      <i class="dz-bar" style="--w:1.000;--d:0.64s"></i>
+      <span class="r">112 650</span>
+    </div>
+    <div class="dz-row a" style="--d:0.53s">
+      <span><b class="dz-code">order_payments</b><span class="src-what">несколько способов, рассрочка</span></span>
+      <i class="dz-bar" style="--w:0.922;--d:0.73s"></i>
+      <span class="r">103 886</span>
+    </div>
+    <div class="dz-row a" style="--d:0.62s">
+      <span><b class="dz-code">order_reviews</b><span class="src-what">оценки 1–5, иногда текст</span></span>
+      <i class="dz-bar" style="--w:0.881;--d:0.82s"></i>
+      <span class="r">99 224</span>
+    </div>
+    <div class="dz-row a" style="--d:0.71s">
+      <span><b class="dz-code">products</b><span class="src-what">категория, вес, габариты</span></span>
+      <i class="dz-bar is-muted" style="--w:0.293;--d:0.91s"></i>
+      <span class="r">32 951</span>
+    </div>
+    <div class="dz-row a" style="--d:0.80s">
+      <span><b class="dz-code">sellers</b><span class="src-what">город, штат, индекс</span></span>
+      <i class="dz-bar is-muted" style="--w:0.027;--d:1.00s"></i>
+      <span class="r">3 095</span>
+    </div>
+    <div class="dz-row a" style="--d:0.89s">
+      <span><b class="dz-code">customers</b><span class="src-what">два разных идентификатора</span></span>
+      <i class="dz-bar" style="--w:0.883;--d:1.09s"></i>
+      <span class="r">99 441</span>
+    </div>
+    <div class="dz-row a" style="--d:0.98s">
+      <span><b class="dz-code">category_translation</b><span class="src-what">перевод категорий</span></span>
+      <i class="dz-bar is-muted" style="--w:0.012;--d:1.18s"></i>
+      <span class="r">71</span>
+    </div>
+    </div>
+    <div class="src-side">
+      <div class="card is-brand dz-shine s" style="--d:0.4s">
+        <span class="src-cap">Всего в raw</span>
+        <span class="dz-big num count" data-num="raw_rows"></span>
+        <span class="src-cap">строк в восьми файлах</span>
+      </div>
+      <div class="card is-lilac a" style="--d:1.3s">
+        <h3>Каждая колонка <span class="dz-code">text</span></h3>
+        <p>Даты, суммы и оценки приехали строками. raw хранит как пришло, типы и чистка начинаются в core.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,20 @@
+<section class="slide" id="layers" data-title="Три слоя">
+  <h2 class="title a">Три слоя: <em>raw, core, mart</em></h2>
+  <div class="body is-tall ly-grid">
+    <svg class="ly-stack" viewBox="0 0 640 640" aria-hidden="true">
+      <g class="ly-plate ly-raw" style="--d:0.3s"><path class="ly-side-l" d="M40 470 L320 610 V640 L40 500Z"/><path class="ly-side-r" d="M320 610 L600 470 V500 L320 640Z"/><path class="ly-top" d="M320 330 L600 470 L320 610 L40 470Z"/></g>
+      <g class="ly-plate ly-core" style="--d:0.6s"><path class="ly-side-l" d="M40 330 L320 470 V500 L40 360Z"/><path class="ly-side-r" d="M320 470 L600 330 V360 L320 500Z"/><path class="ly-top" d="M320 190 L600 330 L320 470 L40 330Z"/></g>
+      <g class="ly-plate ly-mart" style="--d:0.9s"><path class="ly-side-l" d="M40 190 L320 330 V360 L40 220Z"/><path class="ly-side-r" d="M320 330 L600 190 V220 L320 360Z"/><path class="ly-top" d="M320 50 L600 190 L320 330 L40 190Z"/></g>
+      <g class="ly-cube" style="--d:1.3s"><path class="ly-c-l" d="M280 110 L320 130 V170 L280 150Z"/><path class="ly-c-r" d="M320 130 L360 110 V150 L320 170Z"/><path class="ly-c-t" d="M320 90 L360 110 L320 130 L280 110Z"/></g>
+      <text x="320" y="478" text-anchor="middle" class="ly-t f" style="--d:0.7s">raw</text>
+      <text x="320" y="338" text-anchor="middle" class="ly-t f" style="--d:1s">core</text>
+      <text x="320" y="210" text-anchor="middle" class="ly-t f" style="--d:1.3s">mart</text>
+    </svg>
+    <div class="ly-rows">
+      <div class="ly-row a" style="--d:0.6s"><span class="dz-dot is-violet"></span><div><h3>mart: 2 витрины</h3><p>Производные поля посчитаны заранее, дашборд читает их одним SELECT без join.</p></div></div>
+      <div class="ly-row a" style="--d:0.45s"><span class="dz-dot"></span><div><h3>core: 8 таблиц модели</h3><p>Типы, ключи, FK, CHECK, дедупликация. Здесь считаются ответы.</p></div></div>
+      <div class="ly-row a" style="--d:0.3s"><span class="dz-dot ly-dot-raw"></span><div><h3>raw: 8 таблиц как есть</h3><p>Всё text, как приехало. Только читаем, не меняем ни строки.</p></div></div>
+      <div class="ly-chain a" style="--d:1.6s"><span class="dz-pill">build_core.sql</span><span class="ico is-sm" data-icon="arrow-right"></span><span class="dz-pill">build_mart.sql</span><span class="ico is-sm" data-icon="arrow-right"></span><span class="dz-pill">build_dashboard.py</span></div>
+    </div>
+  </div>
+</section>

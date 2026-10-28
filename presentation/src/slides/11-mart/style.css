@@ -1,0 +1,8 @@
+#mart .mart-card { gap: 18px; padding: 40px; }
+#mart .mart-card header { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 32px; }
+#mart .mart-card .dz-big { font-size: 104px; }
+#mart .mart-card ul { display: grid; gap: 14px; font-size: 24px; color: var(--deck-fg-2); }
+#mart .mart-card li { display: grid; grid-template-columns: 22px 1fr; gap: 16px; align-items: start; }
+#mart .mart-card .dz-dot { margin-top: 6px; }
+#mart .foot { bottom: 110px; }
+#mart .body { bottom: 210px; }

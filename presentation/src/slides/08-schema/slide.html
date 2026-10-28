@@ -1,0 +1,29 @@
+<section class="slide" id="schema" data-title="Схема core">
+  <h2 class="title a">Схема core: <em>восемь таблиц</em></h2>
+  <div class="body is-tall er-wrap">
+    <svg class="dz-svg" viewBox="0 0 1680 650" aria-hidden="true">
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:1.00s" d="M420 75 H630"/>
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:1.08s" d="M1050 75 H1260"/>
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:1.16s" d="M840 150 V250"/>
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:1.24s" d="M630 325 H420"/>
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:1.32s" d="M840 400 V500"/>
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:1.40s" d="M630 575 H420"/>
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:1.48s" d="M1050 120 C1160 120 1160 325 1260 325"/>
+      <g class="er-box s" style="--d:0.30s"><rect x="0" y="0" width="420" height="150" rx="26"/><text x="30" y="48" class="er-name">customers</text><text x="30" y="86" class="er-pk">PK customer_unique_id</text><text x="30" y="122" class="er-note">человек, адрес по последнему заказу</text></g>
+      <g class="er-box s" style="--d:0.38s"><rect x="630" y="0" width="420" height="150" rx="26"/><text x="660" y="48" class="er-name">orders</text><text x="660" y="86" class="er-pk">PK order_id</text><text x="660" y="122" class="er-note">CHECK статусов, гео снимком</text></g>
+      <g class="er-box s" style="--d:0.46s"><rect x="1260" y="0" width="420" height="150" rx="26"/><text x="1290" y="48" class="er-name">order_reviews</text><text x="1290" y="86" class="er-pk">PK (review_id, order_id)</text><text x="1290" y="122" class="er-note">отзыв на нескольких заказах</text></g>
+      <g class="er-box s" style="--d:0.54s"><rect x="0" y="250" width="420" height="150" rx="26"/><text x="30" y="298" class="er-name">sellers</text><text x="30" y="336" class="er-pk">PK seller_id</text><text x="30" y="372" class="er-note">город и штат как в источнике</text></g>
+      <g class="er-box s" style="--d:0.62s"><rect x="630" y="250" width="420" height="150" rx="26"/><text x="660" y="298" class="er-name">order_items</text><text x="660" y="336" class="er-pk">PK (order_id, item_no)</text><text x="660" y="372" class="er-note">номер позиции в составном ключе</text></g>
+      <g class="er-box s" style="--d:0.70s"><rect x="1260" y="250" width="420" height="150" rx="26"/><text x="1290" y="298" class="er-name">order_payments</text><text x="1290" y="336" class="er-pk">PK (order_id, payment_no)</text><text x="1290" y="372" class="er-note">несколько платежей легально</text></g>
+      <g class="er-box s" style="--d:0.78s"><rect x="0" y="500" width="420" height="150" rx="26"/><text x="30" y="548" class="er-name">product_categories</text><text x="30" y="586" class="er-pk">PK category_name</text><text x="30" y="622" class="er-note">из товаров, перевод опционален</text></g>
+      <g class="er-box s" style="--d:0.86s"><rect x="630" y="500" width="420" height="150" rx="26"/><text x="660" y="548" class="er-name">products</text><text x="660" y="586" class="er-pk">PK product_id</text><text x="660" y="622" class="er-note">категория: nullable FK</text></g>
+      <circle class="er-dot pop" style="--d:1.50s" cx="630" cy="75" r="9"/>
+      <circle class="er-dot pop" style="--d:1.56s" cx="1260" cy="75" r="9"/>
+      <circle class="er-dot pop" style="--d:1.62s" cx="840" cy="250" r="9"/>
+      <circle class="er-dot pop" style="--d:1.68s" cx="420" cy="325" r="9"/>
+      <circle class="er-dot pop" style="--d:1.74s" cx="840" cy="500" r="9"/>
+      <circle class="er-dot pop" style="--d:1.80s" cx="420" cy="575" r="9"/>
+      <circle class="er-dot pop" style="--d:1.86s" cx="1260" cy="325" r="9"/>
+    </svg>
+  </div>
+</section>
