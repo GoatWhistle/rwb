@@ -1,11 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  ChartNoAxesCombined,
   ChevronRight,
   LayoutDashboard,
-  MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
+  PanelRightClose,
   PanelRightOpen,
   RefreshCw,
 } from "lucide-react"
@@ -75,14 +74,6 @@ export function App() {
             <LayoutDashboard size={20} />
             {navOpen && <span>{ru.overview}</span>}
           </IconButton>
-          <IconButton
-            label={chatOpen ? ru.closeChat : ru.openChat}
-            aria-expanded={chatOpen}
-            onClick={() => setChatOpen(!chatOpen)}
-          >
-            <MessageSquare size={20} />
-            {navOpen && <span>{ru.chat}</span>}
-          </IconButton>
         </div>
         <div className="rail-bottom">
           <span className="workspace-avatar" title={ru.workspace}>
@@ -113,15 +104,13 @@ export function App() {
           >
             <RefreshCw size={17} />
           </IconButton>
-          {!chatOpen && (
-            <IconButton label={ru.openChat} onClick={() => setChatOpen(true)}>
-              <PanelRightOpen size={19} />
-            </IconButton>
-          )}
-          <span className="header-label">
-            <ChartNoAxesCombined size={14} />
-            {ru.overview}
-          </span>
+          <IconButton
+            label={chatOpen ? ru.closeChat : ru.openChat}
+            aria-expanded={chatOpen}
+            onClick={() => setChatOpen(!chatOpen)}
+          >
+            {chatOpen ? <PanelRightClose size={19} /> : <PanelRightOpen size={19} />}
+          </IconButton>
         </div>
       </header>
       <main id="main" tabIndex={-1} className="main-area">

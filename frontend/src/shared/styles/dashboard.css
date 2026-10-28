@@ -101,16 +101,6 @@
 .header-location {
   color: var(--muted);
 }
-.header-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  border: 1px solid var(--line);
-  padding: 7px 10px;
-  border-radius: 6px;
-  color: var(--muted);
-}
 .main-area {
   overflow: auto;
   grid-column: 2;
@@ -501,8 +491,7 @@
   }
 }
 @media (max-width: 1024px) {
-  .header-location,
-  .header-label {
+  .header-location {
     display: none;
   }
   .app-shell.chat-open {
