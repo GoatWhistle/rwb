@@ -829,7 +829,7 @@ details[open] > .disclosure-summary > .disclosure-chevron {
     background: #1b3be0;
   }
   .suggestion-row:hover {
-    color: var(--chat-cobalt);
+    background: #e7e7ec;
   }
   .chat-heading .icon-button:hover {
     background: var(--chat-panel);
@@ -879,33 +879,35 @@ details[open] > .disclosure-summary > .disclosure-chevron {
   }
 }
 .suggestion-list {
-  width: 100%;
-  max-width: 340px;
-  margin: 28px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 360px;
+  margin: 24px 0 0;
   padding: 0;
   list-style: none;
-  text-align: left;
 }
 .suggestion-list li {
-  border-top: 1px solid var(--line);
   animation: chat-rise var(--chat-dur-slow) var(--chat-ease-out) calc(80ms + var(--i, 0) * 50ms)
     both;
 }
-.suggestion-list li:last-child {
-  border-bottom: 1px solid var(--line);
-}
 .suggestion-row {
-  display: block;
-  width: 100%;
-  min-height: 44px;
-  padding: 12px 2px;
+  min-height: 36px;
+  padding: 8px 14px;
   border: 0;
-  background: none;
+  border-radius: 12px;
+  background: #f1f1f3;
   color: var(--chat-ink);
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.4;
   text-align: left;
   cursor: pointer;
-  transition: color var(--chat-dur-fast) var(--chat-ease-out);
+  transition:
+    background-color var(--chat-dur-fast) var(--chat-ease-out),
+    transform var(--chat-dur-fast) var(--chat-ease-out);
+}
+.suggestion-row:active {
+  transform: scale(0.97);
 }
