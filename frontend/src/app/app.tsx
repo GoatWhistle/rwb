@@ -1,5 +1,5 @@
 import { MessageSquare } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ChatPanel } from "@/features/chat/chat-panel"
 import { Dashboard } from "@/features/dashboard/dashboard"
 import { initialFilters } from "@/features/dashboard/filters"
@@ -11,6 +11,7 @@ import "@/shared/styles/shell.css"
 import "@/shared/styles/dashboard.css"
 import "@/shared/styles/chat.css"
 import "@/shared/styles/mobile-shell.css"
+import "@/shared/styles/mobile-polish.css"
 
 export function App() {
   const [filters, setFilters] = useState<Filters>(initialFilters)
@@ -20,6 +21,33 @@ export function App() {
   const [contextName, setContextName] = useState("")
   const [draft, setDraft] = useState({ text: "", id: 0 })
   const [closeRequest, setCloseRequest] = useState(0)
+  const shellRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    let last = 0
+    let frame = 0
+    const read = (target: EventTarget | null) =>
+      target instanceof HTMLElement && target.id === "main"
+        ? target.scrollTop
+        : target === document
+          ? window.scrollY
+          : null
+    const onScroll = (e: Event) => {
+      const top = read(e.target)
+      if (top === null || frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        const shell = shellRef.current
+        if (!shell || Math.abs(top - last) < 8) return
+        shell.dataset.scroll = top > last && top > 120 ? "down" : "up"
+        last = top
+      })
+    }
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true })
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true })
+      cancelAnimationFrame(frame)
+    }
+  }, [])
   const updateFilters = (value: Filters) => {
     setFilters(value)
     setContext({ filters: value })
@@ -36,6 +64,7 @@ export function App() {
   }
   return (
     <div
+      ref={shellRef}
       className={`app-shell ${chatOpen ? "chat-open" : ""}`}
       style={{ "--chat-width": `${chatWidth}px` } as React.CSSProperties}
     >
