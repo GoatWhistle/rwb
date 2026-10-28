@@ -210,6 +210,7 @@ export function mockApi(): Plugin {
           return send(res, 404, { detail: "mock: endpoint not found" })
         } catch {
           if (!res.destroyed && !res.writableEnded) res.destroy()
+          return undefined
         }
       })
     },
