@@ -15,7 +15,7 @@ import type { WidgetKind } from "@/shared/api/widget-types"
 import { cell, downloadCsv, number, numeric } from "@/shared/format"
 import { ru } from "@/shared/i18n/ru"
 import { Chart } from "@/shared/ui/chart"
-import { formatCell } from "./chat-format"
+import { formatCell, formatTick } from "./chat-format"
 import { buildDraft, saveWidget } from "./save-widget"
 import type { ChatChart, ChatOrder, ChatStep } from "./use-chat"
 
@@ -148,6 +148,8 @@ export function ChartBlock({ chart, ...props }: BlockProps & { chart: ChatChart 
           label={`${chart.title}: ${props.labels[y] ?? y}`}
           type={chart.type}
           seriesLabel={props.labels[y] ?? y}
+          formatValue={(n) => formatCell(y, n)}
+          formatTick={(n) => formatTick(y, n)}
         />
       ))}
     </figure>
