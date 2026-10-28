@@ -89,6 +89,64 @@ http://localhost:8080). В настройках подключения внут�
 Логин и пароль `hack` / `hack` простые намеренно, это локальная
 учебная база.
 
+## AI-агент и API дашборда
+
+Ветка `feature/ai-agent` также содержит `design/` и `brand/`, перенесённые
+из `origin/frontend` (`de327aa`). Каталог дизайн-системы —
+[design/design-system.html](design/design-system.html), бренд Datum —
+[brand/BRAND.md](brand/BRAND.md). Параллельный frontend развивается отдельно.
+
+Стек: Python 3.12+, FastAPI, OpenAI Agents SDK, PostgreSQL/pgvector.
+История чатов и журнал инструментов сохраняются отдельно в SQLite:
+`.local/agent.sqlite3`. Контракт фронтенда и примеры запросов —
+[docs/agent_api.md](docs/agent_api.md).
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -e '.[dev]'
+cp .env.example .env
+bash scripts/setup.sh
+docker compose exec -T postgres psql -U hack -d marketplace -v ON_ERROR_STOP=1 < solution/build_core.sql
+.venv/bin/python -m backend.setup
+# Вписать POLZA_API_KEY в локальный .env.
+.venv/bin/python -m backend.reviews index
+.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8090
+```
+
+Swagger/OpenAPI: http://127.0.0.1:8090/docs. Проверка: `/api/health`.
+Настройте `CORS_ORIGINS` в `.env` под адрес фронтенда.
+Не используйте `setup.sh --reset` для обычного обновления: он удаляет volume.
+После пересборки `core` повторите `backend.setup` для прав доступа и индексацию
+для сверки изменений отзывов. Индексация возобновляется с уже сохранённых векторов;
+пока она не завершена, поиск сообщает, что индекс не готов. Остальные тулзы работают.
+
+LLM задаётся через `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`. На текущем компьютере
+настроен локальный Codex gateway для `gpt-6.1-sol`:
+
+```bash
+.venv/bin/pip install -e '.[gateway]'
+.venv/bin/python -m uvicorn gateway:app --app-dir .local/codex_gateway --host 127.0.0.1 --port 8091
+```
+
+По договорённости код gateway хранится только локально и не передаётся с Git.
+При клонировании подключите свой Responses-совместимый endpoint через `.env`.
+Сам backend использует обычный OpenAI SDK, поддерживает function calling и SSE;
+gateway не требуется на машине проверяющего при наличии обычного API-ключа OpenAI.
+
+SQL-инструмент работает от `agent_reader`, проверяет полный AST, разрешает
+аналитические SELECT по `core`/`mart`, ограничивает время и объём результата.
+Административное подключение используется только явными командами настройки
+и индексации. Данные отзывов не считаются инструкциями для агента.
+
+```bash
+.venv/bin/python -m pytest -q
+TEST_DATABASE=1 .venv/bin/python -m pytest -q
+```
+
+Второй запуск дополнительно проверяет контрольные ответы на загруженном Olist.
+Для новых задач добавляйте определения и SQL в `backend/catalog/`:
+API, агент и существующий генератор HTML используют один источник расчётов.
+
 ## Если что-то не работает
 
 **Схем raw, core и mart нет в базе.** Скрипты из `scripts/init`
