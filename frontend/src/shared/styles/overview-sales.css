@@ -337,28 +337,38 @@
   align-items: center;
   height: 32px;
   min-width: 0;
+  padding-bottom: 6px;
 }
 .os-bar-fill {
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 100%;
-  border-radius: 6px;
-  background: #e9edff;
+  left: 0;
+  right: 0;
+  bottom: 3px;
+  height: 6px;
+  border-radius: 0 2px 2px 0;
+  background: var(--viz-1, #2348ff);
   transform: scaleX(var(--w, 0));
   transform-origin: left;
   animation: os-grow 700ms var(--os-ease) both;
   animation-delay: calc(var(--i, 0) * 30ms);
+  transition: background-color 160ms ease-out;
 }
 .os-barlist li:hover .os-bar-fill {
-  background: #dce3ff;
+  background: var(--viz-7, #2068f5);
+}
+.os-barlist:has(li:hover) li:not(:hover, .os-barlist-head) {
+  opacity: 0.55;
+}
+.os-barlist li {
+  transition: opacity 160ms ease-out;
 }
 .os-bar-label {
   position: relative;
-  padding: 0 10px;
+  padding: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--os-ink);
+  color: var(--viz-text, var(--os-ink));
 }
 @keyframes os-grow {
   from {

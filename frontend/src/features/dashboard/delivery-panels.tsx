@@ -54,6 +54,8 @@ export function DeliveryTrend({
         formatLabel={month}
         target={field === "otd" ? TARGET : undefined}
         targetLabel="цель 90 %"
+        min={field === "otd" ? 0.8 : undefined}
+        max={field === "otd" ? 1 : undefined}
       />
     </Card>
   )
