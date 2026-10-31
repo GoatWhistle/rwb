@@ -1,40 +1,153 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="brand/logo/01-strata-lockup-mono-white.svg">
-  <img src="brand/logo/01-strata-lockup.svg" alt="Datum" width="240">
-</picture>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner.dark.png">
+    <img src="docs/readme/banner.light.png" alt="Datum: одна цифра для всех аналитиков маркетплейса" width="880" height="200">
+  </picture>
+</p>
 
-# Datum: модель маркетплейса от корзины до выкупа
+<p align="center">
+  Аналитик маркетплейса открывает дашборд исполнения заказа или задаёт вопрос словами и получает
+  цифру вместе с SQL, по которому она посчитана. Дашборд, чат и конструктор работают поверх одной
+  модели данных.
+</p>
 
-Решение команды Datum для кейса RWB «Модель маркетплейса: от корзины до выкупа».
-Из сырой выгрузки маркетплейса собирается модель `raw → core → mart`, поверх неё
-работают дашборд, чат-ассистент и конструктор дашбордов. Все цифры считаются
-SQL-запросами к базе, и запрос показан рядом с цифрой.
+<p align="center">
+  <!-- readme:buttons -->
+  <a href="#запуск"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/cta-run.dark.png"><img src="docs/readme/cta-run.light.png" alt="Запустить локально" width="224" height="44"></picture></a>
+  <a href="docs/agent_api.md"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/cta-api.dark.png"><img src="docs/readme/cta-api.light.png" alt="API агента" width="145" height="44"></picture></a>
+  <a href="docs/handout.md"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/cta-case.dark.png"><img src="docs/readme/cta-case.light.png" alt="Задание кейса" width="181" height="44"></picture></a>
+  <!-- /readme:buttons -->
+</p>
 
-Данные — [Brazilian E-Commerce Public Dataset by Olist](https://github.com/olist/work-at-olist-data),
-550 759 строк в восьми файлах, период с сентября 2016 по октябрь 2018.
+<p align="center">
+  <!-- readme:status -->
+  <a href="#результаты"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-status-1.dark.png"><img src="docs/readme/badge-status-1.light.png" alt="блок А: 5 из 5 сходятся" width="186" height="28"></picture></a>
+  <a href="#данные-и-модель"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-status-2.dark.png"><img src="docs/readme/badge-status-2.light.png" alt="данные: 550 759 строк Olist" width="217" height="28"></picture></a>
+  <br>
+  <a href="backend/catalog"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-status-3.dark.png"><img src="docs/readme/badge-status-3.light.png" alt="метрики: 29 с SQL" width="153" height="28"></picture></a>
+  <a href="#ограничения"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-status-4.dark.png"><img src="docs/readme/badge-status-4.light.png" alt="без LLM: дашборд работает" width="216" height="28"></picture></a>
+  <a href="LICENSE"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-status-5.dark.png"><img src="docs/readme/badge-status-5.light.png" alt="лицензия: MIT" width="125" height="28"></picture></a>
+  <!-- /readme:status -->
+</p>
 
-## Быстрый старт
+<p align="center">
+  <!-- readme:stack -->
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-stack-1.dark.png"><img src="docs/readme/badge-stack-1.light.png" alt="API: FastAPI и SSE" width="151" height="28"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-stack-2.dark.png"><img src="docs/readme/badge-stack-2.light.png" alt="агент: OpenAI Agents SDK" width="201" height="28"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-stack-3.dark.png"><img src="docs/readme/badge-stack-3.light.png" alt="база: PostgreSQL 16 и pgvector" width="237" height="28"></picture>
+  <br>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-stack-4.dark.png"><img src="docs/readme/badge-stack-4.light.png" alt="интерфейс: React и TypeScript" width="230" height="28"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-stack-5.dark.png"><img src="docs/readme/badge-stack-5.light.png" alt="голос: GigaAM" width="128" height="28"></picture>
+  <!-- /readme:stack -->
+</p>
+
+<p align="center">
+  <!-- readme:nav -->
+  <a href="#зачем"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-nav-1.dark.png"><img src="docs/readme/badge-nav-1.light.png" alt="Зачем" width="67" height="26"></picture></a>
+  <a href="#как-выглядит"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-nav-2.dark.png"><img src="docs/readme/badge-nav-2.light.png" alt="Как выглядит" width="113" height="26"></picture></a>
+  <a href="#как-устроено"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-nav-3.dark.png"><img src="docs/readme/badge-nav-3.light.png" alt="Как устроено" width="113" height="26"></picture></a>
+  <a href="#запуск"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-nav-4.dark.png"><img src="docs/readme/badge-nav-4.light.png" alt="Запуск" width="71" height="26"></picture></a>
+  <a href="#результаты"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-nav-5.dark.png"><img src="docs/readme/badge-nav-5.light.png" alt="Результаты" width="100" height="26"></picture></a>
+  <a href="#структура"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/badge-nav-6.dark.png"><img src="docs/readme/badge-nav-6.light.png" alt="Структура" width="94" height="26"></picture></a>
+  <!-- /readme:nav -->
+</p>
+
+## Зачем
+
+В маркетплейсе Capibara из кейса RWB каждая подсистема росла отдельно: заказы, платежи, доставка
+и отзывы. Поэтому у двух аналитиков на один вопрос выходят две разные цифры. Datum собирает сырую
+выгрузку в модель `raw → core → mart` и закрепляет определения метрик: выручка, средний чек,
+доставка вовремя. Дашборд, чат и конструктор отвечают из одного каталога метрик, и рядом с каждой
+цифрой виден запрос, который её посчитал.
+
+## Как выглядит
+
+<p align="center">
+  <img src="docs/screenshots/overview.png" alt="Обзор: выручка, заказы, средний чек, доставка вовремя и динамика по месяцам" width="880" height="550">
+</p>
+
+<table>
+  <tr>
+    <td width="34%" rowspan="2" valign="top"><img src="docs/screenshots/chat.png" alt="Чат: ответ на вопрос о выручке по месяцам с графиком" width="280" height="607"></td>
+    <td width="66%" valign="top"><img src="docs/screenshots/delivery.png" alt="Вкладка «Доставка»: сроки, просрочка и оценка покупателя" width="560" height="350"></td>
+  </tr>
+  <tr>
+    <td valign="top"><img src="docs/screenshots/constructor.png" alt="Конструктор: виджеты, собранные по описанию словами" width="560" height="350"></td>
+  </tr>
+</table>
+
+- **Дашборд.** Вкладки «Обзор», «Продажи», «Доставка» и «Покупатели» с фильтрами по периоду и
+  штату. У каждой метрики есть пояснение, что именно посчитано.
+- **Чат.** Вопрос словами, ответ таблицей, графиком и блоком источников: SQL, параметры, ID заказов
+  и отзывов. Работает и голосом.
+- **Конструктор.** Виджет описывается словами, агент собирает его по `core` и `mart`, виджет
+  сохраняется в библиотеку и раскладывается на свои дашборды. Ответ из чата переносится туда одной
+  кнопкой.
+- **Телефон.** Панели идут друг под другом, графики перестраиваются под ширину экрана, чат
+  открывается на весь экран.
+
+## Как устроено
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{"primaryColor":"#ffffff","primaryTextColor":"#1d1d1b","primaryBorderColor":"#2348ff","secondaryColor":"#f1f1f3","tertiaryColor":"#ffffff","lineColor":"#686873","textColor":"#1d1d1b","noteBkgColor":"#f1f1f3","noteTextColor":"#3b3b41","actorBkg":"#ffffff","actorBorder":"#2348ff","fontFamily":"Inter"}}}%%
+flowchart LR
+  CSV["CSV Olist<br>8 файлов"] --> Raw[raw]
+  Raw -->|build_core.sql| Core[core]
+  Core -->|build_mart.sql| Mart[mart]
+  Catalog["Каталог метрик<br>29 определений"] --> API["FastAPI"]
+  Core --> API
+  Mart --> API
+  API --> Dash[Дашборд]
+  API -->|SSE| Chat[Чат]
+  Agent["Агент<br>6 инструментов"] --> API
+  Guard["SQL guard"] --> Agent
+  Vec[("ai: эмбеддинги отзывов")] --> Agent
+```
+
+- **Модель.** `raw` хранит выгрузку как есть, все колонки `text`. `core` задаёт типы, ключи и
+  связи. `mart` добавляет витрины исполнения заказа и отгрузок продавцов.
+- **Каталог метрик.** Определения и SQL лежат в [`backend/catalog/`](backend/catalog). Дашборд
+  и агент берут цифры оттуда, поэтому на один вопрос они отвечают одинаково.
+- **Агент.** OpenAI Agents SDK с инструментами `describe_dataset`, `query_metrics`, `get_order`,
+  `execute_sql`, `search_reviews` и `run_quality_checks`. Ответ приходит потоком по SSE.
+- **Защита SQL.** Свободный запрос агента проходит разбор AST в
+  [`backend/sql_guard.py`](backend/sql_guard.py): один `SELECT`, только `core` и `mart`, функции из
+  закрытого списка. Запрос выполняется от роли `agent_reader` в транзакции только для чтения, с
+  таймаутом 10 с и лимитом 500 строк.
+- **Отзывы.** Поиск по смыслу через pgvector в схеме `ai`. Отзывы считаются данными, а не
+  инструкциями, и показываются как примеры, а не как частота жалоб.
+- **Языковая модель.** По умолчанию чат идёт через локальный Codex CLI и адаптер
+  [`backend/codex_gateway.py`](backend/codex_gateway.py). Вместо него подходит любой
+  OpenAI-совместимый endpoint.
+
+## Запуск
+
+Нужны Docker с Compose, Python 3.12+, Node.js с npm и bash: macOS, Linux или WSL2.
 
 ```bash
+git clone https://github.com/GoatWhistle/rwb.git
+cd rwb
 bash scripts/bootstrap-demo.sh
 bash scripts/run-demo.sh
 ```
 
-Первый скрипт выполняется один раз: создаёт `.venv` и `.env`, поднимает PostgreSQL,
-скачивает данные, загружает `raw`, собирает `core`, выдаёт права агенту и ставит
-зависимости фронтенда. Первый запуск занимает несколько минут. Второй скрипт
-запускает три сервиса, после чего Datum открывается на http://127.0.0.1:5173.
+`bootstrap-demo.sh` выполняется один раз: создаёт `.venv` и `.env`, поднимает PostgreSQL, скачивает
+данные, загружает `raw`, собирает `core`, выдаёт права агенту и ставит зависимости фронтенда.
+`run-demo.sh` запускает сервисы.
 
-| Адрес | Сервис |
-| --- | --- |
-| http://127.0.0.1:5173 | фронтенд Datum |
-| http://127.0.0.1:8090/docs | API метрик, чата и конструктора; проверка: `/api/health` |
-| http://127.0.0.1:8091/health | адаптер Responses к локальному Codex |
+| Адрес | Что там |
+|---|---|
+| http://127.0.0.1:5173 | Datum |
+| http://127.0.0.1:8090/docs | API метрик, чата и конструктора |
+| http://127.0.0.1:8091/health | адаптер к локальному Codex |
 
-Чат по умолчанию работает через Codex CLI: перед запуском выполните `codex login`.
-Пошаговая инструкция — [docs/RUN_WITH_CODEX.md](docs/RUN_WITH_CODEX.md).
+Для чата через Codex выполните `codex login`, подробности в
+[docs/RUN_WITH_CODEX.md](docs/RUN_WITH_CODEX.md). Другой провайдер задаётся в `.env` через
+`LLM_BASE_URL`, `LLM_API_KEY` и `LLM_MODEL`. Поиск по отзывам требует `POLZA_API_KEY` и индексации
+`.venv/bin/python -m backend.reviews index`. Голосовой ввод ставится отдельно:
+`bash scripts/setup-voice.sh <каталог с моделью>`.
 
-Только фронтенд, без бэкенда и базы:
+Интерфейс без бэкенда и базы, на моках из `frontend/mocks/`:
 
 ```bash
 cd frontend
@@ -42,121 +155,59 @@ npm ci --silent
 npm run dev:mock
 ```
 
-Режим `dev:mock` отдаёт метрики, чат и конструктор из `frontend/mocks/`; цифры взяты
-из контрольных значений [docs/tasks.md](docs/tasks.md).
+Проверки: `.venv/bin/python -m pytest -q` и `npm --prefix frontend run verify`.
 
-Подключение к базе: `postgresql://hack:hack@localhost:5432/marketplace`
+## Данные и модель
 
-## С чего начать
+[Brazilian E-Commerce Public Dataset by Olist](https://github.com/olist/work-at-olist-data):
+550 759 строк в восьми файлах, заказы с сентября 2016 по октябрь 2018. Задание и описание полей —
+в [docs/handout.md](docs/handout.md), вопросы к модели — в [docs/tasks.md](docs/tasks.md).
 
-1. **Дашборд.** Вкладки «Обзор», «Продажи», «Доставка» и «Покупатели» с фильтрами по
-   периоду и штату. Определения метрик и их SQL лежат в `backend/catalog/`, у каждой
-   метрики есть пояснение, что именно посчитано.
-2. **Чат-ассистент.** Спросите «Покажи выручку по месяцам»: ответ придёт таблицей,
-   графиком и блоком источников с SQL, параметрами и ID заказов или отзывов. Свободный
-   SQL агента проходит проверку `backend/sql_guard.py`: один SELECT, только `core`
-   и `mart`, функции из закрытого списка. Контракт и проверяемые сценарии —
-   [docs/agent_api.md](docs/agent_api.md).
-3. **Конструктор.** Опишите виджет словами, агент соберёт его по `core`/`mart`, виджет
-   сохранится в библиотеку и раскладывается на собственные дашборды. Сохранить виджет
-   можно и из ответа чата кнопкой «В конструктор». Подробно —
-   [docs/constructor.md](docs/constructor.md).
-4. **Мобильная версия.** На узком экране панели дашборда идут друг под другом,
-   графики перестраиваются под ширину телефона, чат открывается на весь экран
-   кнопкой в углу.
+| Файл | Что делает |
+|---|---|
+| [`solution/build_core.sql`](solution/build_core.sql) | Собирает `core` из `raw`: типы, ключи, связи |
+| [`solution/build_mart.sql`](solution/build_mart.sql) | Витрины `mart.order_fulfillment` и `mart.seller_shipment` |
+| [`solution/answers_block_a.sql`](solution/answers_block_a.sql) | Ответы блока А с разбором |
+| [`solution/answers_block_b.sql`](solution/answers_block_b.sql) | Ответы блока Б |
+| [`solution/answers.md`](solution/answers.md) | Ответы блока Б и вброса с таблицами |
+| [`solution/dashboard.html`](solution/dashboard.html) | Статичный дашборд «Исполнение заказа» |
 
-Материалы кейса: [docs/handout.md](docs/handout.md) — задание и описание данных,
-[docs/tasks.md](docs/tasks.md) — вопросы к модели. Разбор данных и решений —
-[report.html](report.html).
+## Результаты
+
+Блок А сверяется с контрольными цифрами кейса файлом
+[`answers_block_a_check.sql`](solution/answers_block_a_check.sql):
+
+| Вопрос | Результат |
+|---|---|
+| А1. Выручка по месяцам | 24 месяца, ноябрь 2016 пустой, всего 13 221 498,11 R$ |
+| А2. Лучший продавец | 226 987,93 R$ |
+| А3. Средний чек | 159,88 R$, 1,14 позиции на заказ |
+| А4. Повторные покупки | 2 997 из 96 096 покупателей, 3,12 % |
+| А5. Категории | 74 категории, крупнейшая 1 233 131,72 R$ |
 
 ## Структура
 
-```
-.
-├── README.md                     этот файл
-├── docker-compose.yml            PostgreSQL 16 с pgvector, порт 5432
-├── pyproject.toml                зависимости бэкенда
-│
-├── backend/
-│   ├── app.py                    FastAPI: метрики, чат по SSE, конструктор
-│   ├── agent.py, tools.py        агент на OpenAI Agents SDK и его инструменты
-│   ├── sql_guard.py              проверка SQL агента по AST
-│   ├── catalog/                  определения и SQL метрик
-│   ├── widgets.py                виджеты и дашборды конструктора
-│   ├── reviews.py                поиск по отзывам через pgvector
-│   ├── speech.py                 голосовой ввод через GigaAM
-│   └── codex_gateway.py          адаптер Responses к локальному Codex
-│
-├── frontend/                     React-приложение: дашборд, чат, конструктор
-│   └── mocks/                    моки API для npm run dev:mock
-│
-├── solution/
-│   ├── build_core.sql            сборка core из raw
-│   ├── answers_block_a.sql       ответы на вопросы блока А
-│   └── dashboard.html            статичный дашборд «Исполнение заказа»
-│
-├── docs/
-│   ├── handout.md                задание и описание данных
-│   ├── tasks.md                  вопросы к модели
-│   ├── agent_api.md              API метрик и чата, события SSE
-│   ├── constructor.md            API и правила конструктора
-│   └── RUN_WITH_CODEX.md         запуск стенда с агентом через Codex
-│
-├── scripts/
-│   ├── bootstrap-demo.sh         подготовка всего стенда
-│   ├── run-demo.sh               запуск gateway, API и фронтенда
-│   ├── setup.sh                  только база и загрузка raw
-│   └── setup-voice.sh            установка модели GigaAM
-│
-├── tests/                        pytest: метрики, SQL guard, стриминг, виджеты
-├── brand/, design/               логотип и дизайн-система
-└── data/                         исходные CSV, 61 МБ (скачиваются скриптом)
+```text
+backend/     FastAPI: метрики, чат по SSE, конструктор, агент, SQL guard, поиск по отзывам, голос
+  catalog/   определения и SQL метрик
+frontend/    React: дашборд, чат и конструктор; mocks/ для режима без бэкенда
+solution/    сборка core и mart, ответы блоков А и Б, статичный дашборд
+scripts/     подготовка стенда, загрузка raw, запуск, установка голоса
+tests/       pytest: метрики, SQL guard, стриминг, инструменты, виджеты
+docs/        задание кейса, вопросы, API агента, конструктор, запуск с Codex
 ```
 
-## Схемы в базе
+## Ограничения
 
-- `raw` — исходные данные как есть, все колонки `text`.
-- `core` — модель: типы, ключи, связи. Собирается `solution/build_core.sql`.
-- `mart` — витрины поверх `core`, если понадобятся.
-- `ai` — эмбеддинги отзывов для поиска агента.
+- Чату нужна языковая модель. Без неё работает дашборд, а чат сообщает, что модель недоступна.
+- Поиск по отзывам требует ключа эмбеддингов и индексации. Остальные инструменты агента работают
+  без него.
+- Данные заканчиваются августом 2018: в сентябре и октябре в выгрузке только отмены, поэтому эти
+  месяцы исключены из показателей.
+- Скрипты рассчитаны на bash. На Windows нужен WSL2.
 
-Агент читает базу от роли `agent_reader` в транзакции только для чтения, с таймаутом
-10 с и лимитом 500 строк. Доступа к `raw` и записи у него нет.
-
-## Требования к окружению
-
-Docker с Compose, Python 3.12+, Node.js с npm и Codex CLI для чата. Команды выполняются
-в bash: macOS, Linux или WSL2. Если `python3` старый:
-`PYTHON_BIN=python3.12 bash scripts/bootstrap-demo.sh`.
-
-Вместо Codex можно подключить любой OpenAI-совместимый endpoint через `LLM_BASE_URL`,
-`LLM_API_KEY` и `LLM_MODEL` в `.env`. Для поиска по отзывам нужен `POLZA_API_KEY` и
-индексация `.venv/bin/python -m backend.reviews index`. Голосовой ввод ставится
-отдельно: `bash scripts/setup-voice.sh <каталог с моделью>`.
-
-Проверки:
-
-```bash
-.venv/bin/python -m pytest -q
-npm --prefix frontend run verify
-```
-
-## Если что-то не работает
-
-**Чат не отвечает.** Нет доступа к языковой модели. Проверьте `codex login status`
-и `curl http://127.0.0.1:8091/health`. Дашборд работает без LLM.
-
-**Поиск по отзывам сообщает, что индекс не готов.** Не задан `POLZA_API_KEY` или не
-завершена индексация. Остальные инструменты агента работают.
-
-**`run-demo.sh`: порт уже занят.** Скрипт проверяет 8090, 8091 и 5173 до старта;
-остановите предыдущий экземпляр приложения.
-
-**База остановлена после `Ctrl+C`.** `Ctrl+C` завершает только сервисы демо.
-Если база тоже остановлена: `docker compose up -d postgres`.
-
-**Порт 5432 занят.** Запустите на другом порту: `PG_PORT=5433 bash scripts/setup.sh`.
-
-**Схем raw, core и mart нет в базе.** Скрипты из `scripts/init` выполняются только при
-создании пустой базы. Лечится: `bash scripts/setup.sh --reset`. Он удаляет volume,
-для обычного обновления его не используйте.
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/readme/mark.dark.png"><img src="docs/readme/mark.light.png" alt="" width="32" height="32"></picture>
+  <br>
+  <sub>Team GoatWhistle, кейс RWB, 2026. Licensed under <a href="LICENSE">MIT</a>.</sub>
+</p>
