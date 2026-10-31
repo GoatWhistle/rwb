@@ -1,0 +1,7 @@
+#cover .cv-strata { right: 30px; top: 140px; width: 840px; height: 840px; }
+#cover .cv-brand { position: absolute; left: var(--gutter); top: 300px; color: var(--deck-fg); }
+#cover .cv-title { position: absolute; left: var(--gutter); top: 600px; width: 880px; font-size: 64px; font-weight: 700; line-height: 1.06; letter-spacing: -0.025em; color: var(--deck-fg); }
+#cover .cv-event { position: absolute; left: var(--gutter); bottom: 80px; font-size: 22px; font-weight: 700; color: var(--deck-fg-3); }
+
+#cover .cv-team { position: absolute; left: var(--gutter); top: 790px; display: flex; align-items: center; gap: 18px; font-size: 32px; font-weight: 700; }
+#cover .cv-team-mark { display: grid; place-items: center; height: 56px; padding: 0 18px; border-radius: 16px; background: var(--dz-grad-cover); color: var(--dz-on-brand); font-size: 24px; letter-spacing: 0.04em; }

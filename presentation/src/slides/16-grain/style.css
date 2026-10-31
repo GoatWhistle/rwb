@@ -1,0 +1,15 @@
+#grain .gr { display: grid; grid-template-columns: 900px 1fr; gap: 80px; align-items: center; }
+#grain .gr-viz { width: 900px; height: 560px; overflow: visible; }
+#grain .gr-order { fill: var(--deck-accent); }
+#grain .gr-item { fill: var(--dz-mist); stroke: var(--deck-line-strong); stroke-width: 2; }
+#grain .gr-bad { fill: var(--deck-danger); }
+#grain .gr-t { font-family: var(--font-sans); font-size: 26px; font-weight: 700; fill: var(--deck-fg-2); }
+#grain .gr-t.is-on { fill: var(--dz-on-brand); }
+#grain .gr-big { font-family: var(--font-sans); font-size: 88px; font-weight: 700; fill: var(--dz-on-brand); }
+#grain .gr-bars { position: relative; display: grid; gap: 44px; }
+#grain .gr-bar { display: grid; gap: 10px; }
+#grain .gr-bar b { font-size: 104px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+#grain .gr-lbl { font-size: 24px; font-weight: 700; color: var(--deck-fg-2); }
+#grain .gr-muted { color: var(--deck-fg-3); }
+#grain .dz-bar { height: 32px; }
+#grain .gr-c { right: 0; bottom: -120px; }

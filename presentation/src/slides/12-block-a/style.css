@@ -1,0 +1,8 @@
+#block-a .ba-total { position: absolute; left: 0; top: 0; display: grid; gap: 4px; }
+#block-a .ba-total b { font-size: 96px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; color: var(--deck-accent); }
+#block-a .ba-total span { font-size: 22px; color: var(--deck-fg-3); }
+#block-a .ba-chart { position: absolute; left: 0; top: 120px; width: 1680px; height: 430px; overflow: visible; }
+#block-a .ba-area { fill: url(#ba-grad); }
+#block-a .ba-kpis { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding-top: 24px; border-top: 2px solid var(--deck-line); }
+#block-a .ba-kpis .dz-stat b { font-size: 48px; }
+#block-a .ba-kpis small { font-size: 0.6em; color: var(--deck-accent); }

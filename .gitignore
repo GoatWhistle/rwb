@@ -12,3 +12,17 @@ __pycache__/
 # Локальные настройки редакторов
 .idea/
 .vscode/
+
+# Local agent runtime, credentials and generated artifacts
+.venv/
+.local/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+*.egg-info/
+data/*.part
+
+.playwright-mcp/
+.claude/worktrees/
+*.playwright.png

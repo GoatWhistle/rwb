@@ -1,0 +1,241 @@
+[
+  {
+    "id": "dashboard.kpi",
+    "title": "Основные показатели исполнения заказа",
+    "sql": "SELECT json_build_object(\n  'orders',          (SELECT count(*) FROM core.orders WHERE purchased_at < '2018-09-01'),\n  'delivered',       (SELECT count(*) FROM d),\n  'otd',             (SELECT round(avg(on_time::int), 4) FROM d),\n  'otd_naive',       (SELECT round(avg((delivered_at <= estimated_delivery_date)::int), 4) FROM d),\n  'on_promise_day',  (SELECT count(*) FROM d WHERE delivered_at::date = estimated_delivery_date),\n  'median_days',     (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_total)::numeric, 1) FROM d),\n  'p90_days',        (SELECT round(percentile_cont(.9) WITHIN GROUP (ORDER BY days_total)::numeric, 1) FROM d),\n  'median_promised', (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY estimated_delivery_date - purchased_at::date)::numeric, 1) FROM d),\n  'median_approve',  (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY extract(epoch FROM approved_at - purchased_at) / 86400)::numeric, 2) FROM d),\n  'median_seller',   (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_seller)::numeric, 1) FROM d),\n  'median_carrier',  (SELECT round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_carrier)::numeric, 1) FROM d),\n  'cancel_rate',     (SELECT round(avg((status IN ('canceled', 'unavailable'))::int), 4) FROM core.orders WHERE purchased_at < '2018-09-01'),\n  'stuck',           (SELECT count(*) FROM core.orders WHERE status = 'shipped'\n                        AND estimated_delivery_date < (SELECT max(purchased_at)::date FROM core.orders)),\n  'avg_score',       (SELECT round(avg(score), 2) FROM d JOIN lr USING (order_id)),\n  'seller_on_time',  (SELECT round(avg((shipped_at <= lim)::int), 4) FROM os),\n  'seller_pairs',    (SELECT count(*) FROM os),\n  'sellers_100plus', (SELECT count(*) FROM (SELECT seller_id FROM os GROUP BY 1 HAVING count(*) >= 100) z)\n)",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total,\n       CASE WHEN o.shipped_at >= o.approved_at\n            THEN extract(epoch FROM o.shipped_at - o.approved_at) / 86400 END AS days_seller,\n       CASE WHEN o.delivered_at >= o.shipped_at\n            THEN extract(epoch FROM o.delivered_at - o.shipped_at) / 86400 END AS days_carrier\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'",
+      "lr": "SELECT DISTINCT ON (order_id) order_id, score\nFROM core.order_reviews\nORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST",
+      "os": "SELECT i.order_id, i.seller_id, max(i.shipping_limit_at) AS lim, o.shipped_at\nFROM core.order_items i\nJOIN core.orders o USING (order_id)\nWHERE o.shipped_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'\n  AND i.order_id IN (SELECT order_id FROM core.order_items\n                     GROUP BY 1 HAVING count(DISTINCT seller_id) = 1)\nGROUP BY i.order_id, i.seller_id, o.shipped_at"
+    },
+    "grain": "сводка",
+    "units": "Доли: 0–1; сроки: дни; оценки: 1–5; количества: шт.",
+    "definitions": {
+      "orders": "Все статусы; оформление до 2018-09-01.",
+      "delivered": "Доставленные с датой вручения, оформление до 2018-09-01.",
+      "otd": "Доля доставленных вовремя: delivered_at::date <= estimated_delivery_date; NULL исключаются из среднего.",
+      "otd_naive": "Диагностическое сравнение timestamp с обещанной датой в полночь, занижает своевременность.",
+      "on_promise_day": "Вручены в обещанный календарный день.",
+      "median_days": "Медиана дней от оформления до вручения.",
+      "p90_days": "90-й перцентиль дней от оформления до вручения.",
+      "median_promised": "Медиана обещанного срока в календарных днях.",
+      "median_approve": "Медиана дней от оформления до подтверждения.",
+      "median_seller": "Медиана дней от подтверждения до передачи в доставку; отрицательные этапы исключены.",
+      "median_carrier": "Медиана дней от передачи в доставку до вручения; отрицательные этапы исключены.",
+      "cancel_rate": "Доля canceled + unavailable среди всех заказов до 2018-09-01.",
+      "stuck": "shipped с обещанной датой до максимальной даты оформления в выбранном срезе; исторический снимок.",
+      "avg_score": "Средняя последняя оценка: created_at DESC, answered_at DESC NULLS LAST (правило текущего дашборда).",
+      "seller_on_time": "Доля своевременных отгрузок: shipped_at <= max(shipping_limit_at); только однопродавцовые заказы.",
+      "seller_pairs": "Число пар заказ-продавец в однопродавцовых заказах с известной отгрузкой.",
+      "sellers_100plus": "Продавцы с не менее 100 однопродавцовыми отгрузками."
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Последний отзыв дашборда: created_at DESC, answered_at DESC NULLS LAST; отличается от review.md.",
+      "Только однопродавцовые заказы используются для своевременности отгрузки."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "solution/build_dashboard.py"
+  },
+  {
+    "id": "dashboard.checks",
+    "title": "Проверки качества данных",
+    "sql": "SELECT json_build_object(\n  'orders_with_items',       (SELECT count(DISTINCT order_id) FROM core.order_items),\n  'orders_without_items',    (SELECT count(*) FROM core.orders o\n                                WHERE NOT EXISTS (SELECT 1 FROM core.order_items i WHERE i.order_id = o.order_id)),\n  'multi_seller_orders',     (SELECT count(*) FROM (SELECT order_id FROM core.order_items\n                                GROUP BY 1 HAVING count(DISTINCT seller_id) > 1) x),\n  'order_seller_pairs',      (SELECT count(*) FROM (SELECT DISTINCT order_id, seller_id FROM core.order_items) x),\n  'multi_review_orders',     (SELECT count(*) FROM (SELECT order_id FROM core.order_reviews\n                                GROUP BY 1 HAVING count(*) > 1) x),\n  'diff_score_orders',       (SELECT count(*) FROM (SELECT order_id FROM core.order_reviews\n                                GROUP BY 1 HAVING count(DISTINCT score) > 1) x),\n  'no_review_orders',        (SELECT count(*) FROM core.orders o\n                                WHERE NOT EXISTS (SELECT 1 FROM core.order_reviews r WHERE r.order_id = o.order_id)),\n  'shipped_before_approved', (SELECT count(*) FROM core.orders WHERE shipped_at < approved_at),\n  'shipped_before_purchase', (SELECT count(*) FROM core.orders WHERE shipped_at < purchased_at),\n  'delivered_no_date',       (SELECT count(*) FROM core.orders WHERE status = 'delivered' AND delivered_at IS NULL),\n  'tail_orders',             (SELECT count(*) FROM core.orders WHERE purchased_at >= '2018-09-01'),\n  'tail_canceled',           (SELECT count(*) FROM core.orders WHERE purchased_at >= '2018-09-01' AND status = 'canceled'),\n  'review_before_delivery',  (SELECT count(*) FROM core.order_reviews r JOIN core.orders o USING (order_id)\n                                WHERE o.delivered_at IS NOT NULL AND r.created_at < o.delivered_at::date)\n)",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total,\n       CASE WHEN o.shipped_at >= o.approved_at\n            THEN extract(epoch FROM o.shipped_at - o.approved_at) / 86400 END AS days_seller,\n       CASE WHEN o.delivered_at >= o.shipped_at\n            THEN extract(epoch FROM o.delivered_at - o.shipped_at) / 86400 END AS days_carrier\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'",
+      "lr": "SELECT DISTINCT ON (order_id) order_id, score\nFROM core.order_reviews\nORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST",
+      "os": "SELECT i.order_id, i.seller_id, max(i.shipping_limit_at) AS lim, o.shipped_at\nFROM core.order_items i\nJOIN core.orders o USING (order_id)\nWHERE o.shipped_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'\n  AND i.order_id IN (SELECT order_id FROM core.order_items\n                     GROUP BY 1 HAVING count(DISTINCT seller_id) = 1)\nGROUP BY i.order_id, i.seller_id, o.shipped_at"
+    },
+    "grain": "сводка",
+    "units": "Доли: 0–1; сроки: дни; оценки: 1–5; количества: шт.",
+    "definitions": {
+      "report": "Проверки качества данных"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Последний отзыв дашборда: created_at DESC, answered_at DESC NULLS LAST; отличается от review.md.",
+      "Только однопродавцовые заказы используются для своевременности отгрузки."
+    ],
+    "default_end_date": null,
+    "source": "solution/build_dashboard.py"
+  },
+  {
+    "id": "dashboard.monthly",
+    "title": "Исполнение заказа по месяцам",
+    "sql": "SELECT json_agg(t ORDER BY month) FROM (\n  SELECT to_char(date_trunc('month', purchased_at), 'YYYY-MM') AS month,\n         count(*) AS delivered,\n         round(avg(on_time::int), 4) AS otd,\n         round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_total)::numeric, 1)   AS median_days,\n         round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_seller)::numeric, 1)  AS median_seller,\n         round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_carrier)::numeric, 1) AS median_carrier\n  FROM d WHERE purchased_at >= '2017-01-01' GROUP BY 1) t",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total,\n       CASE WHEN o.shipped_at >= o.approved_at\n            THEN extract(epoch FROM o.shipped_at - o.approved_at) / 86400 END AS days_seller,\n       CASE WHEN o.delivered_at >= o.shipped_at\n            THEN extract(epoch FROM o.delivered_at - o.shipped_at) / 86400 END AS days_carrier\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'",
+      "lr": "SELECT DISTINCT ON (order_id) order_id, score\nFROM core.order_reviews\nORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST",
+      "os": "SELECT i.order_id, i.seller_id, max(i.shipping_limit_at) AS lim, o.shipped_at\nFROM core.order_items i\nJOIN core.orders o USING (order_id)\nWHERE o.shipped_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'\n  AND i.order_id IN (SELECT order_id FROM core.order_items\n                     GROUP BY 1 HAVING count(DISTINCT seller_id) = 1)\nGROUP BY i.order_id, i.seller_id, o.shipped_at"
+    },
+    "grain": "месяц оформления",
+    "units": "Доли: 0–1; сроки: дни; оценки: 1–5; количества: шт.",
+    "definitions": {
+      "report": "Исполнение заказа по месяцам"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Последний отзыв дашборда: created_at DESC, answered_at DESC NULLS LAST; отличается от review.md.",
+      "Только однопродавцовые заказы используются для своевременности отгрузки."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "solution/build_dashboard.py"
+  },
+  {
+    "id": "dashboard.states",
+    "title": "Доставка по штатам",
+    "sql": "SELECT json_agg(t ORDER BY otd) FROM (\n  SELECT customer_state AS state,\n         count(*) AS delivered,\n         round(avg(on_time::int), 4) AS otd,\n         round(percentile_cont(.5) WITHIN GROUP (ORDER BY days_total)::numeric, 1) AS median_days,\n         round(percentile_cont(.5) WITHIN GROUP (ORDER BY estimated_delivery_date - purchased_at::date)::numeric, 1) AS median_promised\n  FROM d GROUP BY 1) t",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total,\n       CASE WHEN o.shipped_at >= o.approved_at\n            THEN extract(epoch FROM o.shipped_at - o.approved_at) / 86400 END AS days_seller,\n       CASE WHEN o.delivered_at >= o.shipped_at\n            THEN extract(epoch FROM o.delivered_at - o.shipped_at) / 86400 END AS days_carrier\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'",
+      "lr": "SELECT DISTINCT ON (order_id) order_id, score\nFROM core.order_reviews\nORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST",
+      "os": "SELECT i.order_id, i.seller_id, max(i.shipping_limit_at) AS lim, o.shipped_at\nFROM core.order_items i\nJOIN core.orders o USING (order_id)\nWHERE o.shipped_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'\n  AND i.order_id IN (SELECT order_id FROM core.order_items\n                     GROUP BY 1 HAVING count(DISTINCT seller_id) = 1)\nGROUP BY i.order_id, i.seller_id, o.shipped_at"
+    },
+    "grain": "исторический штат покупателя",
+    "units": "Доли: 0–1; сроки: дни; оценки: 1–5; количества: шт.",
+    "definitions": {
+      "report": "Доставка по штатам"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Последний отзыв дашборда: created_at DESC, answered_at DESC NULLS LAST; отличается от review.md.",
+      "Только однопродавцовые заказы используются для своевременности отгрузки."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "solution/build_dashboard.py"
+  },
+  {
+    "id": "dashboard.lateness",
+    "title": "Оценки по величине просрочки",
+    "sql": "SELECT json_agg(t ORDER BY ord) FROM (\n  SELECT ord,\n         (ARRAY['Вовремя', '1–3 дня', '4–7 дней', '8–14 дней', '15+ дней'])[ord] AS bucket,\n         count(*) AS reviews,\n         round(avg(score), 2) AS avg_score,\n         round(avg((score <= 2)::int), 4) AS neg_share\n  FROM (SELECT lr.score,\n               CASE WHEN delivered_at::date - estimated_delivery_date <= 0  THEN 1\n                    WHEN delivered_at::date - estimated_delivery_date <= 3  THEN 2\n                    WHEN delivered_at::date - estimated_delivery_date <= 7  THEN 3\n                    WHEN delivered_at::date - estimated_delivery_date <= 14 THEN 4\n                    ELSE 5 END AS ord\n        FROM d JOIN lr USING (order_id)) x\n  GROUP BY ord) t",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total,\n       CASE WHEN o.shipped_at >= o.approved_at\n            THEN extract(epoch FROM o.shipped_at - o.approved_at) / 86400 END AS days_seller,\n       CASE WHEN o.delivered_at >= o.shipped_at\n            THEN extract(epoch FROM o.delivered_at - o.shipped_at) / 86400 END AS days_carrier\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'",
+      "lr": "SELECT DISTINCT ON (order_id) order_id, score\nFROM core.order_reviews\nORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST",
+      "os": "SELECT i.order_id, i.seller_id, max(i.shipping_limit_at) AS lim, o.shipped_at\nFROM core.order_items i\nJOIN core.orders o USING (order_id)\nWHERE o.shipped_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'\n  AND i.order_id IN (SELECT order_id FROM core.order_items\n                     GROUP BY 1 HAVING count(DISTINCT seller_id) = 1)\nGROUP BY i.order_id, i.seller_id, o.shipped_at"
+    },
+    "grain": "интервал просрочки",
+    "units": "Доли: 0–1; сроки: дни; оценки: 1–5; количества: шт.",
+    "definitions": {
+      "report": "Оценки по величине просрочки"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Последний отзыв дашборда: created_at DESC, answered_at DESC NULLS LAST; отличается от review.md.",
+      "Только однопродавцовые заказы используются для своевременности отгрузки."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "solution/build_dashboard.py"
+  },
+  {
+    "id": "dashboard.sellers",
+    "title": "Продавцы с худшей своевременностью отгрузки",
+    "sql": "SELECT json_agg(t ORDER BY on_time, shipments DESC) FROM (\n  SELECT left(os.seller_id, 8) AS seller, s.state,\n         count(*) AS shipments,\n         round(avg((shipped_at <= lim)::int), 4) AS on_time\n  FROM os JOIN core.sellers s USING (seller_id)\n  GROUP BY os.seller_id, s.state\n  HAVING count(*) >= 100\n  ORDER BY avg((shipped_at <= lim)::int), count(*) DESC\n  LIMIT 15) t",
+    "dashboard_base": {
+      "d": "SELECT o.*,\n       (o.delivered_at::date <= o.estimated_delivery_date) AS on_time,\n       extract(epoch FROM o.delivered_at - o.purchased_at) / 86400 AS days_total,\n       CASE WHEN o.shipped_at >= o.approved_at\n            THEN extract(epoch FROM o.shipped_at - o.approved_at) / 86400 END AS days_seller,\n       CASE WHEN o.delivered_at >= o.shipped_at\n            THEN extract(epoch FROM o.delivered_at - o.shipped_at) / 86400 END AS days_carrier\nFROM core.orders o\nWHERE o.status = 'delivered'\n  AND o.delivered_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'",
+      "lr": "SELECT DISTINCT ON (order_id) order_id, score\nFROM core.order_reviews\nORDER BY order_id, created_at DESC, answered_at DESC NULLS LAST",
+      "os": "SELECT i.order_id, i.seller_id, max(i.shipping_limit_at) AS lim, o.shipped_at\nFROM core.order_items i\nJOIN core.orders o USING (order_id)\nWHERE o.shipped_at IS NOT NULL\n  AND o.purchased_at < '2018-09-01'\n  AND i.order_id IN (SELECT order_id FROM core.order_items\n                     GROUP BY 1 HAVING count(DISTINCT seller_id) = 1)\nGROUP BY i.order_id, i.seller_id, o.shipped_at"
+    },
+    "grain": "продавец",
+    "units": "Доли: 0–1; сроки: дни; оценки: 1–5; количества: шт.",
+    "definitions": {
+      "report": "Продавцы с худшей своевременностью отгрузки"
+    },
+    "limitations": [
+      "Исторический снимок Olist, не текущие заказы.",
+      "Для фильтра по категории/продавцу выбираются целые заказы, содержащие эти позиции.",
+      "Последний отзыв дашборда: created_at DESC, answered_at DESC NULLS LAST; отличается от review.md.",
+      "Только однопродавцовые заказы используются для своевременности отгрузки."
+    ],
+    "default_end_date": "2018-09-01",
+    "source": "solution/build_dashboard.py"
+  },
+  {
+    "id": "block_a.1",
+    "title": "Выручка и число заказов по месяцам",
+    "sql": "WITH months AS (\n    SELECT generate_series('2016-09-01'::date, '2018-08-01', interval '1 month')::date AS month\n),\nmonthly AS (\n    SELECT\n        date_trunc('month', o.purchased_at)::date AS month,\n        count(DISTINCT o.order_id)                AS orders_cnt,\n        coalesce(sum(i.price) FILTER (WHERE o.status = 'delivered'), 0) AS revenue\n    FROM core.orders o\n    LEFT JOIN core.order_items i USING (order_id)\n    GROUP BY 1\n)\nSELECT\n    m.month,\n    coalesce(t.orders_cnt, 0) AS orders_cnt,\n    coalesce(t.revenue, 0)    AS revenue\nFROM months m\nLEFT JOIN monthly t USING (month)\nORDER BY m.month",
+    "grain": "месяц",
+    "units": "Выручка/чек: BRL; доли: проценты 0–100; количества: шт.",
+    "definitions": {
+      "revenue": "sum(price) delivered, без доставки",
+      "avg_check": "Среднее sum(price + freight_value) по доставленному заказу",
+      "customers": "customer_unique_id; повторные покупки учитывают все статусы"
+    },
+    "limitations": [
+      "При фильтрах категории/продавца чек относится к целому заказу; выручка — к выбранным позициям."
+    ],
+    "default_end_date": null,
+    "source": "solution/answers_block_a.sql"
+  },
+  {
+    "id": "block_a.2",
+    "title": "Топ-10 продавцов по выручке",
+    "sql": "SELECT\n    s.seller_id,\n    s.city,\n    s.state,\n    count(DISTINCT i.order_id) AS orders_cnt,\n    count(*)                   AS units,\n    sum(i.price)               AS revenue\nFROM core.order_items i\nJOIN core.orders  o USING (order_id)\nJOIN core.sellers s USING (seller_id)\nWHERE o.status = 'delivered'\nGROUP BY s.seller_id, s.city, s.state\nORDER BY revenue DESC\nLIMIT 10",
+    "grain": "продавец",
+    "units": "Выручка/чек: BRL; доли: проценты 0–100; количества: шт.",
+    "definitions": {
+      "revenue": "sum(price) delivered, без доставки",
+      "avg_check": "Среднее sum(price + freight_value) по доставленному заказу",
+      "customers": "customer_unique_id; повторные покупки учитывают все статусы"
+    },
+    "limitations": [
+      "При фильтрах категории/продавца чек относится к целому заказу; выручка — к выбранным позициям."
+    ],
+    "default_end_date": null,
+    "source": "solution/answers_block_a.sql"
+  },
+  {
+    "id": "block_a.3",
+    "title": "Средний чек доставленного заказа",
+    "sql": "WITH per_order AS (\n    SELECT\n        i.order_id,\n        sum(i.price + i.freight_value) AS order_total,\n        count(*)                       AS lines,\n        count(*)                       AS units   \n    FROM core.order_items i\n    JOIN core.orders o USING (order_id)\n    WHERE o.status = 'delivered'\n    GROUP BY i.order_id\n)\nSELECT\n    round(avg(order_total), 2) AS avg_check,\n    round(avg(lines), 2)       AS avg_lines_per_order,\n    round(avg(units), 2)       AS avg_units_per_order\nFROM per_order",
+    "grain": "заказ",
+    "units": "Выручка/чек: BRL; доли: проценты 0–100; количества: шт.",
+    "definitions": {
+      "revenue": "sum(price) delivered, без доставки",
+      "avg_check": "Среднее sum(price + freight_value) по доставленному заказу",
+      "customers": "customer_unique_id; повторные покупки учитывают все статусы"
+    },
+    "limitations": [
+      "При фильтрах категории/продавца чек относится к целому заказу; выручка — к выбранным позициям."
+    ],
+    "default_end_date": null,
+    "source": "solution/answers_block_a.sql"
+  },
+  {
+    "id": "block_a.4",
+    "title": "Покупатели и повторные покупки",
+    "sql": "WITH per_customer AS (\n    SELECT customer_unique_id, count(*) AS orders_cnt\n    FROM core.orders\n    GROUP BY 1\n)\nSELECT\n    count(*)                                   AS customers_total,\n    count(*) FILTER (WHERE orders_cnt >= 2)    AS returned,\n    round(100.0 * count(*) FILTER (WHERE orders_cnt >= 2) / count(*), 2) AS returned_pct\nFROM per_customer",
+    "grain": "покупатель",
+    "units": "Выручка/чек: BRL; доли: проценты 0–100; количества: шт.",
+    "definitions": {
+      "revenue": "sum(price) delivered, без доставки",
+      "avg_check": "Среднее sum(price + freight_value) по доставленному заказу",
+      "customers": "customer_unique_id; повторные покупки учитывают все статусы"
+    },
+    "limitations": [
+      "При фильтрах категории/продавца чек относится к целому заказу; выручка — к выбранным позициям."
+    ],
+    "default_end_date": null,
+    "source": "solution/answers_block_a.sql"
+  },
+  {
+    "id": "block_a.5",
+    "title": "Выручка по категориям",
+    "sql": "SELECT\n    coalesce(p.category_name, '(без категории)') AS category,\n    sum(i.price)                                 AS revenue,\n    round(100 * sum(i.price) / sum(sum(i.price)) OVER (), 2) AS revenue_pct\nFROM core.order_items i\nJOIN core.orders   o USING (order_id)\nJOIN core.products p USING (product_id)\nWHERE o.status = 'delivered'\nGROUP BY 1\nORDER BY revenue DESC",
+    "grain": "категория",
+    "units": "Выручка/чек: BRL; доли: проценты 0–100; количества: шт.",
+    "definitions": {
+      "revenue": "sum(price) delivered, без доставки",
+      "avg_check": "Среднее sum(price + freight_value) по доставленному заказу",
+      "customers": "customer_unique_id; повторные покупки учитывают все статусы"
+    },
+    "limitations": [
+      "При фильтрах категории/продавца чек относится к целому заказу; выручка — к выбранным позициям."
+    ],
+    "default_end_date": null,
+    "source": "solution/answers_block_a.sql"
+  }
+]

@@ -1,6 +1,9 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: .
+      dockerfile: scripts/postgres.Dockerfile
+    image: marketplace-postgres-vector:16
     container_name: hack_postgres
     restart: unless-stopped
     environment:
@@ -48,3 +51,9 @@ services:
 
 volumes:
   pgdata:
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${MARKETPLACE_SUBNET:-10.201.254.0/24}

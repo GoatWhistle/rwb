@@ -1,0 +1,275 @@
+@media (max-width: 900px) {
+  .dashboard .mcb-trend .panel-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .dashboard .mcb-trend .segmented {
+    display: flex;
+    width: 100%;
+  }
+  .dashboard .mcb-trend .segmented button {
+    flex: 1 1 0;
+    min-height: 40px;
+  }
+
+  .dashboard .dash-card text.dcx-ytick,
+  .dashboard .dash-card text.dcx-xtick,
+  .dashboard .dash-card text.dtop-hlabel {
+    font-size: 12px;
+  }
+
+  .dashboard .dash-card .dcx-mark text {
+    font-size: 12px;
+  }
+  .dashboard .dcx-scale,
+  .dashboard .dcx-opc-list small {
+    font-size: 12px;
+  }
+  .dashboard .dcx-tile-grid {
+    gap: 3px;
+  }
+  .dashboard .dcx-tile b {
+    font-size: 13px;
+  }
+  .dashboard .dcx-tile span {
+    font-size: 12px;
+    letter-spacing: -0.01em;
+  }
+  .dashboard .fc-map-card .dcx-tile span {
+    width: min-content;
+    margin-inline: auto;
+    line-height: 1.05;
+  }
+
+  .dashboard .hg-geo {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-rows: repeat(var(--rows), auto) auto;
+    row-gap: 4px;
+    font-size: 14px;
+  }
+  .dashboard .hg-geo-grid {
+    display: none;
+  }
+  .dashboard .hg-geo-row {
+    grid-template-rows: auto auto;
+    row-gap: 6px;
+    min-height: 44px;
+    padding-block: 4px;
+  }
+  .dashboard .hg-geo-name {
+    grid-column: 1;
+    grid-row: 1;
+    justify-content: flex-start;
+  }
+  .dashboard .hg-geo-name small {
+    font-size: 12px;
+  }
+  .dashboard .hg-geo-value {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+  }
+  .dashboard .hg-geo-track {
+    position: relative;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 10px;
+    border-radius: 5px;
+    background: var(--viz-track);
+  }
+  .dashboard .hg-geo-fill {
+    height: 100%;
+    min-height: 0;
+    border-radius: 5px;
+  }
+  .dashboard .hg-geo-track::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: var(--target);
+    border-left: 1.5px dashed var(--viz-text-secondary);
+  }
+  .dashboard .hg-geo-axis {
+    grid-column: 1 / -1;
+    font-size: 12px;
+  }
+
+  .dashboard .dash-card .dcx-sellers table,
+  .dashboard .dcx-sellers tbody {
+    display: block;
+    min-width: 0;
+  }
+  .dashboard .dcx-sellers thead {
+    display: none;
+  }
+  .dashboard .dcx-sellers tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "seller ot"
+      "region ship";
+    gap: 4px 16px;
+    align-items: center;
+    padding-block: 12px;
+    border-bottom: 1px solid var(--viz-grid);
+  }
+  .dashboard .dcx-sellers tr:last-child {
+    border-bottom: 0;
+  }
+  .dashboard .dash-card.fdb-sellers .dcx-sellers tbody tr > td {
+    display: block;
+    width: auto;
+    max-width: none;
+    height: auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+  .dashboard .dcx-sellers .mcb-seller {
+    grid-area: seller;
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dashboard .dcx-sellers .mcb-seller small {
+    display: none;
+  }
+  .dashboard .dcx-sellers .mcb-region {
+    grid-area: region;
+    overflow: hidden;
+    font-size: 13px;
+    color: var(--viz-text-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dashboard .dcx-sellers td small {
+    font-size: 12px;
+  }
+  .dashboard .dcx-sellers .mcb-ship {
+    grid-area: ship;
+    font-size: 13px;
+    color: var(--viz-text-secondary);
+  }
+  .dashboard .dcx-sellers .mcb-ship::before {
+    content: attr(data-label) " ";
+  }
+  .dashboard .dcx-sellers .mcb-ot {
+    grid-area: ot;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .dashboard .dcx-sellers .mcb-ot .dcx-bullet {
+    width: 64px;
+  }
+  .dashboard .dcx-sellers td.mcb-ot strong {
+    min-width: 0;
+    margin-left: 0;
+    font-size: 15px;
+  }
+  .dashboard .dash-card.fdb-sellers .dcx-more {
+    width: 100%;
+    min-height: 44px;
+    margin-left: 0;
+  }
+
+  .dashboard .fc-states {
+    min-height: 0;
+    contain: none;
+  }
+  .dashboard .dash-card .fc-states > .viz-tip-host {
+    height: auto;
+    overflow: visible;
+  }
+  .dashboard .dash-card .fc-states table,
+  .dashboard .fc-states tbody {
+    display: block;
+    height: auto;
+    min-width: 0;
+  }
+  .dashboard .fc-states colgroup,
+  .dashboard .fc-states thead {
+    display: none;
+  }
+  .dashboard .fc-states tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8.5rem;
+    grid-template-areas:
+      "name repeat"
+      "count share";
+    gap: 6px 16px;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 10px;
+    border-bottom: 1px solid var(--viz-grid);
+  }
+  .dashboard .dash-card .fc-states tbody tr > td {
+    display: block;
+    width: auto;
+    max-width: none;
+    height: auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+  .dashboard .fc-states .mcb-st-name {
+    grid-area: name;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .dashboard .fc-states .fc-rest .mcb-st-name {
+    font-weight: 500;
+  }
+  .dashboard .fc-states .mcb-st-count {
+    grid-area: count;
+    font-size: 14px;
+  }
+  .dashboard .fc-states .mcb-st-count .fc-count {
+    grid-template-columns: minmax(0, 1fr) 4.5em;
+    justify-items: end;
+  }
+  .dashboard .fc-states .mcb-st-count .fc-bar {
+    justify-self: stretch;
+  }
+  .dashboard .fc-states tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dashboard .fc-states .mcb-st-share {
+    grid-area: share;
+    font-size: 14px;
+  }
+  .dashboard .fc-states .mcb-st-repeat {
+    grid-area: repeat;
+    font-size: 13px;
+    color: var(--viz-text-secondary);
+  }
+  .dashboard .fc-states .mcb-st-share::before,
+  .dashboard .fc-states .mcb-st-repeat::before {
+    content: attr(data-label) " ";
+    font-size: 12px;
+    color: var(--viz-text-secondary);
+  }
+
+  .dashboard .customers-grid .barlist-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2px;
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .dashboard .customers-grid .barlist-name {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .dashboard .customers-grid .barlist-name small,
+  .dashboard .customers-grid .barlist-value {
+    font-size: 12px;
+  }
+  .dashboard .customers-grid .barlist-track {
+    height: 22px;
+  }
+}

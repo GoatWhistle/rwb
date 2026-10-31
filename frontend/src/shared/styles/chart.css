@@ -1,0 +1,232 @@
+.chart-wrap {
+  position: relative;
+  padding: 0 0 8px;
+  min-width: 0;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font:
+    400 12px / 16px Inter,
+    sans-serif;
+  color: var(--viz-text);
+}
+.chart-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-swatch {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--swatch, var(--viz-1));
+}
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+  min-height: 0;
+}
+.chart-grid {
+  stroke: var(--viz-grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.chart-axis {
+  stroke: var(--viz-axis);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.chart-label {
+  font-size: 11px;
+  fill: var(--viz-text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-family: Inter, sans-serif;
+}
+.chart-value {
+  font:
+    500 11px Inter,
+    sans-serif;
+  fill: var(--viz-text);
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.chart-area {
+  fill: var(--viz-1);
+  opacity: 0.08;
+}
+.chart-gap {
+  fill: var(--viz-track);
+}
+.chart-gap-label {
+  font-size: 11px;
+  fill: var(--viz-text-secondary);
+  font-family: Inter, sans-serif;
+}
+.chart-line {
+  fill: none;
+  stroke: var(--viz-1);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.chart-prior {
+  fill: none;
+  stroke: var(--viz-2);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  stroke-linejoin: round;
+}
+.chart-bar {
+  fill: var(--viz-1);
+}
+.chart-guide {
+  stroke: var(--viz-axis);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.chart-point {
+  fill: var(--viz-1);
+  stroke: white;
+  stroke-width: 2;
+}
+.chart-point.prior {
+  fill: var(--viz-2);
+}
+.chart-tooltip {
+  position: absolute;
+  top: 28px;
+  left: 48%;
+  pointer-events: none;
+  min-width: 168px;
+  padding: 8px 12px;
+  background: white;
+  color: var(--viz-text);
+  border-radius: 6px;
+  display: grid;
+  gap: 4px;
+  box-shadow: var(--viz-tooltip-shadow);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  z-index: 2;
+}
+.chart-tooltip-head {
+  color: var(--viz-text-secondary);
+}
+.chart-tooltip-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.chart-tooltip-row strong {
+  font-weight: 600;
+  text-align: right;
+}
+.chart-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: chart-draw 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes chart-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+.chart-area {
+  animation: chart-fade 600ms 300ms ease-out both;
+}
+@keyframes chart-fade {
+  from {
+    opacity: 0;
+  }
+}
+.chart-bar {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: chart-grow 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: opacity 160ms ease-out;
+}
+.chart-svg:has(.chart-bar.active) .chart-bar:not(.active) {
+  opacity: 0.5;
+}
+@keyframes chart-grow {
+  from {
+    transform: scaleY(0.02);
+  }
+}
+.chart-point {
+  animation: chart-fade 160ms ease-out both;
+}
+.chart-target line {
+  stroke: var(--viz-text-secondary);
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+  shape-rendering: crispEdges;
+}
+.chart-target text {
+  font:
+    500 11px Inter,
+    sans-serif;
+  fill: var(--viz-text-secondary);
+  paint-order: stroke;
+  stroke: white;
+  stroke-width: 3px;
+}
+.chart-tooltip {
+  animation: chart-tip 160ms ease-out both;
+}
+@keyframes chart-tip {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-line,
+  .chart-area,
+  .chart-bar,
+  .chart-point,
+  .chart-tooltip {
+    animation: none;
+  }
+}
+.chart-hit {
+  cursor: crosshair;
+}
+.chart-hit:focus,
+.chart-hit:focus-visible {
+  outline: none;
+}
+.chart-hit {
+  cursor: default;
+}
+.chart-tooltip-row > span:not(.chart-swatch) {
+  min-width: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chart-tooltip-row > strong {
+  margin-left: 12px;
+}
+.chart-label-inline {
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}

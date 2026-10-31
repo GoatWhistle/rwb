@@ -1,0 +1,34 @@
+.dashboard .pc-cat-fill {
+  flex: 1 1 0;
+  contain: size;
+  position: relative;
+}
+.dashboard .pc-cat-fill.is-grown {
+  flex: 0 0 auto;
+  contain: none;
+}
+.dashboard .pc-cat-fill .os-barlist {
+  gap: var(--pc-gap, 4px);
+}
+.dashboard .pc-cat .os-more {
+  flex: none;
+}
+.dashboard .pc-pay-plot {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+.dashboard .pc-pay-plot .vx-stack {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+}
+.dashboard .pc-pay .vx-legend {
+  flex: none;
+}
+.dashboard .dg > .row-open + *,
+.dashboard .dg > *:has(+ .row-open) {
+  align-self: start;
+  height: var(--frozen-h);
+}

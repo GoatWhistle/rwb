@@ -1,0 +1,89 @@
+.viz-tip-host {
+  position: relative;
+  min-width: 0;
+}
+.chart-tooltip.tip-float {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  max-width: min(320px, calc(100vw - 16px));
+}
+.chart-tooltip.viz-tip {
+  min-width: 150px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 16px;
+  z-index: 5;
+  animation: viz-tip-in 120ms ease-out both;
+}
+.viz-tip .chart-tooltip-head {
+  font-weight: 600;
+  color: var(--viz-text);
+}
+.viz-tip .viz-tip-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.viz-tip-host [data-tip-head] {
+  transition:
+    transform 0.12s ease-out,
+    box-shadow 0.12s ease-out,
+    filter 0.12s ease-out;
+}
+.viz-tip-host .viz-tip-on:not(rect, g, .vx-heat-cell, .vx-tile, .dcx-tile) {
+  background-color: #f3f5ff;
+  border-radius: 8px;
+}
+.viz-tip-host :is(.vx-heat-cell, .vx-tile, .dcx-tile).viz-tip-on {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px var(--viz-1),
+    0 4px 10px rgb(20 20 40 / 0.12);
+}
+.viz-tip-host rect.viz-tip-on,
+.viz-tip-host g.viz-tip-on rect {
+  filter: brightness(1.12);
+  opacity: 1;
+}
+@keyframes viz-tip-in {
+  from {
+    opacity: 0;
+    translate: 0 3px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-tooltip.viz-tip,
+  .viz-tip-host [data-tip-head] {
+    animation: none;
+    transition: none;
+  }
+}
+.viz-tip-host .vx-stack-col.viz-tip-on,
+.viz-tip-host .fs-inst-col.viz-tip-on {
+  box-shadow: none;
+  transform: none;
+}
+.viz-tip-host .vx-stack-bar,
+.viz-tip-host .fs-inst-track span {
+  transition: opacity 0.12s ease-out;
+}
+.viz-tip-host:has(.viz-tip-on) .vx-stack-col:not(.viz-tip-on) .vx-stack-bar,
+.viz-tip-host:has(.viz-tip-on) .fs-inst-col:not(.viz-tip-on) .fs-inst-track span {
+  opacity: 0.4;
+}
+.viz-tip-host tr.viz-tip-on {
+  background-color: transparent;
+}
+.viz-tip-host tr.viz-tip-on > td {
+  background: #f3f5ff;
+}

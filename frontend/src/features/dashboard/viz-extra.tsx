@@ -1,0 +1,690 @@
+import type { CSSProperties, RefObject } from "react"
+import { useId, useLayoutEffect, useRef, useState } from "react"
+import type { Row } from "@/shared/format"
+import { compact, money, month, number, numeric, percent } from "@/shared/format"
+import { ru } from "@/shared/i18n/ru"
+import { EmptyState } from "@/shared/ui/controls"
+import { tipAttrs, VizTip } from "@/shared/ui/viz-tip"
+import type { CardQuery } from "./card"
+import { Card, CardTools } from "./card"
+import { stateName } from "./states"
+import "@/shared/styles/viz-extra-os.css"
+import "@/shared/styles/fill-pay-cat.css"
+import "@/shared/styles/fill-heat-geo.css"
+import "@/shared/styles/fill-overview-top.css"
+import "@/shared/styles/fill-sales.css"
+import "@/shared/styles/mobile-charts-a.css"
+
+const DAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+const ordersWord = (n: number) => {
+  const a = Math.abs(Math.round(n)) % 100
+  const b = a % 10
+  if (a > 10 && a < 20) return "заказов"
+  if (b === 1) return "заказ"
+  if (b >= 2 && b <= 4) return "заказа"
+  return "заказов"
+}
+const HOURS = Array.from({ length: 24 }, (_, h) => h)
+const shade = (t: number) =>
+  `color-mix(in srgb, var(--viz-gradient-100) ${Math.round(8 + t * 92)}%, var(--viz-gradient-0))`
+
+export function Heatmap({
+  rows,
+  query,
+  index,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+}) {
+  const cell = new Map(rows.map((r) => [`${String(r.dow)}-${String(r.hour)}`, r]))
+  const max = Math.max(1, ...rows.map((r) => numeric(r.orders) ?? 0))
+  const peak = rows.reduce<Row | null>(
+    (best, r) => ((numeric(r.orders) ?? 0) > (numeric(best?.orders) ?? -1) ? r : best),
+    null,
+  )
+  const info = peak
+  return (
+    <Card
+      title="Когда покупают"
+      accent="покупают"
+      description="Заказы по дню недели и часу оформления"
+      hint={ru.osHints.heatmap}
+      query={query}
+      index={index}
+      actions={<CardTools rows={rows} filename="heatmap.csv" png={false} />}
+    >
+      <VizTip className="hg-heat-host">
+        <div className="vx-heat hg-heat">
+          <span />
+          {HOURS.map((h) => (
+            <span key={h} className="vx-heat-hour">
+              {h % 3 === 0 ? h : ""}
+            </span>
+          ))}
+          {DAYS.map((day, d) => (
+            <div key={day} className="vx-heat-row">
+              <span className="vx-heat-day">{day}</span>
+              {HOURS.map((h) => {
+                const r = cell.get(`${d + 1}-${h}`)
+                const n = numeric(r?.orders) ?? 0
+                return (
+                  <span
+                    key={h}
+                    className="vx-heat-cell"
+                    style={{ background: shade(n / max) }}
+                    {...tipAttrs(`${day}, ${h}:00`, [
+                      { label: "Заказов", value: number(n), color: shade(n / max) },
+                      { label: "Выручка", value: money(numeric(r?.revenue) ?? 0) },
+                    ])}
+                  />
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      </VizTip>
+      {info && (
+        <p className="vx-caption vx-peak">
+          <span>Пик</span>
+          <b>
+            {DAYS[(numeric(info.dow) ?? 1) - 1]}, {String(info.hour)}:00
+          </b>
+          <em>
+            {number(numeric(info.orders) ?? 0)} {ordersWord(numeric(info.orders) ?? 0)}
+          </em>
+          <em>{money(numeric(info.revenue) ?? 0)}</em>
+        </p>
+      )}
+    </Card>
+  )
+}
+
+function useBox<T extends HTMLElement>(): [(el: T | null) => void, { w: number; h: number }] {
+  const [el, setEl] = useState<T | null>(null)
+  const [box, setBox] = useState({ w: 0, h: 0 })
+  useLayoutEffect(() => {
+    if (!el || typeof ResizeObserver === "undefined") return
+    const measure = () => {
+      const w = Math.floor(el.clientWidth)
+      const h = Math.floor(el.clientHeight)
+      setBox((b) => (b.w === w && b.h === h ? b : { w, h }))
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [el])
+  return [setEl, box]
+}
+
+const TILE_GAP = 3
+const TILE_COLS = 7
+const TILE_ROWS = 8
+
+function tileGridSize({ w, h }: { w: number; h: number }): CSSProperties | undefined {
+  if (!w || !h) return undefined
+  const tileH = (h - (TILE_ROWS - 1) * TILE_GAP) / TILE_ROWS
+  const tileW = Math.min((w - (TILE_COLS - 1) * TILE_GAP) / TILE_COLS, tileH * 1.7)
+  return {
+    width: Math.floor(tileW * TILE_COLS + (TILE_COLS - 1) * TILE_GAP),
+    "--tile-h": `${Math.floor(tileH)}px`,
+  } as CSSProperties
+}
+
+const TILES: [string, number, number][] = [
+  ["RR", 0, 2],
+  ["AP", 0, 4],
+  ["AM", 1, 1],
+  ["PA", 1, 3],
+  ["MA", 1, 4],
+  ["CE", 1, 5],
+  ["RN", 1, 6],
+  ["AC", 2, 0],
+  ["RO", 2, 1],
+  ["TO", 2, 3],
+  ["PI", 2, 4],
+  ["PE", 2, 5],
+  ["PB", 2, 6],
+  ["MT", 3, 2],
+  ["GO", 3, 3],
+  ["BA", 3, 4],
+  ["SE", 3, 5],
+  ["AL", 3, 6],
+  ["MS", 4, 2],
+  ["DF", 4, 3],
+  ["MG", 4, 4],
+  ["ES", 4, 5],
+  ["PR", 5, 2],
+  ["SP", 5, 3],
+  ["RJ", 5, 4],
+  ["SC", 6, 2],
+  ["RS", 7, 2],
+]
+
+export function TileMap({
+  rows,
+  query,
+  index,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+}) {
+  const byState = new Map(rows.map((r) => [String(r.state), numeric(r.revenue) ?? 0]))
+  const max = Math.max(1, ...byState.values())
+  const total = [...byState.values()].reduce((a, b) => a + b, 0)
+  const [fitRef, box] = useBox<HTMLDivElement>()
+  return (
+    <Card
+      title="Выручка по штатам"
+      accent="штатам"
+      description="Карта Бразилии: интенсивность — доля выручки"
+      hint={ru.osHints.tileMap}
+      query={query}
+      index={index}
+      actions={<CardTools rows={rows} filename="states-revenue.csv" png={false} />}
+    >
+      <VizTip className="ovt-map">
+        <div ref={fitRef} className="ovt-map-fit">
+          <div
+            className="vx-tiles ovt-tiles"
+            role="img"
+            aria-label="Выручка по штатам Бразилии"
+            style={tileGridSize(box)}
+          >
+            {TILES.map(([code, row, col]) => {
+              const v = byState.get(code)
+              const t = v === undefined ? 0 : Math.sqrt(v / max)
+              return (
+                <span
+                  key={code}
+                  className={`vx-tile${t > 0.55 ? " dark" : ""}${v === undefined ? " empty" : ""}`}
+                  style={{
+                    gridRow: row + 1,
+                    gridColumn: col + 1,
+                    background: shade(t),
+                  }}
+                  {...tipAttrs(`${stateName(code)}, ${code}`, [
+                    { label: "Выручка", value: money(v ?? 0), color: shade(t) },
+                    { label: "Доля", value: percent(total ? (v ?? 0) / total : 0) },
+                  ])}
+                >
+                  <b>{code}</b>
+                  <small>{v === undefined ? "—" : compact(v)}</small>
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      </VizTip>
+      <div className="vx-scale ovt-scale">
+        <span>0</span>
+        <i />
+        <span>{compact(max)} R$</span>
+      </div>
+    </Card>
+  )
+}
+
+const PAY_KEYS = ["credit_card", "boleto", "voucher", "debit_card"] as const
+const PAY_LABEL: Record<string, string> = {
+  credit_card: "Карта",
+  boleto: "Boleto",
+  voucher: "Ваучер",
+  debit_card: "Дебет",
+}
+
+export function PaymentsMix({
+  rows,
+  query,
+  index,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+}) {
+  const totals = rows.map((r) => PAY_KEYS.reduce((s, k) => s + (numeric(r[k]) ?? 0), 0))
+  const max = Math.max(1, ...totals)
+  const sums = PAY_KEYS.map((k) => rows.reduce((s, r) => s + (numeric(r[k]) ?? 0), 0))
+  const all = sums.reduce((a, b) => a + b, 0)
+  return (
+    <Card
+      title="Как платят"
+      accent="платят"
+      description="Платежи по типу оплаты и месяцу, R$"
+      hint={ru.osHints.payments}
+      query={query}
+      index={index}
+      className="pc-pay"
+      actions={<CardTools rows={rows} filename="payments-monthly.csv" png={false} />}
+    >
+      <ul className="vx-legend">
+        {PAY_KEYS.map((k, i) => (
+          <li key={k}>
+            <i className={`vx-c${i}`} />
+            {PAY_LABEL[k]} <b>{percent(all ? (sums[i] ?? 0) / all : 0)}</b>
+          </li>
+        ))}
+      </ul>
+      <VizTip className="pc-pay-plot">
+        <div className="vx-stack">
+          {rows.map((r, i) => (
+            <div
+              key={String(r.month)}
+              className="vx-stack-col"
+              {...tipAttrs(month(r.month, true), [
+                ...PAY_KEYS.map((k, j) => ({
+                  label: PAY_LABEL[k] ?? k,
+                  value: money(numeric(r[k]) ?? 0),
+                  swatch: `vx-c${j}`,
+                })),
+                { label: "Итого", value: money(totals[i] ?? 0) },
+              ])}
+            >
+              <div
+                className="vx-stack-bar"
+                style={{ height: `${((totals[i] ?? 0) / max) * 100}%` }}
+              >
+                {PAY_KEYS.map((k, j) => (
+                  <span key={k} className={`vx-c${j}`} style={{ flexGrow: numeric(r[k]) ?? 0 }} />
+                ))}
+              </div>
+              <small>
+                {String(r.month).slice(5, 7) === "01" || i === 0 ? String(r.month).slice(0, 4) : ""}
+              </small>
+            </div>
+          ))}
+        </div>
+      </VizTip>
+    </Card>
+  )
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  delivered: "Доставлен",
+  shipped: "В пути",
+  canceled: "Отменён",
+  unavailable: "Недоступен",
+  invoiced: "Счёт выставлен",
+  processing: "В обработке",
+  created: "Создан",
+  approved: "Одобрен",
+  other: "Прочие",
+}
+
+const DONUT_C = 2 * Math.PI * 78
+
+function groupStatuses(rows: Row[], total: number): Row[] {
+  const big = rows.filter((r) => total > 0 && (numeric(r.orders) ?? 0) / total >= 0.005)
+  const rest = rows.filter((r) => !big.includes(r))
+  if (rest.length === 0) return big
+  const orders = rest.reduce((sum, r) => sum + (numeric(r.orders) ?? 0), 0)
+  return [...big, { status: "other", orders }]
+}
+
+function donutSegments(rows: Row[], total: number) {
+  let offset = 0
+  return rows.map((r) => {
+    const value = numeric(r.orders) ?? 0
+    const share = total ? value / total : 0
+    const length = Math.max(share * DONUT_C - 1.5, share > 0 ? 1.2 : 0)
+    const seg = {
+      key: String(r.status),
+      label: STATUS_LABEL[String(r.status)] ?? String(r.status),
+      value,
+      share,
+      length,
+      offset,
+    }
+    offset += share * DONUT_C
+    return seg
+  })
+}
+
+const LEGEND_SIDE = 250
+const DONUT_GAP = 28
+
+function donutLayout({ w, h }: { w: number; h: number }, items: number) {
+  if (!w || !h) return { side: true, size: 200 }
+  const sideSize = Math.min(h, w - LEGEND_SIDE - DONUT_GAP)
+  const legendH = Math.ceil(items / 2) * 30
+  const stackSize = Math.min(w, h - legendH - 16)
+  return sideSize >= stackSize
+    ? { side: true, size: Math.max(120, Math.floor(sideSize)) }
+    : { side: false, size: Math.max(120, Math.floor(stackSize)) }
+}
+
+const ringWidth = (size: number) => Math.min(26, (34 * 200) / size).toFixed(1)
+
+export function StatusBar({
+  rows,
+  query,
+  index,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+}) {
+  const total = rows.reduce((s, r) => s + (numeric(r.orders) ?? 0), 0)
+  const grouped = groupStatuses(rows, total)
+  const delivered = numeric(rows.find((r) => r.status === "delivered")?.orders) ?? 0
+  const [fitRef, box] = useBox<HTMLDivElement>()
+  const layout = donutLayout(box, grouped.length)
+  return (
+    <Card
+      title="Статусы заказов"
+      accent="заказов"
+      description={`${number(total)} заказов за период`}
+      hint={ru.osHints.status}
+      query={query}
+      index={index}
+      actions={<CardTools rows={rows} filename="status-mix.csv" png={false} />}
+    >
+      <div ref={fitRef} className="ovt-donut-fit">
+        <div
+          className={`vx-donut-wrap ovt-donut-wrap ${layout.side ? "is-side" : "is-stack"}`}
+          style={
+            { "--donut": `${layout.size}px`, "--ring": ringWidth(layout.size) } as CSSProperties
+          }
+        >
+          <VizTip className="ovt-donut-box">
+            <svg className="vx-donut" viewBox="0 0 200 200" role="img" aria-label="Статусы заказов">
+              {donutSegments(grouped, total).map((seg, i) => (
+                <circle
+                  key={seg.key}
+                  className={`vx-donut-seg vx-s${Math.min(i, 5)}`}
+                  cx="100"
+                  cy="100"
+                  r="78"
+                  strokeDasharray={`${seg.length} ${DONUT_C - seg.length}`}
+                  strokeDashoffset={-seg.offset}
+                  style={{ "--i": i } as CSSProperties}
+                  {...tipAttrs(seg.label, [
+                    { label: "Заказов", value: number(seg.value), swatch: `vx-s${Math.min(i, 5)}` },
+                    { label: "Доля", value: percent(seg.share, 1) },
+                  ])}
+                />
+              ))}
+            </svg>
+            <div className="ovt-donut-center" aria-hidden="true">
+              <b>{percent(total ? delivered / total : 0, 0)}</b>
+              <span>доставлено</span>
+            </div>
+          </VizTip>
+          <ul className="vx-donut-legend ovt-donut-legend">
+            {grouped.map((r, i) => (
+              <li key={String(r.status)}>
+                <i className={`vx-s${Math.min(i, 5)}`} />
+                <span>{STATUS_LABEL[String(r.status)] ?? String(r.status)}</span>
+                <b>{percent(total ? (numeric(r.orders) ?? 0) / total : 0, 1)}</b>
+                <small>{number(numeric(r.orders) ?? 0)}</small>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+const paymentsWord = (n: number) => {
+  const a = Math.abs(Math.round(n)) % 100
+  const b = a % 10
+  if (a > 10 && a < 20) return "платежей"
+  if (b === 1) return "платёж"
+  if (b >= 2 && b <= 4) return "платежа"
+  return "платежей"
+}
+
+const fraction = (n: number) => n.toLocaleString("ru-RU", { maximumFractionDigits: 1 })
+
+export function Installments({
+  rows,
+  query,
+  index,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+}) {
+  const counts = rows.map((r) => numeric(r.orders) ?? 0)
+  const max = Math.max(1, ...counts)
+  const total = counts.reduce((s, n) => s + n, 0)
+  const single = numeric(rows.find((r) => Number(r.installments) === 1)?.orders) ?? 0
+  const weighted = rows.reduce(
+    (s, r) => s + Math.min(10, Number(r.installments) || 0) * (numeric(r.orders) ?? 0),
+    0,
+  )
+  const mean = total ? weighted / total : 0
+  return (
+    <Card
+      title="Рассрочка по картам"
+      accent="Рассрочка"
+      description="Доля заказов по числу платежей"
+      hint={ru.osHints.installments}
+      query={query}
+      index={index}
+      actions={<CardTools rows={rows} filename="installments.csv" png={false} />}
+    >
+      <VizTip className="fs-grow">
+        <div className="fs-inst">
+          {rows.map((r, i) => {
+            const n = counts[i] ?? 0
+            const many = Number(r.installments) >= 10
+            const label = many ? "10+" : String(r.installments)
+            const head = many ? "10 платежей и более" : `${label} ${paymentsWord(Number(label))}`
+            return (
+              <div
+                key={String(r.installments)}
+                className="fs-inst-col"
+                {...tipAttrs(head, [
+                  { label: "Заказов", value: number(n), color: "var(--viz-1)" },
+                  { label: "Доля", value: percent(total ? n / total : 0, 1) },
+                ])}
+              >
+                <div className="fs-inst-track">
+                  <span style={{ height: `${(n / max) * 100}%` }}>
+                    <em>{percent(total ? n / total : 0, 0)}</em>
+                  </span>
+                </div>
+                <small>{label}</small>
+              </div>
+            )
+          })}
+        </div>
+      </VizTip>
+      <p className="fs-caption">
+        <em>
+          в рассрочку <b>{percent(total ? 1 - single / total : 0, 0)}</b>
+        </em>
+        <em>
+          в среднем <b>{fraction(mean)}</b> {paymentsWord(mean % 1 === 0 ? mean : 2)}
+        </em>
+      </p>
+    </Card>
+  )
+}
+
+function useRefBox(ref: RefObject<HTMLDivElement | null>) {
+  const [box, setBox] = useState({ w: 480, h: 220 })
+  useLayoutEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return
+      setBox({
+        w: Math.max(240, Math.round(entry.contentRect.width)),
+        h: Math.max(140, Math.round(entry.contentRect.height)),
+      })
+    })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [ref])
+  return box
+}
+
+function niceScale(values: number[]) {
+  const lo = Math.min(...values)
+  const hi = Math.max(...values)
+  const span = Math.max(hi - lo, Math.abs(hi) * 0.05, 1)
+  const raw = span / 3
+  const mag = 10 ** Math.floor(Math.log10(raw))
+  const step = ([1, 2, 2.5, 5, 10].find((m) => m * mag >= raw) ?? 10) * mag
+  const min = Math.max(0, Math.floor((lo - span * 0.25) / step) * step)
+  const max = Math.ceil((hi + span * 0.25) / step) * step
+  const ticks: number[] = []
+  for (let t = min; t <= max + step / 2; t += step) ticks.push(t)
+  return { min, max, ticks }
+}
+
+interface AvgPoint {
+  month: string
+  value: number
+  orders: number | null
+}
+
+const PAD = { left: 40, right: 8, top: 10, bottom: 26 }
+
+function extremes(points: AvgPoint[]) {
+  if (points.length < 2) return []
+  let lo = 0
+  let hi = 0
+  points.forEach((p, i) => {
+    if (p.value < (points[lo]?.value ?? p.value)) lo = i
+    if (p.value > (points[hi]?.value ?? p.value)) hi = i
+  })
+  return [
+    { i: hi, value: points[hi]?.value ?? 0, up: true },
+    { i: lo, value: points[lo]?.value ?? 0, up: false },
+  ]
+}
+
+function AvgLine({ points, mean }: { points: AvgPoint[]; mean: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const gradient = useId()
+  const { w, h } = useRefBox(ref)
+  const { min, max, ticks } = niceScale(points.map((p) => p.value))
+  const plotW = w - PAD.left - PAD.right
+  const plotH = h - PAD.top - PAD.bottom
+  const slot = plotW / Math.max(points.length, 1)
+  const px = (i: number) => PAD.left + slot * (i + 0.5)
+  const py = (v: number) => PAD.top + plotH - ((v - min) / (max - min || 1)) * plotH
+  const floor = PAD.top + plotH
+  const line = points.map((p, i) => `${i ? "L" : "M"}${px(i)},${py(p.value)}`).join("")
+  const area = `${line}L${px(points.length - 1)},${floor}L${px(0)},${floor}Z`
+  const every = Math.max(1, Math.ceil(points.length / Math.max(2, Math.floor(plotW / 84))))
+  return (
+    <div ref={ref} className="fs-avg">
+      <VizTip className="fs-avg-host">
+        <svg width={w} height={h} role="img" aria-label="Средний чек по месяцам">
+          <defs>
+            <linearGradient id={gradient} x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor="var(--viz-1)" stopOpacity="0.16" />
+              <stop offset="1" stopColor="var(--viz-1)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {ticks.map((t) => (
+            <g key={t}>
+              <line
+                x1={PAD.left}
+                x2={w - PAD.right}
+                y1={py(t)}
+                y2={py(t)}
+                className="fs-avg-grid"
+              />
+              <text x={PAD.left - 8} y={py(t) + 4} textAnchor="end" className="fs-avg-tick">
+                {number(t)}
+              </text>
+            </g>
+          ))}
+          <path d={area} fill={`url(#${gradient})`} />
+          <line
+            x1={PAD.left}
+            x2={w - PAD.right}
+            y1={py(mean)}
+            y2={py(mean)}
+            className="fs-avg-mean"
+          />
+          <path d={line} className="fs-avg-line" />
+          {extremes(points).map(({ i, value, up }) => (
+            <g key={`${i}-${up}`} className="fs-avg-mark">
+              <circle cx={px(i)} cy={py(value)} r={3.5} />
+              <text x={px(i)} y={py(value) + (up ? -10 : 18)} textAnchor="middle">
+                {number(Math.round(value))}
+              </text>
+            </g>
+          ))}
+          {points.map((p, i) =>
+            i % every === 0 ? (
+              <text key={p.month} x={px(i)} y={h - 6} textAnchor="middle" className="fs-avg-tick">
+                {month(p.month)}
+              </text>
+            ) : null,
+          )}
+          {points.map((p, i) => (
+            <g
+              key={p.month}
+              className="fs-avg-hit"
+              {...tipAttrs(month(p.month, true), [
+                { label: "Средний чек", value: money(p.value), color: "var(--viz-1)" },
+                {
+                  label: "К среднему за период",
+                  value: `${p.value >= mean ? "+" : "−"}${percent(Math.abs(p.value / mean - 1), 1)}`,
+                },
+                ...(p.orders === null ? [] : [{ label: "Заказов", value: number(p.orders) }]),
+              ])}
+            >
+              <rect x={px(i) - slot / 2} y={PAD.top} width={slot} height={plotH} />
+              <line x1={px(i)} x2={px(i)} y1={PAD.top} y2={floor} className="fs-avg-guide" />
+              <circle cx={px(i)} cy={py(p.value)} r={4.5} className="fs-avg-dot" />
+            </g>
+          ))}
+        </svg>
+      </VizTip>
+    </div>
+  )
+}
+
+export function AvgCheckTrend({
+  rows,
+  query,
+  index,
+}: {
+  rows: Row[]
+  query?: CardQuery
+  index?: number
+}) {
+  const points = rows.flatMap((r): AvgPoint[] => {
+    const value = numeric(r.avg_check)
+    return value === null
+      ? []
+      : [{ month: String(r.month).slice(0, 7), value, orders: numeric(r.orders_cnt) }]
+  })
+  const mean = points.reduce((s, p) => s + p.value, 0) / Math.max(points.length, 1)
+  return (
+    <Card
+      title="Средний чек по месяцам"
+      accent="чек"
+      description="Товары плюс доставка, доставленные заказы, R$"
+      hint={ru.osHints.avgTrend}
+      query={query}
+      index={index}
+      actions={<CardTools rows={rows} filename="avg-check-monthly.csv" png={false} />}
+    >
+      {points.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <>
+          <AvgLine points={points} mean={mean} />
+          <p className="fs-caption">
+            <span className="fs-caption-mean">
+              <i />
+              среднее за период <b>{money(mean)}</b>
+            </span>
+          </p>
+        </>
+      )}
+    </Card>
+  )
+}

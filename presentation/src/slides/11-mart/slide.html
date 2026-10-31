@@ -1,0 +1,21 @@
+<section class="slide" id="mart" data-title="Витрины">
+  <h2 class="title a">Витрины: <em>один SELECT без join</em></h2>
+  <div class="body is-tall mt">
+    <svg class="mt-viz" viewBox="0 0 1680 520" aria-hidden="true">
+      <g class="s" style="--d:0.3s"><rect class="mt-order" x="0" y="150" width="380" height="220" rx="32"/></g>
+      <path class="dz-wire is-accent dr" pathLength="1" style="--d:0.8s" d="M380 220 C520 220 520 110 680 110"/>
+      <path class="dz-wire is-violet dr" pathLength="1" style="--d:0.9s" d="M380 300 C520 300 520 390 680 390"/>
+      <g class="s" style="--d:1.1s"><rect class="mt-row" x="680" y="80" width="560" height="60" rx="16"/></g>
+      <g class="s" style="--d:1.3s"><rect class="mt-row is-v" x="680" y="300" width="560" height="52" rx="14"/></g>
+      <g class="s" style="--d:1.4s"><rect class="mt-row is-v" x="680" y="364" width="560" height="52" rx="14"/></g>
+      <g class="s" style="--d:1.5s"><rect class="mt-row is-v" x="680" y="428" width="560" height="52" rx="14"/></g>
+    </svg>
+    <div class="mt-order-txt a" style="--d:0.5s"><b>1 заказ</b><span class="mt-sellers"><i>П1</i><i>П2</i><i>П3</i></span><span>3 продавца</span></div>
+    <div class="mt-t mt-t1 a" style="--d:1.2s"><code class="dz-code">order_fulfillment</code><span>этапы в днях, on_time, суммы, последний отзыв. Сломанная хронология в NULL</span></div>
+    <div class="mt-t mt-t2 a" style="--d:1.4s"><code class="dz-code">seller_shipment</code><span>срок отгрузки пары и флаг «успел ли»</span></div>
+    <div class="mt-n mt-n1 a" style="--d:1.6s"><b class="num count" data-num="fulfil_rows"></b><span>1 строка = 1 заказ</span></div>
+    <div class="mt-n mt-n2 a" style="--d:1.8s"><b class="num count" data-num="shipment_rows"></b><span>1 строка = заказ × продавец</span></div>
+  </div>
+
+  <p class="mt-key dz-key a" style="--d:2.1s"><span class="ico " data-icon="alert"></span><span><b class="dz-code">is_single_seller</b>: дата отгрузки в источнике одна на заказ, поэтому рейтинг продавца честен только для заказов с одним продавцом.</span></p>
+</section>

@@ -1,0 +1,11 @@
+#chrono .ch { display: grid; grid-template-columns: 1100px 1fr; gap: 72px; align-items: center; }
+#chrono .ch-chart { position: relative; }
+#chrono .ch-chart svg { width: 1100px; height: 490px; overflow: visible; }
+#chrono .ch-neg { fill: color-mix(in oklab, var(--deck-danger) 8%, var(--deck-bg)); }
+#chrono .ch-c { left: 24px; top: 24px; }
+#chrono .ch-side { display: grid; gap: 26px; }
+#chrono .ch-city { display: flex; flex-wrap: wrap; gap: 8px; }
+#chrono .ch-city .dz-pill { font-family: var(--font-code); font-weight: 400; font-size: 19px; }
+
+#chrono .body { bottom: 200px; }
+#chrono .ch-key { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 100px; }

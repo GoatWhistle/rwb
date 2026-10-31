@@ -1,0 +1,16 @@
+#rules .rl { display: grid; grid-template-rows: auto 1fr auto; gap: 28px; }
+#rules .rl-tags { display: flex; justify-content: space-between; }
+#rules .rl-tags .dz-pill { font-size: 22px; padding: 10px 22px; }
+#rules .rl-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
+#rules .rl-col { display: grid; grid-template-rows: auto auto 1fr auto; gap: 12px; }
+#rules .rl-name { font-family: var(--font-code); font-size: 20px; color: var(--deck-fg-3); }
+#rules .rl-raw { padding: 18px 16px; border-radius: 16px; background: var(--dz-mist); font-family: var(--font-code); font-size: 21px; color: var(--deck-fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#rules .rl-pipe { position: relative; display: grid; place-items: center; min-height: 200px; }
+#rules .rl-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; margin-left: -2px; border-radius: 4px; background: var(--dz-grad-rail); transform-origin: top; }
+#rules.play .rl-line { animation: dz-grow-y-top 0.7s var(--ease-out) var(--d) both; }
+@keyframes dz-grow-y-top { from { transform: scaleY(0); } }
+#rules .rl-rule { position: relative; padding: 10px 16px; border-radius: var(--radius-pill); background: var(--deck-bg); box-shadow: 0 0 0 2px var(--deck-accent); font-family: var(--font-code); font-size: 19px; font-weight: 700; color: var(--deck-accent); white-space: nowrap; }
+#rules .rl-core { display: grid; gap: 4px; padding: 18px 16px; border-radius: 16px; background: var(--deck-accent); color: var(--dz-on-brand); font-family: var(--font-code); font-size: 23px; font-weight: 700; white-space: nowrap; }
+#rules .rl-core small { font-family: var(--font-sans); font-size: 17px; font-weight: 400; opacity: 0.85; }
+#rules .rl-core.is-bad { background: var(--deck-danger); }
+#rules .rl-foot { display: flex; gap: 12px; align-items: center; font-size: 23px; color: var(--deck-fg-2); }

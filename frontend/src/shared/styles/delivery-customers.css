@@ -1,0 +1,163 @@
+.barlist {
+  display: grid;
+  gap: 2px;
+  padding-block: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.barlist-row,
+.barlist-axis {
+  display: grid;
+  grid-template-columns: minmax(96px, 34%) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.barlist-row {
+  min-height: 28px;
+  font-size: 12px;
+  transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.barlist:has(.barlist-row:hover) .barlist-row:not(:hover) {
+  opacity: 0.5;
+}
+.barlist-name {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  color: var(--viz-text);
+  text-align: right;
+}
+.barlist-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.barlist-name small {
+  flex: none;
+  font-size: 11px;
+  color: var(--viz-text-secondary);
+}
+.barlist-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 28px;
+  margin-right: 64px;
+  border-left: 1px solid var(--viz-axis);
+}
+.has-target .barlist-track::after,
+.barlist-axis-track::before {
+  content: "";
+  position: absolute;
+  left: var(--target);
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--viz-text-secondary);
+}
+.barlist-fill {
+  height: 16px;
+  width: var(--w);
+  border-radius: 0 2px 2px 0;
+  background: var(--viz-1);
+  transform-origin: left center;
+  animation: barlist-grow 700ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(var(--i, 0) * 40ms + 120ms);
+}
+.barlist-row.below .barlist-fill {
+  background: var(--viz-negative);
+}
+.barlist-value {
+  position: absolute;
+  left: calc(var(--w) + 6px);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--viz-text);
+  white-space: nowrap;
+}
+.barlist-row.below .barlist-value {
+  color: var(--viz-negative);
+}
+.barlist-axis {
+  height: 18px;
+}
+.barlist-axis-track {
+  position: relative;
+  height: 18px;
+  margin-right: 64px;
+}
+.barlist-axis-track::before {
+  bottom: auto;
+  height: 4px;
+}
+.barlist-target-label {
+  position: absolute;
+  left: var(--target);
+  top: 4px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--viz-text-secondary);
+  white-space: nowrap;
+}
+@keyframes barlist-grow {
+  from {
+    transform: scaleX(0.02);
+  }
+}
+.customers-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+  margin-top: 24px;
+}
+.retention-hero {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-block: 4px 16px;
+}
+.retention-hero strong {
+  font-size: 48px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #2348ff;
+  font-variant-numeric: tabular-nums;
+}
+.retention-hero span {
+  color: #5e5e66;
+  font-size: 13px;
+}
+@media (max-width: 860px) {
+  .customers-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .barlist-fill {
+    animation: none;
+  }
+  .barlist-row {
+    transition: none;
+  }
+}
+.dg .barlist {
+  gap: 10px;
+  padding-block: 8px;
+}
+.dg .barlist-row {
+  min-height: 40px;
+  font-size: 14px;
+}
+.dg .barlist-track {
+  height: 40px;
+}
+.dg .barlist-fill {
+  height: 24px;
+  border-radius: 0 6px 6px 0;
+}
+.dg .barlist-value {
+  font-size: 13.5px;
+}

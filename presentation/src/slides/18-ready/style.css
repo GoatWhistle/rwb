@@ -1,0 +1,11 @@
+#ready .rd { display: grid; grid-template-rows: 1fr auto; gap: 56px; }
+#ready .rd-slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; }
+#ready .rd-slot { position: relative; display: grid; place-content: center; justify-items: center; gap: 6px; border-radius: 34px; background: var(--dz-mist); text-align: center; }
+#ready .rd-slot > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#ready .rd-slot b { font-size: 96px; font-weight: 700; line-height: 1; color: var(--deck-line-strong); }
+#ready .rd-slot span { font-size: 22px; color: var(--deck-fg-3); }
+#ready .rd-slot.is-inject { background: var(--dz-grad-ink); color: var(--dz-on-brand); padding: 24px; }
+#ready .rd-slot.is-inject b { font-size: 44px; color: var(--dz-on-brand); }
+#ready .rd-slot.is-inject span { color: var(--dz-on-brand); opacity: 0.85; }
+#ready .rd-why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; padding-top: 28px; border-top: 2px solid var(--deck-line); }
+#ready .rd-why .dz-stat b { font-size: 80px; color: var(--deck-accent); }

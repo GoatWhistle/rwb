@@ -1,0 +1,25 @@
+<section class="slide" id="grain" data-title="Грануляция" data-kind="appendix">
+  <h2 class="title a">Один заказ, <em>четыре строки</em></h2>
+  <div class="body is-tall gr">
+    <svg class="gr-viz" viewBox="0 0 900 560" aria-hidden="true">
+      <rect class="gr-order s" style="--d:0.3s" x="0" y="230" width="200" height="100" rx="26"/>
+      <text x="100" y="292" text-anchor="middle" class="gr-t is-on">заказ</text>
+      <path class="dz-wire dr" pathLength="1" style="--d:0.55s" d="M200 280 C270 280 270 110 340 110"/>
+      <path class="dz-wire dr" pathLength="1" style="--d:0.6s" d="M200 280 C270 280 270 450 340 450"/>
+      <rect class="gr-item s" style="--d:0.75s" x="340" y="70" width="180" height="80" rx="20"/>
+      <rect class="gr-item s" style="--d:0.8s" x="340" y="410" width="180" height="80" rx="20"/>
+      <text x="430" y="120" text-anchor="middle" class="gr-t">2 товара</text>
+      <text x="430" y="460" text-anchor="middle" class="gr-t">2 платежа</text>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1s" d="M520 110 C600 110 600 200 680 200"/>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1.05s" d="M520 110 C600 110 600 360 680 360"/>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1.1s" d="M520 450 C600 450 600 200 680 200"/>
+      <path class="trace is-danger dr" pathLength="1" style="--d:1.15s" d="M520 450 C600 450 600 360 680 360"/>
+      <g class="pop" style="--d:1.5s"><rect class="gr-bad" x="680" y="150" width="220" height="260" rx="30"/><text x="790" y="285" text-anchor="middle" class="gr-big">×2</text><text x="790" y="340" text-anchor="middle" class="gr-t is-on">сумма удвоена</text></g>
+    </svg>
+    <div class="gr-bars">
+      <div class="gr-bar a" style="--d:0.6s"><span class="gr-lbl">средний чек по заказам</span><b class="num count" data-num="avg_order"></b><i class="dz-bar" style="--w:1;--d:0.9s"></i></div>
+      <div class="gr-bar a" style="--d:0.9s"><span class="gr-lbl">среднее по строкам</span><b class="num count gr-muted" data-num="avg_row"></b><i class="dz-bar is-muted" style="--w:0.875;--d:1.2s"></i></div>
+      <div class="dz-callout is-bad gr-c pop" style="--d:1.8s"><b>−12.5%</b>и оба числа выглядят правдоподобно</div>
+    </div>
+  </div>
+</section>

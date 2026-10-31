@@ -1,0 +1,428 @@
+.popover-scrim,
+.sheet-done {
+  display: none;
+}
+.chat-fab {
+  right: calc(24px + env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 640px) {
+  .app-shell,
+  .app-shell.chat-open,
+  .app-shell.chat-expanded {
+    grid-template-rows: calc(52px + env(safe-area-inset-top, 0px)) minmax(0, 1fr);
+  }
+  .app-shell .app-header {
+    padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) 0
+      max(16px, env(safe-area-inset-left, 0px));
+    border-bottom: 0;
+  }
+  .app-shell .datum-logo {
+    width: 112px;
+  }
+  .app-shell .chat-fab {
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: 56px;
+    height: 56px;
+  }
+  .app-shell .dashboard {
+    --gutter: 16px;
+    gap: 12px;
+    padding: 0 var(--gutter) calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+  .app-shell .dash-toolbar {
+    display: contents;
+  }
+  .app-shell .dash-toolbar .dashboard-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    display: flex;
+    gap: 4px;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 0 calc(var(--gutter) - 10px);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    background: #fff;
+    border-bottom: 1px solid #e2e2e7;
+  }
+  .app-shell .dash-toolbar .dashboard-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .app-shell .dash-toolbar .dashboard-tabs .button {
+    flex: none;
+    min-height: 48px;
+    padding: 0 10px;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-shell .dash-toolbar .tabs-indicator {
+    height: 2.5px;
+    border-radius: 2px 2px 0 0;
+  }
+  .app-shell .dash-toolbar-end {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding-top: 4px;
+  }
+  .app-shell .dash-toolbar-divider {
+    display: none;
+  }
+  .app-shell .dash-toolbar .filters-bar {
+    flex: 1;
+    min-width: 0;
+  }
+  .app-shell .dash-toolbar .filter-actions {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+  .app-shell .dash-toolbar .filter-actions > .popover {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .app-shell .dash-toolbar .popover-trigger .popover-chevron {
+    margin-left: auto;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .hint-trigger {
+    text-align: left;
+  }
+  .app-shell .dash-toolbar .popover-trigger {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    gap: 8px;
+    border-radius: 14.67px;
+    background: #fff;
+    font-size: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-shell .dash-toolbar .popover-trigger span {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    text-align: left;
+  }
+  .app-shell .dash-toolbar .filter-actions > .icon-button {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    border-radius: 14.67px;
+    border: 1px solid #e2e2e7;
+    background: #fff;
+  }
+  .app-shell .ctor-entry {
+    order: 2;
+    flex: none;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 14.67px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-shell .ctor-entry-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9.33px;
+    background: transparent;
+  }
+  .app-shell .ctor-entry-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .app-shell .popover-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgb(29 29 27 / 0.32);
+    animation: sheet-scrim-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-shell .popover-scrim[data-state="closed"] {
+    animation: sheet-scrim-out 140ms ease-in forwards;
+    pointer-events: none;
+  }
+  .app-shell .dash-toolbar .popover-panel {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 41;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    max-height: min(82dvh, 640px);
+    margin: 0;
+    padding: 28px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+    border: 0;
+    border-radius: 24px 24px 0 0;
+    background: #fff;
+    box-shadow: 0 -12px 40px rgb(29 29 27 / 0.14);
+    transform-origin: bottom center;
+    animation: sheet-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    overflow: hidden;
+  }
+  .app-shell .dash-toolbar .popover-panel[data-state="closed"] {
+    animation: sheet-out 140ms ease-in forwards;
+  }
+  .app-shell .dash-toolbar .popover-panel::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 2px;
+    background: #e2e2e7;
+  }
+  .app-shell .dash-toolbar .popover-panel::after {
+    content: attr(aria-label);
+    order: -1;
+    padding: 0 20px 8px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 24px;
+    color: #1d1d1b;
+  }
+  .app-shell .period-presets {
+    padding: 4px 12px 12px;
+    gap: 2px;
+  }
+  .app-shell .period-presets button {
+    height: 48px;
+    padding: 0 12px;
+    border-radius: 16px;
+    font-size: 16px;
+  }
+  .app-shell .dash-toolbar .date-form {
+    padding: 16px 20px 4px;
+    gap: 12px;
+  }
+  .app-shell .dash-toolbar .date-form strong {
+    display: none;
+  }
+  .app-shell .dash-toolbar .date-form label {
+    font-size: 15px;
+    gap: 16px;
+  }
+  .app-shell .dash-toolbar .date-form .input {
+    flex: 1;
+    max-width: 220px;
+    height: 44px;
+    font-size: 16px;
+  }
+  .app-shell .dash-toolbar .date-form .button {
+    height: 48px;
+    margin-top: 4px;
+    border-radius: 16px;
+    font-size: 16px;
+  }
+  .app-shell .dash-toolbar .multi-select {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: auto;
+    max-width: none;
+    padding: 0 12px;
+  }
+  .app-shell .dash-toolbar .multi-select-search {
+    flex: none;
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 14.67px;
+    background: #f1f1f3;
+  }
+  .app-shell .dash-toolbar .multi-select-search input {
+    font-size: 16px;
+  }
+  .app-shell .dash-toolbar .listbox {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+  .app-shell .dash-toolbar .listbox-option {
+    height: 48px;
+    font-size: 16px;
+    border-radius: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app-shell .dash-toolbar .listbox-option[data-active="true"] {
+    background: transparent;
+  }
+  .app-shell .sheet-done {
+    display: grid;
+    flex: none;
+    padding: 12px 20px 0;
+    border-top: 1px solid #f1f1f3;
+  }
+  .app-shell .dash-toolbar .popover-panel .sheet-done .button {
+    height: 48px;
+    border-radius: 16px;
+    font-size: 16px;
+  }
+  .app-shell .dashboard .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .app-shell .dashboard .metric-grid > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .app-shell .dashboard .metric-grid .metric-card {
+    padding: 14px 14px 12px;
+    border-radius: 16px;
+    row-gap: 2px;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .metric-label,
+  .app-shell .dashboard .metric-grid .metric-card .hint-trigger {
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .metric-value {
+    margin: 6px 0 2px;
+    font-size: clamp(20px, 12.5cqi, 28px);
+    letter-spacing: -0.025em;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .sparkline {
+    height: 26px;
+    margin-top: 2px;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .metric-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .metric-note {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .app-shell .dashboard .metric-grid .metric-card .metric-delta {
+    align-self: flex-start;
+  }
+  .app-shell .dashboard .metric-grid > :nth-child(odd) .hint-pop {
+    left: -8px;
+    right: auto;
+    width: min(280px, calc(100vw - 32px));
+    transform-origin: 16px 0;
+  }
+  .app-shell .dashboard .metric-grid > :nth-child(even) .hint-pop {
+    left: auto;
+    right: -8px;
+    width: min(280px, calc(100vw - 32px));
+    transform-origin: calc(100% - 16px) 0;
+  }
+  .app-shell .dashboard .metric-skeleton {
+    min-height: 132px;
+    border-radius: 16px;
+  }
+  .app-shell .dashboard .tab-panel {
+    gap: 12px;
+  }
+  .app-shell .dashboard .dg,
+  .app-shell .dashboard .dg-stack {
+    gap: 12px;
+  }
+  .app-shell .dashboard .dg > * {
+    grid-column: 1 / -1;
+  }
+  .app-shell .dashboard .dg .dash-card {
+    padding: 16px;
+  }
+}
+@container (max-width: 210px) {
+  .app-shell .dashboard .metric-grid .metric-card .metric-delta small {
+    display: none;
+  }
+}
+@media (max-width: 380px) {
+  .app-shell .dashboard {
+    --gutter: 12px;
+  }
+  .app-shell .dash-toolbar .dashboard-tabs .button {
+    padding: 0 8px;
+    font-size: 14px;
+  }
+  .app-shell .dash-toolbar .popover-trigger {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .app-shell .dash-toolbar .popover-trigger .popover-chevron {
+    display: none;
+  }
+}
+@container (max-width: 860px) {
+  .app-shell .dashboard .dg > .dg-4,
+  .app-shell .dashboard .dg > .dg-8 {
+    grid-column: 1 / -1;
+  }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .app-shell .dash-toolbar .dashboard-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sheet-scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .popover-scrim,
+  .app-shell .popover-scrim[data-state="closed"],
+  .app-shell .dash-toolbar .popover-panel,
+  .app-shell .dash-toolbar .popover-panel[data-state="closed"] {
+    animation-duration: 1ms;
+  }
+}
+@media (max-width: 640px) {
+  .app-shell .dash-toolbar .popover-trigger .popover-chevron {
+    display: none;
+  }
+  .app-shell .dash-toolbar .popover-trigger {
+    gap: 6px;
+    padding: 0 10px;
+  }
+  .app-shell .dash-toolbar .popover-trigger span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 640px) {
+  .app-shell .dashboard .metric-grid .metric-card .metric-label {
+    min-height: 36px;
+  }
+  .app-shell .dashboard .dash-card.fc-map-card .dcx-tile span {
+    display: none;
+  }
+}

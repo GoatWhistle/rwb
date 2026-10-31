@@ -1,0 +1,211 @@
+.app-shell {
+  position: relative;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 0 minmax(0, 1fr);
+  grid-template-rows: 68px minmax(0, 1fr);
+  overflow: hidden;
+}
+.app-shell.chat-open {
+  grid-template-columns: 0 minmax(0, 1fr) minmax(340px, var(--chat-width));
+}
+.app-shell.chat-expanded {
+  grid-template-columns: 0 minmax(0, 1fr) minmax(340px, 60vw);
+}
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 100;
+  background: white;
+  padding: 14px;
+  border-radius: 12px;
+}
+.skip-link:focus {
+  top: 10px;
+}
+.app-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 28px;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  z-index: 2;
+}
+.header-logo {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 6px;
+  margin-left: -6px;
+  border-radius: 14.7px;
+}
+.header-logo:focus-visible {
+  outline: 2px solid #2348ff;
+  outline-offset: 2px;
+}
+.chat-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 5;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #2348ff;
+  color: white;
+  box-shadow: 0 8px 24px rgb(35 72 255 / 0.28);
+  animation: chat-fab-in 200ms var(--ease-out) both;
+  transition:
+    transform 140ms var(--ease-out),
+    background-color 160ms var(--ease-out);
+}
+.chat-fab:active {
+  transform: scale(0.97);
+}
+.chat-fab:focus-visible {
+  outline: 2px solid #2348ff;
+  outline-offset: 3px;
+}
+@keyframes chat-fab-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.95);
+  }
+}
+.main-area {
+  overscroll-behavior: contain;
+  background: #f1f1f3;
+  overflow: auto;
+  grid-column: 2;
+  grid-row: 2;
+  container-type: inline-size;
+  outline: 0;
+}
+.datum-logo {
+  display: block;
+  width: 160px;
+  height: auto;
+  overflow: visible;
+}
+.datum-logo-plate,
+.datum-logo-cube,
+.datum-logo-glow,
+.datum-logo-word {
+  transition:
+    transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.datum-logo-glow {
+  opacity: 0.6;
+}
+.datum-logo-intro .datum-logo-plate {
+  animation: logo-plate-in 420ms cubic-bezier(0.23, 1, 0.32, 1) backwards;
+}
+.datum-logo-intro .datum-logo-plate-bottom {
+  animation-delay: 60ms;
+}
+.datum-logo-intro .datum-logo-plate-middle {
+  animation-delay: 200ms;
+}
+.datum-logo-intro .datum-logo-plate-top {
+  animation-delay: 340ms;
+}
+.datum-logo-intro .datum-logo-cube {
+  animation: logo-cube-in 520ms cubic-bezier(0.23, 1, 0.32, 1) 560ms backwards;
+}
+.datum-logo-intro .datum-logo-word {
+  animation: logo-word-in 420ms cubic-bezier(0.23, 1, 0.32, 1) 760ms backwards;
+}
+@keyframes logo-plate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+@keyframes logo-cube-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-26px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(1.5px);
+  }
+}
+@keyframes logo-word-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-6px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .icon-button.chat-fab:hover:not(:disabled) {
+    background: #1a36cc;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgb(35 72 255 / 0.36);
+  }
+  .header-logo:hover .datum-logo-plate-middle {
+    transform: translateY(-2px);
+  }
+  .header-logo:hover .datum-logo-plate-top {
+    transform: translateY(-4px);
+  }
+  .header-logo:hover .datum-logo-cube {
+    transform: translateY(-9px);
+    transition-delay: 40ms;
+  }
+  .header-logo:hover .datum-logo-glow {
+    opacity: 1;
+  }
+}
+.shell-enter {
+  animation: shell-enter 320ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+@keyframes shell-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (max-width: 768px) {
+  .app-shell,
+  .app-shell.chat-open,
+  .app-shell.chat-expanded {
+    grid-template-columns: 0 minmax(0, 1fr);
+    grid-template-rows: 60px minmax(0, 1fr);
+  }
+  .app-header {
+    padding: 0 16px;
+  }
+  .datum-logo {
+    width: 128px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .datum-logo-plate,
+  .datum-logo-cube,
+  .datum-logo-glow,
+  .datum-logo-word,
+  .chat-fab {
+    transition: none;
+  }
+  .shell-enter,
+  .datum-logo-intro .datum-logo-plate,
+  .datum-logo-intro .datum-logo-cube,
+  .datum-logo-intro .datum-logo-word,
+  .chat-fab {
+    animation: none;
+  }
+}

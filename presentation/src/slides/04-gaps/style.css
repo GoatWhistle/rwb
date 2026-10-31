@@ -1,0 +1,7 @@
+#gaps .gp-chart { position: absolute; left: 0; top: 40px; width: 100%; height: 520px; overflow: visible; }
+#gaps .gp-c1 { left: 232px; top: 150px; }
+#gaps .gp-c2 { right: 40px; top: 120px; }
+#gaps .gp-ne { font-style: normal; color: var(--deck-danger); }
+#gaps .gp-stats { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding-top: 28px; border-top: 2px solid var(--deck-line); }
+
+#gaps .gp-chart { height: 470px; top: 20px; }
