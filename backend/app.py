@@ -29,8 +29,6 @@ class ManagedStreamingResponse(StreamingResponse):
         try:
             await super().__call__(scope, receive, send)
         finally:
-            # async-for does not guarantee closing an async generator on a send-side
-            # disconnect. Close it explicitly to release the SDK run and SQLite session.
             with anyio.CancelScope(shield=True):
                 close = getattr(self.body_iterator, "aclose", None)
                 if close:
@@ -77,7 +75,6 @@ async def chat(request: ChatRequest):
 
         async def emit(event, payload):
             payload = {"run_id":run_id,"session_id":session_id,**payload}
-            # Persist final messages and tool evidence, rather than one SQLite write per token.
             if event != "text_delta":
                 await record(run_id,session_id,event,payload)
             await queue.put((event,payload))
@@ -96,8 +93,6 @@ async def chat(request: ChatRequest):
             except Exception as exc:
                 await emit("error", {"code":type(exc).__name__,"message":"Запрос не завершён. Проверьте доступность модели и БД; результаты выполненных инструментов сохранены."})
             finally:
-                # A disconnected client no longer drains the queue. Never block cancellation
-                # trying to enqueue the terminal sentinel into a full queue.
                 if not asyncio.current_task().cancelling():
                     await queue.put(None)
 
@@ -114,7 +109,6 @@ async def chat(request: ChatRequest):
                 event,payload = item
                 yield f"event: {event}\ndata: {json.dumps(payload,ensure_ascii=False)}\n\n"
         finally:
-            # Starlette cancels its AnyIO scope on disconnect; shield resource cleanup.
             with anyio.CancelScope(shield=True):
                 task.cancel()
                 with suppress(asyncio.CancelledError):

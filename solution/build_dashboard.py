@@ -27,7 +27,6 @@ except ImportError:
 
 HTML = pathlib.Path(__file__).with_name("dashboard.html")
 
-# SQL and metric definitions are shared with the agent API.
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 from backend.metrics import legacy_dashboard_sql
 BASE, QUERIES = legacy_dashboard_sql()

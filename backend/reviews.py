@@ -25,7 +25,6 @@ async def embed(texts: list[str], *, query=False) -> list[list[float]]:
         texts = ["Instruct: Retrieve marketplace customer reviews relevant to this query.\nQuery: " + t for t in texts]
     async with AsyncOpenAI(api_key=cfg.polza_api_key, base_url=cfg.embedding_base_url,
                            timeout=60, max_retries=2) as client:
-        # SDK requests compact base64 on the wire and decodes it back to float lists.
         response = await client.embeddings.create(model=cfg.embedding_model, input=texts)
     data = sorted(response.data, key=lambda x: x.index)
     if [v.index for v in data] != list(range(len(texts))):
@@ -69,7 +68,6 @@ async def index_reviews(batch_size=32):
     if cfg.embedding_dimensions != 4096:
         raise ValueError("Текущая миграция рассчитана на 4096 измерений")
     async with await psycopg.AsyncConnection.connect(cfg.admin_database_url, row_factory=dict_row) as conn:
-        # A single indexer at a time; readers see either complete old state or 'not ready'.
         await conn.execute("SELECT pg_advisory_lock(623816)")
         await conn.execute("DELETE FROM ai.index_state")
         await conn.commit()
@@ -82,7 +80,6 @@ async def index_reviews(batch_size=32):
         print(f"Reviews: {len(rows)}; to embed: {len(pending)}", flush=True)
         for start in range(0, len(pending), batch_size * 4):
             batch = pending[start:start+batch_size * 4]
-            # Deduplicate identical texts within the batch without losing review/order links.
             texts = list(dict.fromkeys(r["content"] for r in batch))
             groups = [texts[n:n+batch_size] for n in range(0,len(texts),batch_size)]
             encoded = await asyncio.gather(*(embed(group) for group in groups))

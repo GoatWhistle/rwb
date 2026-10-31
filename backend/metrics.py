@@ -63,7 +63,6 @@ def scope_sql(filters: Filters, name_prefix: str = "") -> tuple[str, dict]:
 def compile_metric(metric_id: str, filters: Filters):
     report, field = resolve(metric_id)
     prefix, params = scope_sql(filters)
-    # Only static, versioned SQL templates are rewritten; parameters remain bound.
     def scoped(sql):
         item_table = "metric_items" if report["id"] in {"block_a.1", "block_a.2", "block_a.5"} else "items"
         return sql.replace("core.orders", "orders").replace("core.order_items", item_table)
@@ -101,7 +100,6 @@ async def query_metric(metric_id: str, filters: Filters) -> dict:
 
 
 def legacy_dashboard_sql():
-    # Keep the original exporter shape, but all query text comes from the registry.
     queries = {}
     for key in ["kpi", "checks", "monthly", "states", "lateness", "sellers"]:
         _, _, sql, _ = compile_metric("dashboard." + key, Filters())

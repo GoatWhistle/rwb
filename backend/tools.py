@@ -20,7 +20,7 @@ GRAINS = {
 RULES = ["Выручка: price, delivered, без freight.","Чек: среднее суммы price+freight по доставленному заказу.",
     "Историческая география: core.orders.customer_state/city.","Платежи, позиции и отзывы агрегировать до JOIN: иначе суммы размножатся.",
     "Штат — двухбуквенный код Бразилии; категории — португальские коды, переводы в product_categories.",
-    "Для сценария review.md последний отзыв: answered_at DESC NULLS LAST, created_at DESC, review_id; у дашборда своё правило."]
+    "Для разбора отзывов последний отзыв: answered_at DESC NULLS LAST, created_at DESC, review_id; у дашборда своё правило."]
 
 
 def scoped_sql(sql: str, filters: Filters | None, row_limit: int) -> tuple[str, dict | None]:
@@ -74,7 +74,6 @@ class ToolContext:
                 "elapsed_ms":round((time.monotonic()-start)*1000),"result":result})
             return result
         except Exception as exc:
-            # Do not expose provider authentication/configuration details in chat or logs.
             message = str(exc) if isinstance(exc, ValueError) else f"Инструмент недоступен ({type(exc).__name__}); попробуй другой способ или сообщи об ограничении."
             await self.emit("tool_finished", {"call_id":call_id,"name":name,"ok":False,"error":message})
             return {"error":message}

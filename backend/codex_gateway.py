@@ -46,7 +46,6 @@ async def generate(body):
         if method == "item/tool/call":
             loop.call_soon_threadsafe(calls.put_nowait, params)
             return {"contentItems":[{"type":"inputText","text":"Control returned to host tool runner; stop this model step."}],"success":False}
-        # SDK default accepts approvals. This gateway explicitly denies every approval.
         return {"decision":"decline"}
 
     client._sync._approval_handler = handle
@@ -76,7 +75,6 @@ async def generate(body):
         items = body.get("input",[])
         if isinstance(items,str):
             items=[{"role":"user","content":items}]
-        # Preserve actual message roles and function-call outputs; never stringify a transcript.
         replay = [{k:v for k,v in item.items() if k not in {"provider_data","id"}} for item in items]
         for item in replay:
             if "role" in item:
@@ -174,7 +172,6 @@ async def responses(request: Request):
         except asyncio.CancelledError:
             raise
         except Exception as exc:
-            # Local debugging: class only, no credentials or raw request contents.
             yield "event: error\ndata: "+json.dumps({"type":"error","code":type(exc).__name__,"message":"Codex gateway failed","param":None})+"\n\n"
     if body.get("stream"):
         return StreamingResponse(stream(),media_type="text/event-stream")

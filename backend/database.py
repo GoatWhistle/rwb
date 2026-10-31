@@ -36,7 +36,6 @@ class Database:
         return {"columns": columns, "rows": serializable(rows[:limit]), "truncated": len(rows) > limit}
 
     async def version(self) -> str:
-        # Cheap snapshot identity. Index freshness is checked using review content hashes separately.
         result = await self.query("""SELECT count(*) AS orders, max(purchased_at) AS latest,
           (SELECT count(*) FROM core.order_items) AS items,
           (SELECT sum(price) FROM core.order_items) AS prices,
